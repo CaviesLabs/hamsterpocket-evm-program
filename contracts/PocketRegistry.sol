@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 
 import "./Types.sol";
 import "./Params.sol";
@@ -23,6 +24,8 @@ contract PocketRegistry is
 	AccessControlUpgradeable,
 	OwnableUpgradeable
 {
+	using SafeMathUpgradeable for uint256;
+
 	/// @notice Operator that is allowed to run swap
 	bytes32 public constant OPERATOR = keccak256("OPERATOR");
 
@@ -59,7 +62,7 @@ contract PocketRegistry is
 		string indexed pocketId,
 		address indexed owner,
 		string reason,
-		Params.UpdatePocketParams params
+		Types.Pocket pocketData
 	);
 
 	/// @notice Check if id is unique
@@ -71,6 +74,17 @@ contract PocketRegistry is
 		_;
 	}
 
+	/// @notice Check if the target is the owner of a given pocket id
+	/// @dev should be used as a modifier
+	modifier mustBeOwnerOf(string memory pocketId, address target) {
+		require(
+			isOwnerOf(pocketId, target),
+			"Permission: not permitted operation"
+		);
+
+		_;
+	}
+
 	/// @notice Check whether an address is the pocket owner
 	function isOwnerOf(string memory pocketId, address target)
 		public
@@ -78,6 +92,56 @@ contract PocketRegistry is
 		returns (bool)
 	{
 		return pockets[pocketId].owner == target;
+	}
+
+	/// @notice Check whether an address is the pocket owner
+	function getStopConditionsOf(string memory pocketId)
+		public
+		view
+		returns (Types.StopCondition[] memory)
+	{
+		return pockets[pocketId].stopConditions;
+	}
+
+	/// @notice Get trading pair info of a given pocket id
+	function getTradingInfoOf(string memory pocketId)
+		public
+		view
+		returns (
+			address,
+			address,
+			address,
+			uint256,
+			uint256,
+			uint256,
+			uint256,
+			Types.ValueComparison memory,
+			Types.ValueComparison memory
+		)
+	{
+		return (
+			pockets[pocketId].ammRouterAddress,
+			pockets[pocketId].baseMintAddress,
+			pockets[pocketId].targetMintAddress,
+			pockets[pocketId].startAt,
+			pockets[pocketId].batchVolume,
+			pockets[pocketId].frequency,
+			pockets[pocketId].nextScheduledExecutionAt,
+			pockets[pocketId].openingPositionCondition,
+			pockets[pocketId].closingPositionCondition
+		);
+	}
+
+	/// @notice Get balance info of a given pocket
+	function getBalanceInfoOf(string memory pocketId)
+		public
+		view
+		returns (uint256, uint256)
+	{
+		return (
+			pockets[pocketId].baseTokenBalance,
+			pockets[pocketId].targetTokenBalance
+		);
 	}
 
 	/// @notice Check whether a pocket is available for depositing
@@ -261,6 +325,8 @@ contract PocketRegistry is
 			totalDepositedBaseAmount: 0,
 			totalReceivedTargetAmount: 0,
 			totalSwappedBaseAmount: 0,
+			totalClosedPositionInTargetTokenAmount: 0,
+			totalReceivedFundInBaseTokenAmount: 0,
 			baseTokenBalance: 0,
 			targetTokenBalance: 0,
 			executedBatchAmount: 0,
@@ -272,30 +338,101 @@ contract PocketRegistry is
 	}
 
 	/// @notice The function to provide a method for relayers to update pocket stats
-	function updatePocketStats(
-		Params.UpdatePocketParams memory params,
+	function updatePocketClosingPositionStats(
+		Params.UpdatePocketClosingPositionStatsParams memory params,
 		string memory reason
-	) external onlyRole(OPERATOR) {
+	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
 		Types.Pocket storage pocket = pockets[params.id];
 
-		/// @dev Check if we are referring to correct owner
-		require(
-			isOwnerOf(params.id, params.owner),
-			"Permission: not permitted operation"
+		/// @dev Assigned value
+		pocket.totalClosedPositionInTargetTokenAmount = pocket
+			.totalClosedPositionInTargetTokenAmount
+			.add(params.swappedTargetTokenAmount);
+		pocket.totalReceivedFundInBaseTokenAmount = pocket
+			.totalReceivedFundInBaseTokenAmount
+			.add(params.receivedBaseTokenAmount);
+		pocket.baseTokenBalance = pocket.baseTokenBalance.add(
+			params.receivedBaseTokenAmount
 		);
+		pocket.targetTokenBalance = pocket.targetTokenBalance.sub(
+			params.swappedTargetTokenAmount
+		);
+
+		/// @dev Emit events
+		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
+	}
+
+	/// @notice The function to provide a method for relayers to update pocket stats
+	function updatePocketTradingStats(
+		Params.UpdatePocketTradingStatsParams memory params,
+		string memory reason
+	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
+		Types.Pocket storage pocket = pockets[params.id];
+
+		/// @dev Assigned value
+		pocket.nextScheduledExecutionAt = block.timestamp.add(pocket.frequency);
+		pocket.executedBatchAmount = pocket.executedBatchAmount.add(1);
+		pocket.totalSwappedBaseAmount = pocket.totalSwappedBaseAmount.add(
+			params.swappedBaseTokenAmount
+		);
+		pocket.totalReceivedTargetAmount = pocket.totalReceivedTargetAmount.add(
+			params.receivedTargetTokenAmount
+		);
+		pocket.baseTokenBalance = pocket.totalSwappedBaseAmount.sub(
+			params.swappedBaseTokenAmount
+		);
+		pocket.targetTokenBalance = pocket.targetTokenBalance.add(
+			params.receivedTargetTokenAmount
+		);
+
+		/// @dev Emit events
+		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
+	}
+
+	/// @notice The function to provide a method for relayers to update pocket stats
+	function updatePocketWithdrawalStats(
+		Params.UpdatePocketWithdrawalParams memory params,
+		string memory reason
+	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
+		Types.Pocket storage pocket = pockets[params.id];
+
+		/// @dev Assigned value
+		pocket.baseTokenBalance = 0;
+		pocket.targetTokenBalance = 0;
+
+		/// @dev Emit events
+		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
+	}
+
+	/// @notice The function to provide a method for relayers to update pocket stats
+	function updatePocketDepositStats(
+		Params.UpdatePocketDepositParams memory params,
+		string memory reason
+	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
+		Types.Pocket storage pocket = pockets[params.id];
+
+		/// @dev Assigned value
+		pocket.totalDepositedBaseAmount = pocket.totalDepositedBaseAmount.add(
+			params.amount
+		);
+		pocket.baseTokenBalance = pocket.baseTokenBalance.add(params.amount);
+
+		/// @dev Emit events
+		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
+	}
+
+	/// @notice The function to provide a method for relayers to update pocket stats
+	function updatePocketStatus(
+		Params.UpdatePocketStatusParams memory params,
+		string memory reason
+	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
+		Types.Pocket storage pocket = pockets[params.id];
 
 		/// @dev Assigned value
 		pocket.status = params.status;
-		pocket.totalDepositedBaseAmount = params.totalDepositedBaseAmount;
-		pocket.totalSwappedBaseAmount = params.totalSwappedBaseAmount;
-		pocket.totalReceivedTargetAmount = params.totalReceivedTargetAmount;
-		pocket.baseTokenBalance = params.baseTokenBalance;
-		pocket.targetTokenBalance = params.targetTokenBalance;
-		pocket.executedBatchAmount = params.executedBatchAmount;
-		pocket.nextScheduledExecutionAt = params.nextScheduledExecutionAt;
 
 		/// @dev Emit events
-		emit PocketUpdated(msg.sender, params.id, params.owner, reason, params);
+		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
 	}
 
 	/// @notice Admin can update whitelisted address

@@ -36,34 +36,46 @@ library Params {
 		Types.ValueComparison closingPositionCondition;
 	}
 
-	/// @dev Define update pocket params
-	struct UpdatePocketParams {
+	/// @dev Define params
+	struct UpdatePocketClosingPositionStatsParams {
 		string id;
-		address owner;
-		Types.PocketStatus status;
+		address actor;
 		/**
 		 * @dev Archived info is used for statistic
 		 */
-		uint256 totalDepositedBaseAmount;
-		uint256 totalReceivedTargetAmount;
-		uint256 totalSwappedBaseAmount;
-		uint256 baseTokenBalance;
-		uint256 targetTokenBalance;
-		uint256 executedBatchAmount;
-		uint256 nextScheduledExecutionAt;
+		uint256 swappedTargetTokenAmount;
+		uint256 receivedBaseTokenAmount;
+	}
+
+	/// @dev Define params
+	struct UpdatePocketTradingStatsParams {
+		address actor;
+		string id;
+		/**
+		 * @dev Archived info is used for statistic
+		 */
+		uint256 swappedBaseTokenAmount;
+		uint256 receivedTargetTokenAmount;
 	}
 
 	/// @dev Depositing params
-	struct DepositingParams {
+	struct UpdatePocketWithdrawalParams {
 		address actor;
-		string pocketId;
-		address tokenAddress;
+		string id;
+	}
+
+	/// @dev Define params
+	struct UpdatePocketDepositParams {
+		address actor;
+		string id;
 		uint256 amount;
+		address tokenAddress;
 	}
 
-	/// @dev Depositing params
-	struct WithdrawParams {
+	/// @dev Define params
+	struct UpdatePocketStatusParams {
 		address actor;
-		string pocketId;
+		string id;
+		Types.PocketStatus status;
 	}
 }

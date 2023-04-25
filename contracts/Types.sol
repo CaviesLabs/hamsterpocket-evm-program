@@ -52,6 +52,23 @@ library Types {
 		 * @dev Each pocket would have a unique id
 		 */
 		string id;
+		/**
+		 * @dev Info is used for statistic
+		 * @dev Following fields will be assigned during runtime.
+		 */
+		uint256 totalDepositedBaseAmount;
+		uint256 totalSwappedBaseAmount;
+		uint256 totalReceivedTargetAmount;
+		uint256 totalClosedPositionInTargetTokenAmount;
+		uint256 totalReceivedFundInBaseTokenAmount;
+		uint256 baseTokenBalance;
+		uint256 targetTokenBalance;
+		uint256 executedBatchAmount;
+		uint256 nextScheduledExecutionAt;
+		PocketStatus status;
+		/**
+		 * @dev Owner
+		 */
 		address owner;
 		/**
 		 * @dev AMM configurations
@@ -65,28 +82,8 @@ library Types {
 		uint256 startAt;
 		uint256 batchVolume;
 		uint256 frequency;
-		StopCondition[] stopConditions;
-		/**
-		 * @dev Pocket opening position config
-		 */
 		ValueComparison openingPositionCondition;
-		/**
-		 * @dev Pocket closing position config
-		 */
+		StopCondition[] stopConditions;
 		ValueComparison closingPositionCondition;
-		/**
-		 * @dev Following fields will be assigned during runtime.
-		 */
-		PocketStatus status;
-		/**
-		 * @dev Info is used for statistic
-		 */
-		uint256 totalDepositedBaseAmount;
-		uint256 totalSwappedBaseAmount;
-		uint256 totalReceivedTargetAmount;
-		uint256 baseTokenBalance;
-		uint256 targetTokenBalance;
-		uint256 executedBatchAmount;
-		uint256 nextScheduledExecutionAt;
 	}
 }
