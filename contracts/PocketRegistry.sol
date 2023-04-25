@@ -144,6 +144,11 @@ contract PocketRegistry is
 		);
 	}
 
+	/// @notice Get owner address of a given pocket
+	function getOwnerOf(string memory pocketId) public view returns (address) {
+		return (pockets[pocketId].owner);
+	}
+
 	/// @notice Check whether a pocket is available for depositing
 	function isAbleToDeposit(string memory pocketId, address owner)
 		external

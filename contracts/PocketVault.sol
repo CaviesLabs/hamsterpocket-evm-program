@@ -217,22 +217,20 @@ contract PocketVault is
 		(uint256 baseTokenBalance, uint256 targetTokenBalance) = PocketRegistry(
 			registryAddress
 		).getBalanceInfoOf(params.id);
+		address owner = PocketRegistry(registryAddress).getOwnerOf(params.id);
 
 		require(
-			IERC20(baseTokenAddress).transfer(params.actor, baseTokenBalance),
+			IERC20(baseTokenAddress).transfer(owner, baseTokenBalance),
 			"Error: cannot transfer token"
 		);
 		require(
-			IERC20(targetTokenAddress).transfer(
-				params.actor,
-				targetTokenBalance
-			),
+			IERC20(targetTokenAddress).transfer(owner, targetTokenBalance),
 			"Error: cannot transfer token"
 		);
 
 		/// @dev Emit event
 		emit Withdrawn(
-			params.actor,
+			owner,
 			params.id,
 			baseTokenAddress,
 			baseTokenBalance,
