@@ -91,6 +91,7 @@ library Types {
 		/**
 		 * @dev Pocket trade config
 		 **/
+
 		uint256 startAt;
 		uint256 batchVolume;
 		uint256 frequency;

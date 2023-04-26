@@ -392,6 +392,17 @@ contract PocketRegistry is
 			pockets[pocketId].status != Types.PocketStatus.Withdrawn);
 	}
 
+	/// @notice Check whether a pocket is available for depositing
+	function isAbleToUpdate(string memory pocketId, address owner)
+		external
+		view
+		returns (bool)
+	{
+		return (pockets[pocketId].owner == owner &&
+			pockets[pocketId].status != Types.PocketStatus.Closed &&
+			pockets[pocketId].status != Types.PocketStatus.Withdrawn);
+	}
+
 	/// @notice Check whether a pocket is available to close
 	function isAbleToClose(string memory pocketId, address owner)
 		external

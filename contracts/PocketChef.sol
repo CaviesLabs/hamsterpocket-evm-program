@@ -20,7 +20,7 @@ import "./Params.sol";
  * (“pockets”) that will automatically execute the chosen strategies over tim,
  **/
 /// @custom:security-contact khang@cavies.xyz
-contract PocketRouter is
+contract PocketChef is
 	Initializable,
 	PausableUpgradeable,
 	ReentrancyGuardUpgradeable,
@@ -39,8 +39,52 @@ contract PocketRouter is
 		registry.initializeUserPocket(params);
 	}
 
+	/// @notice Update pocket data
+	function updatePocket(Params.UpdatePocketParams memory params) external {
+		require(
+			registry.isAbleToUpdate(params.id, msg.sender),
+			"Operation error: the pocket is not able to update"
+		);
+
+		registry.updatePocket(params, "USER_UPDATE_POCKET");
+	}
+
 	/// @notice Make DCA swap
-	function makeDCASwap(string memory pocketId) external nonReentrant {
+	function tryClosingPosition(string memory pocketId) external nonReentrant {
+		/// @dev Verify swap condition
+		require(
+			registry.hasRole(registry.OPERATOR(), msg.sender),
+			"Operation error: only operator is only permitted for the operation"
+		);
+		require(
+			registry.isReadyToSwap(pocketId),
+			"Operation error: the pocket is not ready to perform swap"
+		);
+
+		/// @dev Execute DCA Swap
+		(uint256 amountIn, uint256 amountOut) = vault.closePosition(pocketId);
+
+		/// @dev Check whether the buy condition meets
+		require(
+			registry.shouldStopLoss(pocketId, amountIn, amountOut) ||
+				registry.shouldTakeProfit(pocketId, amountIn, amountOut),
+			"Operation error: buy condition not reaches"
+		);
+
+		/// @dev Update trading stats
+		registry.updatePocketClosingPositionStats(
+			Params.UpdatePocketClosingPositionStatsParams({
+				id: pocketId,
+				actor: msg.sender,
+				swappedTargetTokenAmount: amountIn,
+				receivedBaseTokenAmount: amountOut
+			}),
+			"UPDATE_CLOSING_POSITION_STATS"
+		);
+	}
+
+	/// @notice Make DCA swap
+	function tryMakingDCASwap(string memory pocketId) external nonReentrant {
 		/// @dev Verify swap condition
 		require(
 			registry.hasRole(registry.OPERATOR(), msg.sender),
@@ -54,7 +98,34 @@ contract PocketRouter is
 		/// @dev Execute DCA Swap
 		(uint256 amountIn, uint256 amountOut) = vault.makeDCASwap(pocketId);
 
-		/// @dev
+		/// @dev Check whether the buy condition meets
+		require(
+			registry.shouldOpenPosition(pocketId, amountIn, amountOut),
+			"Operation error: buy condition not reaches"
+		);
+
+		/// @dev Update trading stats
+		registry.updatePocketTradingStats(
+			Params.UpdatePocketTradingStatsParams({
+				id: pocketId,
+				actor: msg.sender,
+				swappedBaseTokenAmount: amountIn,
+				receivedTargetTokenAmount: amountOut
+			}),
+			"UPDATE_TRADING_STATS"
+		);
+
+		/// @dev Check whether should stop pocket
+		if (registry.shouldClosePocket(pocketId)) {
+			registry.updatePocketStatus(
+				Params.UpdatePocketStatusParams({
+					id: pocketId,
+					actor: msg.sender,
+					status: Types.PocketStatus.Closed
+				}),
+				"CLOSE_POCKET_DUE_TO_STOP_CONDITIONS"
+			);
+		}
 	}
 
 	/// @notice Deposit token to a pocket
