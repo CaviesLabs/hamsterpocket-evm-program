@@ -68,7 +68,7 @@ contract PocketChef is
 		require(
 			registry.shouldStopLoss(pocketId, amountIn, amountOut) ||
 				registry.shouldTakeProfit(pocketId, amountIn, amountOut),
-			"Operation error: buy condition not reaches"
+			"Operation error: closing position condition not reaches"
 		);
 
 		/// @dev Update trading stats
