@@ -58,22 +58,24 @@ contract PocketRouter is
 	}
 
 	/// @notice Deposit token to a pocket
-	function deposit(
-		string memory pocketId,
-		address tokenAddress,
-		uint256 amount
-	) external nonReentrant {
+	function deposit(string memory pocketId, uint256 amount)
+		external
+		nonReentrant
+	{
 		/// @dev verify pocket stats
 		require(
 			registry.isAbleToDeposit(pocketId, msg.sender),
 			"Operation error: cannot deposit"
 		);
 
+		(, address baseTokenAddress, , , , , , , , ) = registry
+			.getTradingInfoOf(pocketId);
+
 		Params.UpdatePocketDepositParams memory params = Params
 			.UpdatePocketDepositParams({
 				id: pocketId,
 				actor: msg.sender,
-				tokenAddress: tokenAddress,
+				tokenAddress: baseTokenAddress,
 				amount: amount
 			});
 

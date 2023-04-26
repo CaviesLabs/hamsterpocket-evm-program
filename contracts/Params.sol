@@ -17,8 +17,8 @@ library Params {
 		 * @dev AMM configurations
 		 */
 		address ammRouterAddress;
-		address baseMintAddress;
-		address targetMintAddress;
+		address baseTokenAddress;
+		address targetTokenAddress;
 		/**
 		 * @dev Pocket trade config
 		 **/

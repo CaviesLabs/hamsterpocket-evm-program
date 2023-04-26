@@ -33,6 +33,9 @@ contract PocketRegistry is
 	/// @notice Relayer that is specific to internal components such as router or vault
 	bytes32 public constant RELAYER = keccak256("RELAYER");
 
+	/// @notice We use precision as 1 million for the more accurate percentage
+	uint256 public constant PERCENTAGE_PRECISION = 1000000;
+
 	/// @notice Store pocket configuration
 	mapping(address => bool) public allowedInteractiveAddresses;
 
@@ -113,14 +116,55 @@ contract PocketRegistry is
 		return pockets[pocketId].stopConditions;
 	}
 
-	//	/// @notice Check whether a pocket meet stop condition
-	//	function shouldClosePocket(
-	//		string memory pocketId
-	//	) public view returns(bool) {
-	//		Types.StopCondition[] storage stopConditions = pockets[id].stopConditions;
-	//	}
+	/// @notice Check whether a pocket meet stop condition. The pocket should be settled before checking this condition.
+	function shouldClosePocket(string memory pocketId)
+		public
+		view
+		returns (bool)
+	{
+		Types.Pocket storage pocket = pockets[pocketId];
+		Types.StopCondition[] storage stopConditions = pockets[pocketId]
+			.stopConditions;
 
-	/// @notice Check whether a pocket meet buy condition
+		/// @dev Save some gas
+		if (stopConditions.length == 0) return false;
+
+		for (uint256 index = 0; index < stopConditions.length; index++) {
+			Types.StopCondition storage condition = stopConditions[index];
+
+			/// @dev Check for condition here
+			if (
+				condition.operator == Types.StopConditionOperator.EndTimeReach
+			) {
+				return condition.value <= block.timestamp;
+			}
+
+			if (
+				condition.operator ==
+				Types.StopConditionOperator.BatchAmountReach
+			) {
+				return pocket.executedBatchAmount >= condition.value;
+			}
+
+			if (
+				condition.operator ==
+				Types.StopConditionOperator.SpentBaseTokenAmountReach
+			) {
+				return pocket.totalSwappedBaseAmount >= condition.value;
+			}
+
+			if (
+				condition.operator ==
+				Types.StopConditionOperator.ReceivedTargetTokenAmountReach
+			) {
+				return pocket.totalReceivedTargetAmount >= condition.value;
+			}
+		}
+
+		return false;
+	}
+
+	/// @notice Check whether a pocket meet buy condition. The pocket should not be settled until this condition is verified.
 	function shouldOpenPosition(
 		string memory pocketId,
 		uint256 swappedBaseTokenAmount,
@@ -130,6 +174,11 @@ contract PocketRegistry is
 		Types.ValueComparison storage condition = pockets[pocketId]
 			.openingPositionCondition;
 
+		if (condition.operator == Types.ValueComparisonOperator.Unset) {
+			return true;
+		}
+
+		/// @dev Calculate price
 		uint256 expectedAmountOut = receivedTargetTokenAmount
 			.mul(pocket.batchVolume)
 			.div(swappedBaseTokenAmount);
@@ -166,7 +215,7 @@ contract PocketRegistry is
 		return true;
 	}
 
-	/// @notice Check whether a pocket meet buy condition
+	/// @notice Check whether a pocket meet buy condition. The pocket should not be settled until this condition is verified.
 	function shouldTakeProfit(
 		string memory pocketId,
 		uint256 swappedTargetTokenAmount,
@@ -176,11 +225,110 @@ contract PocketRegistry is
 		Types.TradingStopCondition storage condition = pockets[pocketId]
 			.takeProfitCondition;
 
-		/// @dev Calculate expected amount
-		uint256 targetTokenDecimal = ERC20(pocket.targetMintAddress).decimals();
-		uint256 expectedAmountOut = receivedBaseTokenAmount
-			.mul(10**targetTokenDecimal)
-			.div(swappedTargetTokenAmount);
+		/// @dev Save some gas by early returns
+		if (condition.stopType == Types.TradingStopConditionType.Unset) {
+			return false;
+		}
+
+		/// @dev If pocket stop condition is based on price, return true if expectedAmountOut is greater than or equal condition value
+		if (condition.stopType == Types.TradingStopConditionType.Price) {
+			/// @dev Calculate price
+			uint256 targetTokenDecimal = ERC20(pocket.targetTokenAddress)
+				.decimals();
+			uint256 expectedAmountOut = receivedBaseTokenAmount
+				.mul(10**targetTokenDecimal)
+				.div(swappedTargetTokenAmount);
+
+			return expectedAmountOut >= condition.value;
+		}
+
+		/// @dev pocket stop condition is based on portfolio value diff
+		if (
+			condition.stopType ==
+			Types.TradingStopConditionType.PortfolioValueDiff
+		) {
+			return
+				receivedBaseTokenAmount >=
+				pocket.totalSwappedBaseAmount.add(condition.value);
+		}
+
+		/// @dev Pocket stop condition is based on portfolio percentage diff
+		if (
+			condition.stopType ==
+			Types.TradingStopConditionType.PortfolioPercentageDiff
+		) {
+			/// @dev Return false if the portfolio is in a loss position
+			if (receivedBaseTokenAmount <= pocket.totalSwappedBaseAmount) {
+				return false;
+			}
+
+			/// @dev Compute the position profit
+			return
+				receivedBaseTokenAmount
+					.sub(pocket.totalSwappedBaseAmount)
+					.mul(PERCENTAGE_PRECISION)
+					.div(pocket.totalSwappedBaseAmount) >= condition.value;
+		}
+
+		return false;
+	}
+
+	/// @notice Check whether a pocket meet buy condition. The pocket should not be settled until this condition is verified.
+	function shouldStopLoss(
+		string memory pocketId,
+		uint256 swappedTargetTokenAmount,
+		uint256 receivedBaseTokenAmount
+	) public view returns (bool) {
+		Types.Pocket storage pocket = pockets[pocketId];
+		Types.TradingStopCondition storage condition = pockets[pocketId]
+			.stopLossCondition;
+
+		/// @dev Save some gas by early returns
+		if (condition.stopType == Types.TradingStopConditionType.Unset) {
+			return false;
+		}
+
+		/// @dev If pocket stop condition is based on price, return true if expectedAmountOut is greater than or equal condition value
+		if (condition.stopType == Types.TradingStopConditionType.Price) {
+			/// @dev Calculate price
+			uint256 targetTokenDecimal = ERC20(pocket.targetTokenAddress)
+				.decimals();
+			uint256 expectedAmountOut = receivedBaseTokenAmount
+				.mul(10**targetTokenDecimal)
+				.div(swappedTargetTokenAmount);
+
+			return expectedAmountOut <= condition.value;
+		}
+
+		/// @dev pocket stop condition is based on portfolio value diff
+		if (
+			condition.stopType ==
+			Types.TradingStopConditionType.PortfolioValueDiff
+		) {
+			return
+				receivedBaseTokenAmount <= pocket.totalSwappedBaseAmount &&
+				pocket.totalSwappedBaseAmount.sub(receivedBaseTokenAmount) >=
+				condition.value;
+		}
+
+		/// @dev Pocket stop condition is based on portfolio percentage diff
+		if (
+			condition.stopType ==
+			Types.TradingStopConditionType.PortfolioPercentageDiff
+		) {
+			/// @dev Return false if the portfolio is not in a loss position
+			if (receivedBaseTokenAmount > pocket.totalSwappedBaseAmount) {
+				return false;
+			}
+
+			/// @dev Compute the position loss
+			return
+				pocket
+					.totalSwappedBaseAmount
+					.sub(receivedBaseTokenAmount)
+					.mul(PERCENTAGE_PRECISION)
+					.div(pocket.totalSwappedBaseAmount) >= condition.value;
+		}
 
 		return false;
 	}
@@ -204,8 +352,8 @@ contract PocketRegistry is
 	{
 		return (
 			pockets[pocketId].ammRouterAddress,
-			pockets[pocketId].baseMintAddress,
-			pockets[pocketId].targetMintAddress,
+			pockets[pocketId].baseTokenAddress,
+			pockets[pocketId].targetTokenAddress,
 			pockets[pocketId].startAt,
 			pockets[pocketId].batchVolume,
 			pockets[pocketId].frequency,
@@ -325,20 +473,20 @@ contract PocketRegistry is
 			"Address: ammRouterAddress is not whitelisted"
 		);
 		require(
-			params.baseMintAddress != address(0),
-			"Address: invalid baseMintAddress"
+			params.baseTokenAddress != address(0),
+			"Address: invalid baseTokenAddress"
 		);
 		require(
-			allowedInteractiveAddresses[params.baseMintAddress],
-			"Address: baseMintAddress is not whitelisted"
+			allowedInteractiveAddresses[params.baseTokenAddress],
+			"Address: baseTokenAddress is not whitelisted"
 		);
 		require(
-			params.targetMintAddress != address(0),
-			"Address: invalid targetMintAddress"
+			params.targetTokenAddress != address(0),
+			"Address: invalid targetTokenAddress"
 		);
 		require(
-			allowedInteractiveAddresses[params.targetMintAddress],
-			"Address: targetMintAddress is not whitelisted"
+			allowedInteractiveAddresses[params.targetTokenAddress],
+			"Address: targetTokenAddress is not whitelisted"
 		);
 		/// @dev Validate stop condition through loop
 		for (uint256 index = 0; index < params.stopConditions.length; index++) {
@@ -397,8 +545,8 @@ contract PocketRegistry is
 			id: params.id,
 			owner: params.owner,
 			ammRouterAddress: params.ammRouterAddress,
-			baseMintAddress: params.baseMintAddress,
-			targetMintAddress: params.targetMintAddress,
+			baseTokenAddress: params.baseTokenAddress,
+			targetTokenAddress: params.targetTokenAddress,
 			startAt: params.startAt,
 			batchVolume: params.batchVolume,
 			frequency: params.frequency,
@@ -509,8 +657,8 @@ contract PocketRegistry is
 			id: currentPocket.id,
 			owner: currentPocket.owner,
 			ammRouterAddress: currentPocket.ammRouterAddress,
-			baseMintAddress: currentPocket.baseMintAddress,
-			targetMintAddress: currentPocket.targetMintAddress,
+			baseTokenAddress: currentPocket.baseTokenAddress,
+			targetTokenAddress: currentPocket.targetTokenAddress,
 			status: currentPocket.status,
 			totalDepositedBaseAmount: currentPocket.totalDepositedBaseAmount,
 			totalReceivedTargetAmount: currentPocket.totalReceivedTargetAmount,
@@ -543,18 +691,14 @@ contract PocketRegistry is
 		Types.Pocket storage pocket = pockets[params.id];
 
 		/// @dev Assigned value
-		pocket.totalClosedPositionInTargetTokenAmount = pocket
-			.totalClosedPositionInTargetTokenAmount
-			.add(params.swappedTargetTokenAmount);
-		pocket.totalReceivedFundInBaseTokenAmount = pocket
-			.totalReceivedFundInBaseTokenAmount
-			.add(params.receivedBaseTokenAmount);
-		pocket.baseTokenBalance = pocket.baseTokenBalance.add(
-			params.receivedBaseTokenAmount
-		);
-		pocket.targetTokenBalance = pocket.targetTokenBalance.sub(
-			params.swappedTargetTokenAmount
-		);
+		pocket.totalClosedPositionInTargetTokenAmount = params
+			.swappedTargetTokenAmount;
+		pocket.totalReceivedFundInBaseTokenAmount = params
+			.receivedBaseTokenAmount;
+
+		/// @dev Update balance properly
+		pocket.baseTokenBalance = params.receivedBaseTokenAmount;
+		pocket.targetTokenBalance = 0;
 
 		/// @dev Emit events
 		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
@@ -570,6 +714,8 @@ contract PocketRegistry is
 		/// @dev Assigned value
 		pocket.nextScheduledExecutionAt = block.timestamp.add(pocket.frequency);
 		pocket.executedBatchAmount = pocket.executedBatchAmount.add(1);
+
+		/// @dev Update balance properly
 		pocket.totalSwappedBaseAmount = pocket.totalSwappedBaseAmount.add(
 			params.swappedBaseTokenAmount
 		);
