@@ -30,6 +30,18 @@ library Types {
 		ValueComparisonOperator operator;
 	}
 
+	/// @dev Declare trading stop condition
+	enum TradingStopConditionType {
+		Unset,
+		Price,
+		PortfolioPercentageDiff,
+		PortfolioValueDiff
+	}
+	struct TradingStopCondition {
+		TradingStopConditionType stopType;
+		uint256 value;
+	}
+
 	/**
 	 * @dev Stop condition
 	 */
@@ -84,6 +96,7 @@ library Types {
 		uint256 frequency;
 		ValueComparison openingPositionCondition;
 		StopCondition[] stopConditions;
-		ValueComparison closingPositionCondition;
+		TradingStopCondition takeProfitCondition;
+		TradingStopCondition stopLossCondition;
 	}
 }

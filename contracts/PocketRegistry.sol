@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import "./Types.sol";
 import "./Params.sol";
@@ -74,6 +75,15 @@ contract PocketRegistry is
 		_;
 	}
 
+	/// @notice Check if id is unique
+	/// @dev should be used as a modifier
+	modifier mustBeValidPocket(string memory id) {
+		require(blacklistedIdMap[id] == true, "ID: the id must be existed");
+		require(pockets[id].owner != address(0), "Pocket: invalid pocket");
+
+		_;
+	}
+
 	/// @notice Check if the target is the owner of a given pocket id
 	/// @dev should be used as a modifier
 	modifier mustBeOwnerOf(string memory pocketId, address target) {
@@ -103,6 +113,78 @@ contract PocketRegistry is
 		return pockets[pocketId].stopConditions;
 	}
 
+	//	/// @notice Check whether a pocket meet stop condition
+	//	function shouldClosePocket(
+	//		string memory pocketId
+	//	) public view returns(bool) {
+	//		Types.StopCondition[] storage stopConditions = pockets[id].stopConditions;
+	//	}
+
+	/// @notice Check whether a pocket meet buy condition
+	function shouldOpenPosition(
+		string memory pocketId,
+		uint256 swappedBaseTokenAmount,
+		uint256 receivedTargetTokenAmount
+	) public view returns (bool) {
+		Types.Pocket storage pocket = pockets[pocketId];
+		Types.ValueComparison storage condition = pockets[pocketId]
+			.openingPositionCondition;
+
+		uint256 expectedAmountOut = receivedTargetTokenAmount
+			.mul(pocket.batchVolume)
+			.div(swappedBaseTokenAmount);
+
+		if (condition.operator == Types.ValueComparisonOperator.Lt) {
+			return expectedAmountOut < condition.value0;
+		}
+
+		if (condition.operator == Types.ValueComparisonOperator.Lte) {
+			return expectedAmountOut <= condition.value0;
+		}
+
+		if (condition.operator == Types.ValueComparisonOperator.Gt) {
+			return expectedAmountOut > condition.value0;
+		}
+
+		if (condition.operator == Types.ValueComparisonOperator.Gte) {
+			return expectedAmountOut >= condition.value0;
+		}
+
+		if (condition.operator == Types.ValueComparisonOperator.Bw) {
+			return
+				expectedAmountOut >= condition.value0 &&
+				expectedAmountOut <= condition.value1;
+		}
+
+		if (condition.operator == Types.ValueComparisonOperator.NBw) {
+			return
+				expectedAmountOut < condition.value0 ||
+				expectedAmountOut > condition.value1;
+		}
+
+		/// @dev Default will be true
+		return true;
+	}
+
+	/// @notice Check whether a pocket meet buy condition
+	function shouldTakeProfit(
+		string memory pocketId,
+		uint256 swappedTargetTokenAmount,
+		uint256 receivedBaseTokenAmount
+	) public view returns (bool) {
+		Types.Pocket storage pocket = pockets[pocketId];
+		Types.TradingStopCondition storage condition = pockets[pocketId]
+			.takeProfitCondition;
+
+		/// @dev Calculate expected amount
+		uint256 targetTokenDecimal = ERC20(pocket.targetMintAddress).decimals();
+		uint256 expectedAmountOut = receivedBaseTokenAmount
+			.mul(10**targetTokenDecimal)
+			.div(swappedTargetTokenAmount);
+
+		return false;
+	}
+
 	/// @notice Get trading pair info of a given pocket id
 	function getTradingInfoOf(string memory pocketId)
 		public
@@ -116,7 +198,8 @@ contract PocketRegistry is
 			uint256,
 			uint256,
 			Types.ValueComparison memory,
-			Types.ValueComparison memory
+			Types.TradingStopCondition memory,
+			Types.TradingStopCondition memory
 		)
 	{
 		return (
@@ -128,7 +211,8 @@ contract PocketRegistry is
 			pockets[pocketId].frequency,
 			pockets[pocketId].nextScheduledExecutionAt,
 			pockets[pocketId].openingPositionCondition,
-			pockets[pocketId].closingPositionCondition
+			pockets[pocketId].takeProfitCondition,
+			pockets[pocketId].stopLossCondition
 		);
 	}
 
@@ -289,27 +373,23 @@ contract PocketRegistry is
 		}
 		/// @dev Validate value comparison struct
 		if (
-			params.closingPositionCondition.operator !=
-			Types.ValueComparisonOperator.Unset
+			params.takeProfitCondition.stopType !=
+			Types.TradingStopConditionType.Unset
 		) {
-			if (
-				params.closingPositionCondition.operator ==
-				Types.ValueComparisonOperator.Bw ||
-				params.closingPositionCondition.operator ==
-				Types.ValueComparisonOperator.NBw
-			) {
-				require(
-					params.closingPositionCondition.value0 > 0 &&
-						params.closingPositionCondition.value1 >=
-						params.closingPositionCondition.value0,
-					"ValueComparison: invalid value"
-				);
-			} else {
-				require(
-					params.closingPositionCondition.value0 > 0,
-					"ValueComparison: invalid value"
-				);
-			}
+			require(
+				params.takeProfitCondition.value > 0,
+				"ValueComparison: invalid value"
+			);
+		}
+		/// @dev Validate value comparison struct
+		if (
+			params.stopLossCondition.stopType !=
+			Types.TradingStopConditionType.Unset
+		) {
+			require(
+				params.stopLossCondition.value > 0,
+				"ValueComparison: invalid value"
+			);
 		}
 
 		/// @dev Initialize user pocket data
@@ -324,7 +404,8 @@ contract PocketRegistry is
 			frequency: params.frequency,
 			stopConditions: params.stopConditions,
 			openingPositionCondition: params.openingPositionCondition,
-			closingPositionCondition: params.closingPositionCondition,
+			takeProfitCondition: params.takeProfitCondition,
+			stopLossCondition: params.stopLossCondition,
 			/// @dev Those fields are updated during the relayers operation
 			status: Types.PocketStatus.Active,
 			totalDepositedBaseAmount: 0,
@@ -340,6 +421,118 @@ contract PocketRegistry is
 
 		/// @dev Emit event
 		emit PocketInitialized(msg.sender, params.id, params.owner, params);
+	}
+
+	/// @notice Users initialize their pocket
+	function updatePocket(
+		Params.UpdatePocketParams memory params,
+		string memory reason
+	) external onlyRole(RELAYER) mustBeValidPocket(params.id) {
+		/// @dev Validate input
+		require(
+			params.startAt >= block.timestamp,
+			"Timestamp: must be equal or greater than block time"
+		);
+		require(
+			params.batchVolume >= 0,
+			"Batch volume: must be equal or greater than 0"
+		);
+		require(
+			params.frequency >= 1 hours,
+			"Frequency: must be equal or greater than 1 hour"
+		);
+		/// @dev Validate stop condition through loop
+		for (uint256 index = 0; index < params.stopConditions.length; index++) {
+			require(
+				params.stopConditions[index].value > 0,
+				"StopCondition: value must not be zero"
+			);
+		}
+		/// @dev Validate value comparison struct
+		if (
+			params.openingPositionCondition.operator !=
+			Types.ValueComparisonOperator.Unset
+		) {
+			if (
+				params.openingPositionCondition.operator ==
+				Types.ValueComparisonOperator.Bw ||
+				params.openingPositionCondition.operator ==
+				Types.ValueComparisonOperator.NBw
+			) {
+				require(
+					params.openingPositionCondition.value0 > 0 &&
+						params.openingPositionCondition.value1 >=
+						params.openingPositionCondition.value0,
+					"ValueComparison: invalid value"
+				);
+			} else {
+				require(
+					params.openingPositionCondition.value0 > 0,
+					"ValueComparison: invalid value"
+				);
+			}
+		}
+		/// @dev Validate value comparison struct
+		if (
+			params.takeProfitCondition.stopType !=
+			Types.TradingStopConditionType.Unset
+		) {
+			require(
+				params.takeProfitCondition.value > 0,
+				"ValueComparison: invalid value"
+			);
+		}
+		/// @dev Validate value comparison struct
+		if (
+			params.stopLossCondition.stopType !=
+			Types.TradingStopConditionType.Unset
+		) {
+			require(
+				params.stopLossCondition.value > 0,
+				"ValueComparison: invalid value"
+			);
+		}
+
+		Types.Pocket storage currentPocket = pockets[params.id];
+
+		/// @dev Initialize user pocket data
+		pockets[params.id] = Types.Pocket({
+			/// @dev Those fields are updated
+			startAt: params.startAt,
+			batchVolume: params.batchVolume,
+			frequency: params.frequency,
+			stopConditions: params.stopConditions,
+			openingPositionCondition: params.openingPositionCondition,
+			takeProfitCondition: params.takeProfitCondition,
+			stopLossCondition: params.stopLossCondition,
+			/// @dev Reserve those fields
+			id: currentPocket.id,
+			owner: currentPocket.owner,
+			ammRouterAddress: currentPocket.ammRouterAddress,
+			baseMintAddress: currentPocket.baseMintAddress,
+			targetMintAddress: currentPocket.targetMintAddress,
+			status: currentPocket.status,
+			totalDepositedBaseAmount: currentPocket.totalDepositedBaseAmount,
+			totalReceivedTargetAmount: currentPocket.totalReceivedTargetAmount,
+			totalSwappedBaseAmount: currentPocket.totalSwappedBaseAmount,
+			totalClosedPositionInTargetTokenAmount: currentPocket
+				.totalClosedPositionInTargetTokenAmount,
+			totalReceivedFundInBaseTokenAmount: currentPocket
+				.totalReceivedFundInBaseTokenAmount,
+			baseTokenBalance: currentPocket.baseTokenBalance,
+			targetTokenBalance: currentPocket.targetTokenBalance,
+			executedBatchAmount: currentPocket.executedBatchAmount,
+			nextScheduledExecutionAt: currentPocket.nextScheduledExecutionAt
+		});
+
+		/// @dev Emit event
+		emit PocketUpdated(
+			msg.sender,
+			currentPocket.id,
+			currentPocket.owner,
+			reason,
+			pockets[params.id]
+		);
 	}
 
 	/// @notice The function to provide a method for relayers to update pocket stats

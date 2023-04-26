@@ -99,10 +99,11 @@ contract PocketVault is
 			,
 			,
 			,
+			,
 
 		) = PocketRegistry(registryAddress).getTradingInfoOf(pocketId);
 
-		/// @dev Approve the router to spend base token.
+		/// @dev Approve the router to spend token.
 		TransferHelper.safeApprove(
 			baseTokenAddress,
 			address(ammRouterAddress),
@@ -155,12 +156,13 @@ contract PocketVault is
 			,
 			,
 			,
+			,
 
 		) = PocketRegistry(registryAddress).getTradingInfoOf(pocketId);
 		(, uint256 targetTokenBalance) = PocketRegistry(registryAddress)
 			.getBalanceInfoOf(pocketId);
 
-		/// @dev Approve the router to spend base token.
+		/// @dev Approve the router to spend token.
 		TransferHelper.safeApprove(
 			baseTokenAddress,
 			address(ammRouterAddress),
@@ -207,6 +209,7 @@ contract PocketVault is
 			,
 			address baseTokenAddress,
 			address targetTokenAddress,
+			,
 			,
 			,
 			,

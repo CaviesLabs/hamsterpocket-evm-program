@@ -33,7 +33,34 @@ library Params {
 		/**
 		 * @dev Pocket closing position config
 		 */
-		Types.ValueComparison closingPositionCondition;
+		Types.TradingStopCondition takeProfitCondition;
+		Types.TradingStopCondition stopLossCondition;
+	}
+
+	/**
+	 * @dev Define pocket item
+	 */
+	struct UpdatePocketParams {
+		/**
+		 * @dev Each pocket would have a unique id
+		 */
+		string id;
+		/**
+		 * @dev Pocket trade config
+		 **/
+		uint256 startAt;
+		uint256 batchVolume;
+		Types.StopCondition[] stopConditions;
+		uint256 frequency;
+		/**
+		 * @dev Pocket opening position config
+		 */
+		Types.ValueComparison openingPositionCondition;
+		/**
+		 * @dev Pocket closing position config
+		 */
+		Types.TradingStopCondition takeProfitCondition;
+		Types.TradingStopCondition stopLossCondition;
 	}
 
 	/// @dev Define params
