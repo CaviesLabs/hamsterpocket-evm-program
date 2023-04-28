@@ -139,6 +139,12 @@ describe("[manage_pocket]", async function () {
     expect(eventLogs[0].name).eq("PocketInitialized");
   });
 
+  it("[create_pocket] should: cannot create with a duplicated id", async () => {
+    await expect(
+      fixtures.Chef.createPocket(toBeCreatedPocketData)
+    ).revertedWith("ID: the id is not unique");
+  });
+
   it("[update_pocket] should: owner updates pocket will fail if owner provides invalid id", async () => {
     await expect(
       fixtures.Chef.updatePocket({ ...toBeUpdatedPocketData, id: "invalid-id" })

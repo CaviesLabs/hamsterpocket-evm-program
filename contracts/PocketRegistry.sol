@@ -805,10 +805,48 @@ contract PocketRegistry is
 	function whitelistAddress(address interactiveAddress, bool value)
 		external
 		onlyOwner
-		onlyRole(DEFAULT_ADMIN_ROLE)
 	{
 		allowedInteractiveAddresses[interactiveAddress] = value;
 		emit AddressWhitelisted(msg.sender, interactiveAddress, value);
+	}
+
+	/**
+	 * @dev Grants `role` to `account`.
+	 *
+	 * If `account` had not been already granted `role`, emits a {RoleGranted}
+	 * event.
+	 *
+	 * Requirements:
+	 *
+	 * - the caller must have ``role``'s admin role.
+	 *
+	 * May emit a {RoleGranted} event.
+	 */
+	function grantRole(bytes32 role, address account)
+		public
+		override
+		onlyOwner
+	{
+		_grantRole(role, account);
+	}
+
+	/**
+	 * @dev Revokes `role` from `account`.
+	 *
+	 * If `account` had been granted `role`, emits a {RoleRevoked} event.
+	 *
+	 * Requirements:
+	 *
+	 * - the caller must have ``role``'s admin role.
+	 *
+	 * May emit a {RoleRevoked} event.
+	 */
+	function revokeRole(bytes32 role, address account)
+		public
+		override
+		onlyOwner
+	{
+		_revokeRole(role, account);
 	}
 
 	/// ================ System methods ================== ///

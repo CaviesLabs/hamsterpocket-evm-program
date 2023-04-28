@@ -136,8 +136,8 @@ contract PocketVault is
 	/// @notice Make DCA swap for the given pocket pocket
 	function makeDCASwap(string calldata pocketId)
 		external
-		nonReentrant
 		onlyRelayer
+		nonReentrant
 		returns (uint256, uint256)
 	{
 		/// @dev Extract necessary info
@@ -178,8 +178,8 @@ contract PocketVault is
 	/// @notice Make close position for the given pocket
 	function closePosition(string calldata pocketId)
 		external
-		nonReentrant
 		onlyRelayer
+		nonReentrant
 		returns (uint256, uint256)
 	{
 		/// @dev Extract necessary info
@@ -221,8 +221,8 @@ contract PocketVault is
 	/// @notice withdraw
 	function withdraw(Params.UpdatePocketWithdrawalParams calldata params)
 		external
-		nonReentrant
 		onlyRelayer
+		nonReentrant
 	{
 		/// @dev Withdraw tokens
 		(
@@ -264,8 +264,8 @@ contract PocketVault is
 	/// @notice Deposit
 	function deposit(Params.UpdatePocketDepositParams calldata params)
 		external
-		nonReentrant
 		onlyRelayer
+		nonReentrant
 	{
 		/// @dev Use msg.sender instead of params.actor so that we can deposit token from the PocketChef.
 		require(
@@ -288,7 +288,7 @@ contract PocketVault is
 
 	/// @notice Set registry address
 	function setRegistry(address registryAddress) external onlyOwner {
-		registry = registry;
+		registry = PocketRegistry(registryAddress);
 		emit RegistryUpdated(msg.sender, registryAddress);
 	}
 
