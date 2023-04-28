@@ -267,7 +267,7 @@ contract PocketVault is
 		onlyRelayer
 		nonReentrant
 	{
-		/// @dev Use msg.sender instead of params.actor so that we can deposit token from the PocketChef.
+		/// @dev deposit from actor to vault.
 		require(
 			IERC20(params.tokenAddress).transferFrom(
 				msg.sender,
@@ -279,7 +279,7 @@ contract PocketVault is
 
 		/// @dev Emit event
 		emit Deposited(
-			msg.sender,
+			params.actor,
 			params.id,
 			params.tokenAddress,
 			params.amount
@@ -306,6 +306,7 @@ contract PocketVault is
 	function initialize() public initializer {
 		__Pausable_init();
 		__Ownable_init();
+		__ReentrancyGuard_init();
 	}
 
 	function pause() public onlyOwner {

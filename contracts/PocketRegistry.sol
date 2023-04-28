@@ -860,6 +860,7 @@ contract PocketRegistry is
 		__Pausable_init();
 		__Ownable_init();
 		__AccessControl_init();
+		__ReentrancyGuard_init();
 
 		// Grant default role
 		_grantRole(DEFAULT_ADMIN_ROLE, msg.sender);

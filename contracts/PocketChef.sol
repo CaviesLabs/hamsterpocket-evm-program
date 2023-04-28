@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/MulticallUpgradeable.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -24,7 +25,8 @@ contract PocketChef is
 	Initializable,
 	PausableUpgradeable,
 	ReentrancyGuardUpgradeable,
-	OwnableUpgradeable
+	OwnableUpgradeable,
+	MulticallUpgradeable
 {
 	PocketRegistry public registry;
 	PocketVault public vault;
@@ -34,9 +36,32 @@ contract PocketChef is
 	event RegistryUpdated(address indexed actor, address updatedAddress);
 
 	/// @notice create pocket
-	function createPocket(Params.CreatePocketParams calldata params) external {
+	function createPocket(Params.CreatePocketParams calldata params) public {
 		require(params.owner == msg.sender, "Invalid pocket: owner mismatches");
 		registry.initializeUserPocket(params);
+	}
+
+	/// @notice create pocket
+	function createPocketAndDepositEther(
+		Params.CreatePocketParams calldata params
+	) external payable {
+		/// @dev Create pocket
+		createPocket(params);
+
+		/// @dev Calling deposit ether
+		depositEther(params.id);
+	}
+
+	/// @notice create pocket
+	function createPocketAndDepositToken(
+		Params.CreatePocketParams calldata params,
+		uint256 depositAmount
+	) external {
+		/// @dev Create pocket
+		createPocket(params);
+
+		/// @dev Calling deposit ether
+		depositToken(params.id, depositAmount);
 	}
 
 	/// @notice Update pocket data
@@ -131,9 +156,50 @@ contract PocketChef is
 		}
 	}
 
+	/// @dev Wrap ether
+	function depositEther(string calldata pocketId)
+		public
+		payable
+		nonReentrant
+	{
+		/// @dev Verify amount
+		uint256 amount = msg.value;
+		require(amount > 0, "Operation error: invalid amount");
+
+		/// @dev verify pocket stats
+		require(
+			registry.isAbleToDeposit(pocketId, msg.sender),
+			"Operation error: cannot deposit"
+		);
+
+		(, address baseTokenAddress, , , , , , , , ) = registry
+			.getTradingInfoOf(pocketId);
+
+		/// @dev Wrap ether here
+		IWETH9(baseTokenAddress).deposit{value: amount}();
+
+		/// @dev Approve vault to be able to spend an amount of base token
+		IERC20(baseTokenAddress).approve(address(vault), amount);
+
+		/// @dev Construct params
+		Params.UpdatePocketDepositParams memory params = Params
+			.UpdatePocketDepositParams({
+				id: pocketId,
+				actor: msg.sender,
+				tokenAddress: baseTokenAddress,
+				amount: amount
+			});
+
+		/// @dev Deposit to pocket
+		vault.deposit(params);
+
+		/// @dev Update stats
+		registry.updatePocketDepositStats(params, "USER_DEPOSITED_FUND");
+	}
+
 	/// @notice Deposit token to a pocket
-	function deposit(string calldata pocketId, uint256 amount)
-		external
+	function depositToken(string calldata pocketId, uint256 amount)
+		public
 		nonReentrant
 	{
 		/// @dev verify pocket stats
@@ -145,6 +211,20 @@ contract PocketChef is
 		(, address baseTokenAddress, , , , , , , , ) = registry
 			.getTradingInfoOf(pocketId);
 
+		/// @dev Spend user token
+		require(
+			IERC20(baseTokenAddress).transferFrom(
+				msg.sender,
+				address(this),
+				amount
+			),
+			"Operation error: cannot deposit"
+		);
+
+		/// @dev Approve vault to be able to spend an amount of base token
+		IERC20(baseTokenAddress).approve(address(vault), amount);
+
+		/// @dev Construct params
 		Params.UpdatePocketDepositParams memory params = Params
 			.UpdatePocketDepositParams({
 				id: pocketId,
@@ -251,6 +331,8 @@ contract PocketChef is
 	function initialize() public initializer {
 		__Pausable_init();
 		__Ownable_init();
+		__ReentrancyGuard_init();
+		__Multicall_init();
 	}
 
 	function pause() public onlyOwner {

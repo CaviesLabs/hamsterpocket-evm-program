@@ -57,7 +57,7 @@ export async function deployFixtures() {
     PocketChefContract.connect(owner),
     [],
     {
-      unsafeAllowCustomTypes: true,
+      unsafeAllow: ["constructor", "delegatecall"],
     }
   )) as PocketChef;
 
@@ -71,7 +71,7 @@ export async function deployFixtures() {
     PocketRegistryContract.connect(owner),
     [],
     {
-      unsafeAllowCustomTypes: true,
+      unsafeAllow: ["constructor"],
     }
   )) as PocketRegistry;
 
@@ -83,7 +83,7 @@ export async function deployFixtures() {
     PocketVaultContract.connect(owner),
     [],
     {
-      unsafeAllowCustomTypes: true,
+      unsafeAllow: ["constructor"],
     }
   )) as PocketVault;
 

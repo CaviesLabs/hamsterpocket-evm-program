@@ -51,5 +51,17 @@ describe("[administrator]", async function () {
         "0xa180fe01b906a1be37be6c534a3300785b20d947"
       )
     ).to.be.revertedWith("Ownable: caller is not the owner");
+
+    await expect(
+      fixtures.Chef.connect(fixtures.owner2).setVault(
+        "0xa180fe01b906a1be37be6c534a3300785b20d947"
+      )
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+
+    await expect(
+      fixtures.Chef.connect(fixtures.owner2).setRegistry(
+        "0xa180fe01b906a1be37be6c534a3300785b20d947"
+      )
+    ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 });
