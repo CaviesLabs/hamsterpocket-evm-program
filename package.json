@@ -3,8 +3,8 @@
   "version": "0.1.1",
   "license": "MIT",
   "scripts": {
-    "test": "ENV=test hardhat test --network hardhat",
-    "test:coverage": "ENV=test hardhat coverage --network hardhat",
+    "test": "hardhat test --network hardhat",
+    "test:coverage": "hardhat coverage --network hardhat",
     "lint": "hardhat compile && eslint . --ext .ts --fix",
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "lint:fix": "yarn run lint && yarn run prettier",

@@ -32,12 +32,11 @@ const config: HardhatUserConfig = {
  * Extract env vars
  */
 const privateKey = process.env.PRIVATE_KEY || "";
-const testEnv = process.env.ENV === "test";
 
 /**
  * If private key is available, attach network configs
  */
-if (!testEnv && privateKey) {
+if (privateKey) {
   config.networks = {
     ganache: {
       url: "http://127.0.0.1:7545",
