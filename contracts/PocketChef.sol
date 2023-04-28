@@ -82,7 +82,7 @@ contract PocketChef is
 				swappedTargetTokenAmount: amountIn,
 				receivedBaseTokenAmount: amountOut
 			}),
-			"UPDATE_CLOSING_POSITION_STATS"
+			"OPERATOR_UPDATED_CLOSING_POSITION_STATS"
 		);
 	}
 
@@ -115,7 +115,7 @@ contract PocketChef is
 				swappedBaseTokenAmount: amountIn,
 				receivedTargetTokenAmount: amountOut
 			}),
-			"UPDATE_TRADING_STATS"
+			"OPERATOR_UPDATED_TRADING_STATS"
 		);
 
 		/// @dev Check whether should stop pocket
@@ -126,7 +126,7 @@ contract PocketChef is
 					actor: msg.sender,
 					status: Types.PocketStatus.Closed
 				}),
-				"CLOSE_POCKET_DUE_TO_STOP_CONDITIONS"
+				"OPERATOR_CLOSED_POCKET_DUE_TO_STOP_CONDITIONS"
 			);
 		}
 	}
@@ -157,7 +157,7 @@ contract PocketChef is
 		vault.deposit(params);
 
 		/// @dev Update stats
-		registry.updatePocketDepositStats(params, "CREDIT_DEPOSIT_BALANCE");
+		registry.updatePocketDepositStats(params, "USER_DEPOSITED_FUND");
 	}
 
 	/// @notice Deposit token to a pocket
@@ -174,10 +174,7 @@ contract PocketChef is
 		vault.withdraw(params);
 
 		/// @dev Update withdrawal stats
-		registry.updatePocketWithdrawalStats(
-			params,
-			"DEBIT_WITHDRAWAL_BALANCE"
-		);
+		registry.updatePocketWithdrawalStats(params, "USER_WITHDREW_FUND");
 	}
 
 	/// @notice pause pocket

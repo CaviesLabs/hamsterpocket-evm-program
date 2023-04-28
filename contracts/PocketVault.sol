@@ -9,13 +9,30 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
-import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
+import "@uniswap/universal-router/contracts/libraries/Commands.sol";
+import "@uniswap/universal-router/contracts/libraries/Constants.sol";
 
 import "./PocketRegistry.sol";
 
 import "./Types.sol";
 import "./Params.sol";
+
+interface UniversalRouter {
+	function execute(
+		bytes calldata commands,
+		bytes[] calldata inputs,
+		uint256 deadline
+	) external payable;
+}
+
+interface IPermit2 {
+	function approve(
+		address token,
+		address spender,
+		uint160 amount,
+		uint48 expiration
+	) external;
+}
 
 contract PocketVault is
 	Initializable,
@@ -26,10 +43,12 @@ contract PocketVault is
 	using SafeMathUpgradeable for uint256;
 
 	/// @dev Declare pocket registry
-	address public registryAddress;
+	PocketRegistry public registry;
+	IPermit2 public permit2;
 
 	/// @dev RegistryUpdated emitted event
 	event RegistryUpdated(address indexed actor, address indexed registry);
+	event Permit2Updated(address indexed actor, address indexed permit2);
 
 	/// @dev Emit Withdrawn whenever a withdrawal happens
 	event Withdrawn(
@@ -72,14 +91,46 @@ contract PocketVault is
 	/// @notice Modifier to verify only permitted actor can perform the operation
 	modifier onlyRelayer() {
 		require(
-			PocketRegistry(registryAddress).hasRole(
-				PocketRegistry(registryAddress).RELAYER(),
-				msg.sender
-			),
+			registry.hasRole(registry.RELAYER(), msg.sender),
 			"Permission: only relayer is permitted"
 		);
 
 		_;
+	}
+
+	/// @dev Make swap leverages uniswap universal router
+	function makeSwap(
+		address router,
+		address baseTokenAddress,
+		address targetTokenAddress,
+		uint256 amount
+	) private returns (uint256) {
+		IERC20(baseTokenAddress).approve(address(permit2), amount);
+		permit2.approve(
+			baseTokenAddress,
+			router,
+			uint160(amount),
+			uint48(block.timestamp)
+		);
+
+		bytes memory commands = abi.encodePacked(
+			bytes1(uint8(Commands.V3_SWAP_EXACT_IN))
+		);
+		address[] memory path = new address[](2);
+		path[0] = baseTokenAddress;
+		path[1] = targetTokenAddress;
+		bytes[] memory inputs = new bytes[](1);
+		inputs[0] = abi.encode(Constants.MSG_SENDER, amount, 0, path, true);
+
+		uint256 beforeBalance = IERC20(baseTokenAddress).balanceOf(
+			address(this)
+		);
+		UniversalRouter(router).execute(commands, inputs, block.timestamp);
+
+		return
+			IERC20(baseTokenAddress).balanceOf(address(this)).sub(
+				beforeBalance
+			);
 	}
 
 	/// @notice Make DCA swap for the given pocket pocket
@@ -101,29 +152,14 @@ contract PocketVault is
 			,
 			,
 
-		) = PocketRegistry(registryAddress).getTradingInfoOf(pocketId);
+		) = registry.getTradingInfoOf(pocketId);
 
-		/// @dev Approve the router to spend token.
-		TransferHelper.safeApprove(
+		uint256 amountOut = makeSwap(
+			ammRouterAddress,
 			baseTokenAddress,
-			address(ammRouterAddress),
+			targetTokenAddress,
 			batchVolume
 		);
-
-		/// @dev Execute the swap
-		ISwapRouter.ExactInputParams memory params = ISwapRouter
-			.ExactInputParams({
-				path: abi.encodePacked(
-					baseTokenAddress,
-					uint256(3000),
-					targetTokenAddress
-				),
-				recipient: address(this),
-				deadline: block.timestamp,
-				amountIn: batchVolume,
-				amountOutMinimum: 0
-			});
-		uint256 amountOut = ISwapRouter(ammRouterAddress).exactInput(params);
 
 		/// @dev Emit event
 		emit Swapped(
@@ -158,31 +194,15 @@ contract PocketVault is
 			,
 			,
 
-		) = PocketRegistry(registryAddress).getTradingInfoOf(pocketId);
-		(, uint256 targetTokenBalance) = PocketRegistry(registryAddress)
-			.getBalanceInfoOf(pocketId);
+		) = registry.getTradingInfoOf(pocketId);
+		(, uint256 targetTokenBalance) = registry.getBalanceInfoOf(pocketId);
 
-		/// @dev Approve the router to spend token.
-		TransferHelper.safeApprove(
+		uint256 amountOut = makeSwap(
+			ammRouterAddress,
+			targetTokenAddress,
 			baseTokenAddress,
-			address(ammRouterAddress),
 			targetTokenBalance
 		);
-
-		/// @dev Execute the swap
-		ISwapRouter.ExactInputParams memory params = ISwapRouter
-			.ExactInputParams({
-				path: abi.encodePacked(
-					targetTokenAddress,
-					uint256(3000),
-					baseTokenAddress
-				),
-				recipient: address(this),
-				deadline: block.timestamp,
-				amountIn: targetTokenBalance,
-				amountOutMinimum: 0
-			});
-		uint256 amountOut = ISwapRouter(ammRouterAddress).exactInput(params);
 
 		/// @dev Emit event
 		emit ClosedPosition(
@@ -216,11 +236,10 @@ contract PocketVault is
 			,
 			,
 
-		) = PocketRegistry(registryAddress).getTradingInfoOf(params.id);
-		(uint256 baseTokenBalance, uint256 targetTokenBalance) = PocketRegistry(
-			registryAddress
-		).getBalanceInfoOf(params.id);
-		address owner = PocketRegistry(registryAddress).getOwnerOf(params.id);
+		) = registry.getTradingInfoOf(params.id);
+		(uint256 baseTokenBalance, uint256 targetTokenBalance) = registry
+			.getBalanceInfoOf(params.id);
+		address owner = registry.getOwnerOf(params.id);
 
 		require(
 			IERC20(baseTokenAddress).transfer(owner, baseTokenBalance),
@@ -268,9 +287,15 @@ contract PocketVault is
 	}
 
 	/// @notice Set registry address
-	function setRegistry(address registry) external onlyOwner {
-		registryAddress = registry;
-		emit RegistryUpdated(msg.sender, registry);
+	function setRegistry(address registryAddress) external onlyOwner {
+		registry = registry;
+		emit RegistryUpdated(msg.sender, registryAddress);
+	}
+
+	/// @notice Set registry address
+	function setPermit2(address permit2Address) external onlyOwner {
+		permit2 = IPermit2(permit2Address);
+		emit Permit2Updated(msg.sender, permit2Address);
 	}
 
 	/// @custom:oz-upgrades-unsafe-allow constructor

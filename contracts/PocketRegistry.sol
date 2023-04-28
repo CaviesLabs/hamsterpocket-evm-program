@@ -57,7 +57,7 @@ contract PocketRegistry is
 		address indexed actor,
 		string indexed pocketId,
 		address indexed owner,
-		Params.CreatePocketParams params
+		Types.Pocket pocketData
 	);
 
 	/// @notice Event emitted when initializing user pocket
@@ -583,7 +583,12 @@ contract PocketRegistry is
 		});
 
 		/// @dev Emit event
-		emit PocketInitialized(msg.sender, params.id, params.owner, params);
+		emit PocketInitialized(
+			msg.sender,
+			params.id,
+			params.owner,
+			pockets[params.id]
+		);
 	}
 
 	/// @notice Users initialize their pocket
@@ -758,6 +763,7 @@ contract PocketRegistry is
 		/// @dev Assigned value
 		pocket.baseTokenBalance = 0;
 		pocket.targetTokenBalance = 0;
+		pocket.status = Types.PocketStatus.Withdrawn;
 
 		/// @dev Emit events
 		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
