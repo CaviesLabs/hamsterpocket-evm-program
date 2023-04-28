@@ -83,7 +83,7 @@ contract PocketVault is
 	}
 
 	/// @notice Make DCA swap for the given pocket pocket
-	function makeDCASwap(string memory pocketId)
+	function makeDCASwap(string calldata pocketId)
 		external
 		nonReentrant
 		onlyRelayer
@@ -140,7 +140,7 @@ contract PocketVault is
 	}
 
 	/// @notice Make close position for the given pocket
-	function closePosition(string memory pocketId)
+	function closePosition(string calldata pocketId)
 		external
 		nonReentrant
 		onlyRelayer

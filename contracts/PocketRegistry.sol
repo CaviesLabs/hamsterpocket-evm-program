@@ -71,7 +71,7 @@ contract PocketRegistry is
 
 	/// @notice Check if id is unique
 	/// @dev should be used as a modifier
-	modifier idMustBeAvailable(string memory id) {
+	modifier idMustBeAvailable(string calldata id) {
 		require(blacklistedIdMap[id] == false, "ID: the id is not unique");
 		blacklistedIdMap[id] = true;
 
@@ -80,7 +80,7 @@ contract PocketRegistry is
 
 	/// @notice Check if id is unique
 	/// @dev should be used as a modifier
-	modifier mustBeValidPocket(string memory id) {
+	modifier mustBeValidPocket(string calldata id) {
 		require(blacklistedIdMap[id] == true, "ID: the id must be existed");
 		require(pockets[id].owner != address(0), "Pocket: invalid pocket");
 
@@ -89,7 +89,7 @@ contract PocketRegistry is
 
 	/// @notice Check if the target is the owner of a given pocket id
 	/// @dev should be used as a modifier
-	modifier mustBeOwnerOf(string memory pocketId, address target) {
+	modifier mustBeOwnerOf(string calldata pocketId, address target) {
 		require(
 			isOwnerOf(pocketId, target),
 			"Permission: not permitted operation"
@@ -99,7 +99,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Check whether an address is the pocket owner
-	function isOwnerOf(string memory pocketId, address target)
+	function isOwnerOf(string calldata pocketId, address target)
 		public
 		view
 		returns (bool)
@@ -108,7 +108,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Check whether an address is the pocket owner
-	function getStopConditionsOf(string memory pocketId)
+	function getStopConditionsOf(string calldata pocketId)
 		public
 		view
 		returns (Types.StopCondition[] memory)
@@ -117,7 +117,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Check whether a pocket meet stop condition. The pocket should be settled before checking this condition.
-	function shouldClosePocket(string memory pocketId)
+	function shouldClosePocket(string calldata pocketId)
 		public
 		view
 		returns (bool)
@@ -166,7 +166,7 @@ contract PocketRegistry is
 
 	/// @notice Check whether a pocket meet buy condition. The pocket should not be settled until this condition is verified.
 	function shouldOpenPosition(
-		string memory pocketId,
+		string calldata pocketId,
 		uint256 swappedBaseTokenAmount,
 		uint256 receivedTargetTokenAmount
 	) public view returns (bool) {
@@ -217,7 +217,7 @@ contract PocketRegistry is
 
 	/// @notice Check whether a pocket meet buy condition. The pocket should not be settled until this condition is verified.
 	function shouldTakeProfit(
-		string memory pocketId,
+		string calldata pocketId,
 		uint256 swappedTargetTokenAmount,
 		uint256 receivedBaseTokenAmount
 	) public view returns (bool) {
@@ -275,7 +275,7 @@ contract PocketRegistry is
 
 	/// @notice Check whether a pocket meet buy condition. The pocket should not be settled until this condition is verified.
 	function shouldStopLoss(
-		string memory pocketId,
+		string calldata pocketId,
 		uint256 swappedTargetTokenAmount,
 		uint256 receivedBaseTokenAmount
 	) public view returns (bool) {
@@ -334,7 +334,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Get trading pair info of a given pocket id
-	function getTradingInfoOf(string memory pocketId)
+	function getTradingInfoOf(string calldata pocketId)
 		public
 		view
 		returns (
@@ -365,7 +365,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Get balance info of a given pocket
-	function getBalanceInfoOf(string memory pocketId)
+	function getBalanceInfoOf(string calldata pocketId)
 		public
 		view
 		returns (uint256, uint256)
@@ -377,12 +377,16 @@ contract PocketRegistry is
 	}
 
 	/// @notice Get owner address of a given pocket
-	function getOwnerOf(string memory pocketId) public view returns (address) {
+	function getOwnerOf(string calldata pocketId)
+		public
+		view
+		returns (address)
+	{
 		return (pockets[pocketId].owner);
 	}
 
 	/// @notice Check whether a pocket is available for depositing
-	function isAbleToDeposit(string memory pocketId, address owner)
+	function isAbleToDeposit(string calldata pocketId, address owner)
 		external
 		view
 		returns (bool)
@@ -393,7 +397,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Check whether a pocket is available for depositing
-	function isAbleToUpdate(string memory pocketId, address owner)
+	function isAbleToUpdate(string calldata pocketId, address owner)
 		external
 		view
 		returns (bool)
@@ -404,7 +408,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Check whether a pocket is available to close
-	function isAbleToClose(string memory pocketId, address owner)
+	function isAbleToClose(string calldata pocketId, address owner)
 		external
 		view
 		returns (bool)
@@ -415,7 +419,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Check whether a pocket is available to withdraw
-	function isAbleToWithdraw(string memory pocketId, address owner)
+	function isAbleToWithdraw(string calldata pocketId, address owner)
 		external
 		view
 		returns (bool)
@@ -425,7 +429,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Check whether a pocket is available to restart
-	function isAbleToRestart(string memory pocketId, address owner)
+	function isAbleToRestart(string calldata pocketId, address owner)
 		external
 		view
 		returns (bool)
@@ -435,7 +439,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Check whether a pocket is available to pause
-	function isAbleToPause(string memory pocketId, address owner)
+	function isAbleToPause(string calldata pocketId, address owner)
 		external
 		view
 		returns (bool)
@@ -445,7 +449,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Check whether a pocket is ready to swap
-	function isReadyToSwap(string memory pocketId)
+	function isReadyToSwap(string calldata pocketId)
 		external
 		view
 		returns (bool)

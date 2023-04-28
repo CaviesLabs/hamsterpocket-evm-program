@@ -50,7 +50,10 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
-	function tryClosingPosition(string memory pocketId) external nonReentrant {
+	function tryClosingPosition(string calldata pocketId)
+		external
+		nonReentrant
+	{
 		/// @dev Verify swap condition
 		require(
 			registry.hasRole(registry.OPERATOR(), msg.sender),
@@ -84,7 +87,7 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
-	function tryMakingDCASwap(string memory pocketId) external nonReentrant {
+	function tryMakingDCASwap(string calldata pocketId) external nonReentrant {
 		/// @dev Verify swap condition
 		require(
 			registry.hasRole(registry.OPERATOR(), msg.sender),
@@ -129,7 +132,7 @@ contract PocketChef is
 	}
 
 	/// @notice Deposit token to a pocket
-	function deposit(string memory pocketId, uint256 amount)
+	function deposit(string calldata pocketId, uint256 amount)
 		external
 		nonReentrant
 	{
@@ -158,7 +161,7 @@ contract PocketChef is
 	}
 
 	/// @notice Deposit token to a pocket
-	function withdraw(string memory pocketId) external nonReentrant {
+	function withdraw(string calldata pocketId) external nonReentrant {
 		require(
 			registry.isAbleToWithdraw(pocketId, msg.sender),
 			"Operation error: cannot withdraw pocket"
@@ -178,7 +181,7 @@ contract PocketChef is
 	}
 
 	/// @notice pause pocket
-	function pausePocket(string memory pocketId) external {
+	function pausePocket(string calldata pocketId) external {
 		require(
 			registry.isAbleToPause(pocketId, msg.sender),
 			"Operation error: cannot pause pocket"
@@ -196,7 +199,7 @@ contract PocketChef is
 	}
 
 	/// @notice restart pocket
-	function restartPocket(string memory pocketId) external {
+	function restartPocket(string calldata pocketId) external {
 		require(
 			registry.isAbleToRestart(pocketId, msg.sender),
 			"Operation error: cannot restart pocket"
@@ -214,7 +217,7 @@ contract PocketChef is
 	}
 
 	/// @notice close pocket
-	function closePocket(string memory pocketId) external {
+	function closePocket(string calldata pocketId) external {
 		require(
 			registry.isAbleToClose(pocketId, msg.sender),
 			"Operation error: cannot close pocket"

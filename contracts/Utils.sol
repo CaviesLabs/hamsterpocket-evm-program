@@ -5,7 +5,7 @@ library Utils {
 	/**
 	 * @dev Utility function
 	 */
-	function areStringsEqual(string memory s1, string memory s2)
+	function areStringsEqual(string calldata s1, string calldata s2)
 		external
 		pure
 		returns (bool)
