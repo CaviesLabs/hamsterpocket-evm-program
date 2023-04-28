@@ -456,7 +456,7 @@ contract PocketRegistry is
 	}
 
 	/// @notice Users initialize their pocket
-	function initializeUserPocket(Params.CreatePocketParams memory params)
+	function initializeUserPocket(Params.CreatePocketParams calldata params)
 		external
 		onlyRole(RELAYER)
 		idMustBeAvailable(params.id)
@@ -584,8 +584,8 @@ contract PocketRegistry is
 
 	/// @notice Users initialize their pocket
 	function updatePocket(
-		Params.UpdatePocketParams memory params,
-		string memory reason
+		Params.UpdatePocketParams calldata params,
+		string calldata reason
 	) external onlyRole(RELAYER) mustBeValidPocket(params.id) {
 		/// @dev Validate input
 		require(
@@ -696,8 +696,8 @@ contract PocketRegistry is
 
 	/// @notice The function to provide a method for relayers to update pocket stats
 	function updatePocketClosingPositionStats(
-		Params.UpdatePocketClosingPositionStatsParams memory params,
-		string memory reason
+		Params.UpdatePocketClosingPositionStatsParams calldata params,
+		string calldata reason
 	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
 		Types.Pocket storage pocket = pockets[params.id];
 
@@ -717,8 +717,8 @@ contract PocketRegistry is
 
 	/// @notice The function to provide a method for relayers to update pocket stats
 	function updatePocketTradingStats(
-		Params.UpdatePocketTradingStatsParams memory params,
-		string memory reason
+		Params.UpdatePocketTradingStatsParams calldata params,
+		string calldata reason
 	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
 		Types.Pocket storage pocket = pockets[params.id];
 
@@ -746,8 +746,8 @@ contract PocketRegistry is
 
 	/// @notice The function to provide a method for relayers to update pocket stats
 	function updatePocketWithdrawalStats(
-		Params.UpdatePocketWithdrawalParams memory params,
-		string memory reason
+		Params.UpdatePocketWithdrawalParams calldata params,
+		string calldata reason
 	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
 		Types.Pocket storage pocket = pockets[params.id];
 
@@ -761,8 +761,8 @@ contract PocketRegistry is
 
 	/// @notice The function to provide a method for relayers to update pocket stats
 	function updatePocketDepositStats(
-		Params.UpdatePocketDepositParams memory params,
-		string memory reason
+		Params.UpdatePocketDepositParams calldata params,
+		string calldata reason
 	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
 		Types.Pocket storage pocket = pockets[params.id];
 
@@ -778,8 +778,8 @@ contract PocketRegistry is
 
 	/// @notice The function to provide a method for relayers to update pocket stats
 	function updatePocketStatus(
-		Params.UpdatePocketStatusParams memory params,
-		string memory reason
+		Params.UpdatePocketStatusParams calldata params,
+		string calldata reason
 	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
 		Types.Pocket storage pocket = pockets[params.id];
 

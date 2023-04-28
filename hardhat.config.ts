@@ -50,11 +50,12 @@ if (!testEnv && privateKey) {
     },
     hardhat: {
       forking: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_ID}`,
+        url: `https://bsc-dataseed1.binance.org`,
+        enabled: true,
       },
       gas: "auto",
       gasPrice: "auto",
-      chainId: 1,
+      chainId: 56,
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_ID}`,

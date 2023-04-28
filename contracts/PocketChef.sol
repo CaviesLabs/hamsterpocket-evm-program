@@ -34,13 +34,13 @@ contract PocketChef is
 	event RegistryUpdated(address indexed actor, address updatedAddress);
 
 	/// @notice create pocket
-	function createPocket(Params.CreatePocketParams memory params) external {
+	function createPocket(Params.CreatePocketParams calldata params) external {
 		require(params.owner == msg.sender, "Invalid pocket: owner mismatches");
 		registry.initializeUserPocket(params);
 	}
 
 	/// @notice Update pocket data
-	function updatePocket(Params.UpdatePocketParams memory params) external {
+	function updatePocket(Params.UpdatePocketParams calldata params) external {
 		require(
 			registry.isAbleToUpdate(params.id, msg.sender),
 			"Operation error: the pocket is not able to update"

@@ -199,7 +199,7 @@ contract PocketVault is
 	}
 
 	/// @notice withdraw
-	function withdraw(Params.UpdatePocketWithdrawalParams memory params)
+	function withdraw(Params.UpdatePocketWithdrawalParams calldata params)
 		external
 		nonReentrant
 		onlyRelayer
@@ -243,7 +243,7 @@ contract PocketVault is
 	}
 
 	/// @notice Deposit
-	function deposit(Params.UpdatePocketDepositParams memory params)
+	function deposit(Params.UpdatePocketDepositParams calldata params)
 		external
 		nonReentrant
 		onlyRelayer
