@@ -134,6 +134,7 @@ export async function deployFixtures() {
    * @dev return
    */
   return {
+    Provider: ethers.provider,
     MockedERC20,
     Registry,
     Vault,

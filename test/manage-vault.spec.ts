@@ -49,6 +49,79 @@ describe("[manage_vault]", async function () {
     };
   });
 
+  it("[create_and_deposit] should: owner creates and deposits to pocket with native ether", async () => {
+    /// @dev Wrap BNB first
+    const { Chef, Registry, Multicall3, Vault, WBNBAddress, owner, Provider } =
+      fixtures;
+
+    /**
+     * @dev Approve first
+     */
+    const WBNB = new ERC20__factory().connect(owner).attach(WBNBAddress);
+
+    const beforeBalance = await Provider.getBalance(owner.address);
+
+    const vaultBeforeBalance = await WBNB.balanceOf(Vault.address);
+    expect(vaultBeforeBalance.eq(ethers.constants.Zero));
+
+    /**
+     * @dev Try multicall
+     */
+    await Chef.connect(owner).createPocketAndDepositEther(
+      { ...toBeCreatedPocketData, id: "createPocketAndDepositEther" },
+      { value: ethers.constants.WeiPerEther }
+    );
+
+    const afterBalance = await Provider.getBalance(owner.address);
+    expect(
+      beforeBalance.sub(afterBalance).div(ethers.constants.WeiPerEther).eq(1)
+    ).to.be.true;
+
+    const vaultAfterBalance = await WBNB.balanceOf(Vault.address);
+    expect(vaultAfterBalance.eq(ethers.constants.WeiPerEther));
+
+    /**
+     * @dev Multiple queries using multicall3
+     */
+    const [
+      { returnData: createdPocketData },
+      { returnData: stopConditionsData },
+    ] = await Multicall3.callStatic.aggregate3([
+      {
+        target: Registry.address,
+        callData: Registry.interface.encodeFunctionData("pockets", [
+          "createPocketAndDepositEther",
+        ]),
+        allowFailure: false,
+      },
+      {
+        target: Registry.address,
+        callData: Registry.interface.encodeFunctionData("getStopConditionsOf", [
+          "createPocketAndDepositEther",
+        ]),
+        allowFailure: false,
+      },
+    ]);
+
+    const createdPocket = Registry.interface.decodeFunctionResult(
+      "pockets",
+      createdPocketData
+    );
+    const stopConditions = Registry.interface.decodeFunctionResult(
+      "getStopConditionsOf",
+      stopConditionsData
+    );
+
+    expect(createdPocket.id).eq("createPocketAndDepositEther");
+    expect(createdPocket.baseTokenBalance.eq(ethers.constants.WeiPerEther)).to
+      .be.true;
+    expect(createdPocket.targetTokenBalance.eq(ethers.constants.Zero)).to.be
+      .true;
+    expect(stopConditions.length).eq(
+      toBeCreatedPocketData.stopConditions.length
+    );
+  });
+
   it("[create_and_deposit] should: owner creates and deposits to pocket using multicall", async () => {
     /// @dev Wrap BNB first
     const { Chef, Registry, Multicall3, Vault, WBNBAddress, owner } = fixtures;
@@ -72,10 +145,13 @@ describe("[manage_vault]", async function () {
      * @dev Try multicall
      */
     await Chef.connect(owner).multicall([
-      Chef.connect(owner).interface.encodeFunctionData(
-        "createPocketAndDepositToken",
-        [toBeCreatedPocketData, ethers.constants.WeiPerEther]
-      ),
+      Chef.connect(owner).interface.encodeFunctionData("createPocket", [
+        toBeCreatedPocketData,
+      ]),
+      Chef.connect(owner).interface.encodeFunctionData("depositToken", [
+        toBeCreatedPocketData.id,
+        ethers.constants.WeiPerEther,
+      ]),
     ]);
 
     const afterBalance = await WBNB.balanceOf(owner.address);
