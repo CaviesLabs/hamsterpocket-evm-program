@@ -1,7 +1,6 @@
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
 // and reset Hardhat Network to that snapshopt in every test.
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, upgrades } from "hardhat";
 import {
   PocketChef,
