@@ -250,6 +250,22 @@ describe("[manage_pocket]", async function () {
     expect(eventLogs[0].name).eq("PocketUpdated");
     expect(eventLogs[0].args[3]).eq("USER_PAUSED_POCKET");
 
+    /// Restarted pocket
+    tx = await fixtures.Chef.restartPocket(toBeUpdatedPocketData.id);
+    txReceipt = await tx.wait();
+
+    const restartedPocket = await fixtures.Registry.pockets(
+      toBeUpdatedPocketData.id
+    );
+    expect(restartedPocket.status.toString()).eq("0"); // already closed
+
+    eventLogs = txReceipt.logs.map((elm) => {
+      return fixtures.Registry.interface.parseLog(elm);
+    });
+    expect(eventLogs.length).eq(1);
+    expect(eventLogs[0].name).eq("PocketUpdated");
+    expect(eventLogs[0].args[3]).eq("USER_RESTARTED_POCKET");
+
     /// Close pocket
     tx = await fixtures.Chef.closePocket(toBeUpdatedPocketData.id);
     txReceipt = await tx.wait();
