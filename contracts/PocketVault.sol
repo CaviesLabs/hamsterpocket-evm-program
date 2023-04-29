@@ -23,6 +23,10 @@ interface UniversalRouter {
 		bytes[] calldata inputs,
 		uint256 deadline
 	) external payable;
+
+	function execute(bytes calldata commands, bytes[] calldata inputs)
+		external
+		payable;
 }
 
 interface IPermit2 {
@@ -106,6 +110,7 @@ contract PocketVault is
 		uint256 amount
 	) private returns (uint256) {
 		IERC20(baseTokenAddress).approve(address(permit2), amount);
+
 		permit2.approve(
 			baseTokenAddress,
 			router,
@@ -116,19 +121,28 @@ contract PocketVault is
 		bytes memory commands = abi.encodePacked(
 			bytes1(uint8(Commands.V3_SWAP_EXACT_IN))
 		);
-		address[] memory path = new address[](2);
-		path[0] = baseTokenAddress;
-		path[1] = targetTokenAddress;
-		bytes[] memory inputs = new bytes[](1);
-		inputs[0] = abi.encode(Constants.MSG_SENDER, amount, 0, path, true);
 
-		uint256 beforeBalance = IERC20(baseTokenAddress).balanceOf(
+		bytes[] memory inputs = new bytes[](1);
+		inputs[0] = abi.encode(
+			address(this),
+			amount,
+			0,
+			abi.encodePacked(
+				baseTokenAddress,
+				uint24(3000),
+				targetTokenAddress
+			),
+			true
+		);
+
+		uint256 beforeBalance = IERC20(targetTokenAddress).balanceOf(
 			address(this)
 		);
-		UniversalRouter(router).execute(commands, inputs, block.timestamp);
+
+		UniversalRouter(router).execute(commands, inputs);
 
 		return
-			IERC20(baseTokenAddress).balanceOf(address(this)).sub(
+			IERC20(targetTokenAddress).balanceOf(address(this)).sub(
 				beforeBalance
 			);
 	}

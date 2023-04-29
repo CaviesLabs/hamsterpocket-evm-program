@@ -241,7 +241,7 @@ describe("[manage_pocket]", async function () {
     const pausedPocket = await fixtures.Registry.pockets(
       toBeUpdatedPocketData.id
     );
-    expect(pausedPocket.status.toString()).eq("1"); // already paused
+    expect(pausedPocket.status.toString()).eq("2"); // already paused
 
     let eventLogs = txReceipt.logs.map((elm) => {
       return fixtures.Registry.interface.parseLog(elm);
@@ -257,7 +257,7 @@ describe("[manage_pocket]", async function () {
     const restartedPocket = await fixtures.Registry.pockets(
       toBeUpdatedPocketData.id
     );
-    expect(restartedPocket.status.toString()).eq("0"); // already closed
+    expect(restartedPocket.status.toString()).eq("1"); // already activated
 
     eventLogs = txReceipt.logs.map((elm) => {
       return fixtures.Registry.interface.parseLog(elm);
@@ -273,7 +273,7 @@ describe("[manage_pocket]", async function () {
     const closedPocket = await fixtures.Registry.pockets(
       toBeUpdatedPocketData.id
     );
-    expect(closedPocket.status.toString()).eq("2"); // already closed
+    expect(closedPocket.status.toString()).eq("3"); // already closed
 
     eventLogs = txReceipt.logs.map((elm) => {
       return fixtures.Registry.interface.parseLog(elm);

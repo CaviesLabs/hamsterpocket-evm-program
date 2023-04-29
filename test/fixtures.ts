@@ -2,6 +2,7 @@
 // We use loadFixture to run this setup once, snapshot that state,
 // and reset Hardhat Network to that snapshopt in every test.
 import { ethers, upgrades } from "hardhat";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 import {
   PocketChef,
   PocketVault,
@@ -134,6 +135,7 @@ export async function deployFixtures() {
    * @dev return
    */
   return {
+    Time: time,
     Provider: ethers.provider,
     MockedERC20,
     Registry,

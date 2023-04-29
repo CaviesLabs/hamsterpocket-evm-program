@@ -200,6 +200,27 @@ describe("[manage_vault]", async function () {
     expect(stopConditions.length).eq(
       toBeCreatedPocketData.stopConditions.length
     );
+
+    // uint256 totalDepositedBaseAmount;
+    // 		uint256 totalSwappedBaseAmount;
+    // 		uint256 totalReceivedTargetAmount;
+    // 		uint256 totalClosedPositionInTargetTokenAmount;
+    // 		uint256 totalReceivedFundInBaseTokenAmount;
+    // 		uint256 baseTokenBalance;
+    // 		uint256 targetTokenBalance;
+    // 		uint256 executedBatchAmount;
+    // 		uint256 nextScheduledExecutionAt;
+    expect(createdPocket.totalDepositedBaseAmount).eq(
+      ethers.constants.WeiPerEther
+    );
+    expect(createdPocket.totalSwappedBaseAmount).eq(ethers.constants.Zero);
+    expect(createdPocket.totalReceivedTargetAmount).eq(ethers.constants.Zero);
+    expect(createdPocket.totalClosedPositionInTargetTokenAmount).eq(
+      ethers.constants.Zero
+    );
+    expect(createdPocket.totalReceivedFundInBaseTokenAmount).eq(
+      ethers.constants.Zero
+    );
   });
 
   it("[withdraw] should: owner fails to withdraw an active pocket", async () => {
@@ -260,10 +281,22 @@ describe("[manage_vault]", async function () {
     expect(createdPocket.baseTokenBalance.eq(ethers.constants.Zero)).to.be.true;
     expect(createdPocket.targetTokenBalance.eq(ethers.constants.Zero)).to.be
       .true;
-    expect(createdPocket.status.toString()).eq("3"); // changed to withdrawn
+    expect(createdPocket.status.toString()).eq("4"); // changed to withdrawn
 
     const afterBalance = await WBNB.balanceOf(owner.address);
     expect(afterBalance.eq(ethers.constants.WeiPerEther)).to.be.true;
+
+    expect(createdPocket.totalDepositedBaseAmount).eq(
+      ethers.constants.WeiPerEther
+    );
+    expect(createdPocket.totalSwappedBaseAmount).eq(ethers.constants.Zero);
+    expect(createdPocket.totalReceivedTargetAmount).eq(ethers.constants.Zero);
+    expect(createdPocket.totalClosedPositionInTargetTokenAmount).eq(
+      ethers.constants.Zero
+    );
+    expect(createdPocket.totalReceivedFundInBaseTokenAmount).eq(
+      ethers.constants.Zero
+    );
   });
 
   it("[deposit] should: owner fails to deposit to a closed pocket", async () => {

@@ -728,7 +728,13 @@ contract PocketRegistry is
 	function updatePocketTradingStats(
 		Params.UpdatePocketTradingStatsParams calldata params,
 		string calldata reason
-	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
+	) external onlyRole(RELAYER) {
+		/// @dev Check for permission
+		require(
+			hasRole(OPERATOR, params.actor),
+			"Operation error: only operator can update trading stats"
+		);
+
 		Types.Pocket storage pocket = pockets[params.id];
 
 		/// @dev Assigned value
@@ -742,7 +748,7 @@ contract PocketRegistry is
 		pocket.totalReceivedTargetAmount = pocket.totalReceivedTargetAmount.add(
 			params.receivedTargetTokenAmount
 		);
-		pocket.baseTokenBalance = pocket.totalSwappedBaseAmount.sub(
+		pocket.baseTokenBalance = pocket.baseTokenBalance.sub(
 			params.swappedBaseTokenAmount
 		);
 		pocket.targetTokenBalance = pocket.targetTokenBalance.add(

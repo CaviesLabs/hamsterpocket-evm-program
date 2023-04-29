@@ -82,7 +82,7 @@ contract PocketChef is
 		/// @dev Verify swap condition
 		require(
 			registry.hasRole(registry.OPERATOR(), msg.sender),
-			"Operation error: only operator is only permitted for the operation"
+			"Operation error: only operator is permitted for the operation"
 		);
 		require(
 			registry.isReadyToSwap(pocketId),
@@ -116,7 +116,7 @@ contract PocketChef is
 		/// @dev Verify swap condition
 		require(
 			registry.hasRole(registry.OPERATOR(), msg.sender),
-			"Operation error: only operator is only permitted for the operation"
+			"Operation error: only operator is permitted for the operation"
 		);
 		require(
 			registry.isReadyToSwap(pocketId),

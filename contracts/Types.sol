@@ -6,6 +6,7 @@ library Types {
 	 * @dev Pocket status which has 4 statuses
 	 */
 	enum PocketStatus {
+		Unset,
 		Active,
 		Paused,
 		Closed,
