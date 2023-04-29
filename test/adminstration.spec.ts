@@ -3,7 +3,7 @@ import { expect } from "chai";
 
 import { deployFixtures } from "./fixtures";
 
-describe("[administrator]", async function () {
+describe("[administration]", async function () {
   let fixtures: Awaited<ReturnType<typeof deployFixtures>>;
 
   before(async () => {

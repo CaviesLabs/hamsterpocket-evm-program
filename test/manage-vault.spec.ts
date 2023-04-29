@@ -6,7 +6,6 @@ import { BigNumber } from "ethers";
 import { deployFixtures } from "./fixtures";
 import { Params } from "../typechain-types/contracts/PocketChef";
 import { ERC20__factory, IWETH9__factory } from "../typechain-types";
-import { IWETH9 } from "@uniswap/universal-router/typechain";
 
 describe("[manage_vault]", async function () {
   let fixtures: Awaited<ReturnType<typeof deployFixtures>>;
@@ -65,10 +64,13 @@ describe("[manage_vault]", async function () {
 
     const beforeBalance = await WBNB.balanceOf(owner.address);
     expect(beforeBalance.eq(ethers.constants.WeiPerEther));
-    /**
-     * @dev Try multicall3
-     */
 
+    const vaultBeforeBalance = await WBNB.balanceOf(Vault.address);
+    expect(vaultBeforeBalance.eq(ethers.constants.Zero));
+
+    /**
+     * @dev Try multicall
+     */
     await Chef.connect(owner).multicall([
       Chef.connect(owner).interface.encodeFunctionData(
         "createPocketAndDepositToken",
@@ -78,5 +80,124 @@ describe("[manage_vault]", async function () {
 
     const afterBalance = await WBNB.balanceOf(owner.address);
     expect(afterBalance.eq(0)).to.be.true;
+
+    const vaultAfterBalance = await WBNB.balanceOf(Vault.address);
+    expect(vaultAfterBalance.eq(ethers.constants.WeiPerEther));
+
+    /**
+     * @dev Multiple queries using multicall3
+     */
+    const [
+      { returnData: createdPocketData },
+      { returnData: stopConditionsData },
+    ] = await Multicall3.callStatic.aggregate3([
+      {
+        target: Registry.address,
+        callData: Registry.interface.encodeFunctionData("pockets", [
+          toBeCreatedPocketData.id,
+        ]),
+        allowFailure: false,
+      },
+      {
+        target: Registry.address,
+        callData: Registry.interface.encodeFunctionData("getStopConditionsOf", [
+          toBeCreatedPocketData.id,
+        ]),
+        allowFailure: false,
+      },
+    ]);
+
+    const createdPocket = Registry.interface.decodeFunctionResult(
+      "pockets",
+      createdPocketData
+    );
+    const stopConditions = Registry.interface.decodeFunctionResult(
+      "getStopConditionsOf",
+      stopConditionsData
+    );
+
+    expect(createdPocket.id).eq(toBeCreatedPocketData.id);
+    expect(createdPocket.baseTokenBalance.eq(ethers.constants.WeiPerEther)).to
+      .be.true;
+    expect(createdPocket.targetTokenBalance.eq(ethers.constants.Zero)).to.be
+      .true;
+    expect(stopConditions.length).eq(
+      toBeCreatedPocketData.stopConditions.length
+    );
+  });
+
+  it("[withdraw] should: owner fails to withdraw an active pocket", async () => {
+    const { Chef, owner } = fixtures;
+
+    await expect(
+      Chef.connect(owner).withdraw(toBeCreatedPocketData.id)
+    ).to.be.revertedWith("Operation error: cannot withdraw pocket fund");
+  });
+
+  it("[deposit] should: non-owner fails to deposit to an active pocket", async () => {
+    const { Chef, owner, owner2 } = fixtures;
+
+    await expect(
+      Chef.connect(owner2).depositToken(
+        toBeCreatedPocketData.id,
+        ethers.constants.WeiPerEther
+      )
+    ).to.be.revertedWith("Operation error: cannot deposit");
+  });
+
+  it("[close_and_withdraw] should: close and withdraw pocket with multicall", async () => {
+    const { Chef, Registry, Multicall3, Vault, WBNBAddress, owner } = fixtures;
+
+    const WBNB = new ERC20__factory().connect(owner).attach(WBNBAddress);
+    const beforeBalance = await WBNB.balanceOf(owner.address);
+    expect(beforeBalance.eq(ethers.constants.Zero)).to.be.true;
+
+    await Chef.connect(owner).multicall([
+      Chef.connect(owner).interface.encodeFunctionData("closePocket", [
+        toBeCreatedPocketData.id,
+      ]),
+      Chef.connect(owner).interface.encodeFunctionData("withdraw", [
+        toBeCreatedPocketData.id,
+      ]),
+    ]);
+
+    /**
+     * @dev Multiple queries using multicall3
+     */
+    const [{ returnData: createdPocketData }] =
+      await Multicall3.callStatic.aggregate3([
+        {
+          target: Registry.address,
+          callData: Registry.interface.encodeFunctionData("pockets", [
+            toBeCreatedPocketData.id,
+          ]),
+          allowFailure: false,
+        },
+      ]);
+
+    const createdPocket = Registry.interface.decodeFunctionResult(
+      "pockets",
+      createdPocketData
+    );
+
+    expect(createdPocket.id).eq(toBeCreatedPocketData.id);
+    expect(createdPocket.baseTokenBalance.eq(ethers.constants.Zero)).to.be.true;
+    expect(createdPocket.targetTokenBalance.eq(ethers.constants.Zero)).to.be
+      .true;
+    expect(createdPocket.status.toString()).eq("3"); // changed to withdrawn
+
+    const afterBalance = await WBNB.balanceOf(owner.address);
+    expect(afterBalance.eq(ethers.constants.WeiPerEther)).to.be.true;
+  });
+
+  it("[deposit] should: owner fails to deposit to a closed pocket", async () => {
+    const { Chef, owner } = fixtures;
+
+    await expect(
+      Chef.connect(owner).depositToken(
+        toBeCreatedPocketData.id,
+        ethers.constants.WeiPerEther
+      )
+    ).to.be.revertedWith("Operation error: cannot deposit");
   });
 });

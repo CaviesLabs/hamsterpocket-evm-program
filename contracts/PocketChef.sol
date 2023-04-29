@@ -244,7 +244,7 @@ contract PocketChef is
 	function withdraw(string calldata pocketId) external nonReentrant {
 		require(
 			registry.isAbleToWithdraw(pocketId, msg.sender),
-			"Operation error: cannot withdraw pocket"
+			"Operation error: cannot withdraw pocket fund"
 		);
 
 		Params.UpdatePocketWithdrawalParams memory params = Params
