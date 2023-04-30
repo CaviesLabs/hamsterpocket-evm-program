@@ -85,8 +85,8 @@ contract PocketChef is
 			"Operation error: only operator is permitted for the operation"
 		);
 		require(
-			registry.isReadyToSwap(pocketId),
-			"Operation error: the pocket is not ready to perform swap"
+			registry.isReadyToClosePosition(pocketId),
+			"Operation error: the pocket is not ready to close position"
 		);
 
 		/// @dev Execute DCA Swap
@@ -96,7 +96,7 @@ contract PocketChef is
 		require(
 			registry.shouldStopLoss(pocketId, amountIn, amountOut) ||
 				registry.shouldTakeProfit(pocketId, amountIn, amountOut),
-			"Operation error: closing position condition not reaches"
+			"Operation error: closing position condition does not reach"
 		);
 
 		/// @dev Update trading stats
@@ -129,7 +129,7 @@ contract PocketChef is
 		/// @dev Check whether the buy condition meets
 		require(
 			registry.shouldOpenPosition(pocketId, amountIn, amountOut),
-			"Operation error: buy condition not reaches"
+			"Operation error: buy condition does not reach"
 		);
 
 		/// @dev Update trading stats

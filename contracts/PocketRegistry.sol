@@ -459,6 +459,17 @@ contract PocketRegistry is
 			pockets[pocketId].nextScheduledExecutionAt <= block.timestamp);
 	}
 
+	/// @notice Check whether a pocket is ready to swap
+	function isReadyToClosePosition(string calldata pocketId)
+		external
+		view
+		returns (bool)
+	{
+		return (pockets[pocketId].status != Types.PocketStatus.Withdrawn &&
+			pockets[pocketId].startAt <= block.timestamp &&
+			pockets[pocketId].targetTokenBalance > 0);
+	}
+
 	/// @notice Users initialize their pocket
 	function initializeUserPocket(Params.CreatePocketParams calldata params)
 		external
@@ -710,8 +721,9 @@ contract PocketRegistry is
 	) external onlyRole(RELAYER) {
 		/// @dev Check for permission
 		require(
-			hasRole(OPERATOR, params.actor),
-			"Operation error: only operator can update trading stats"
+			hasRole(OPERATOR, params.actor) ||
+				isOwnerOf(params.id, params.actor),
+			"Operation error: operation is not permitted"
 		);
 
 		Types.Pocket storage pocket = pockets[params.id];
@@ -739,8 +751,9 @@ contract PocketRegistry is
 	) external onlyRole(RELAYER) {
 		/// @dev Check for permission
 		require(
-			hasRole(OPERATOR, params.actor),
-			"Operation error: only operator can update trading stats"
+			hasRole(OPERATOR, params.actor) ||
+				isOwnerOf(params.id, params.actor),
+			"Operation error: operation is not permitted"
 		);
 
 		Types.Pocket storage pocket = pockets[params.id];
@@ -804,7 +817,13 @@ contract PocketRegistry is
 	function updatePocketStatus(
 		Params.UpdatePocketStatusParams calldata params,
 		string calldata reason
-	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
+	) external onlyRole(RELAYER) {
+		require(
+			hasRole(OPERATOR, params.actor) ||
+				isOwnerOf(params.id, params.actor),
+			"Operation error: operation is not permitted"
+		);
+
 		Types.Pocket storage pocket = pockets[params.id];
 
 		/// @dev Assigned value
