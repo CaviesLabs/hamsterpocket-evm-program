@@ -288,13 +288,13 @@ contract PocketRegistry is
 			return false;
 		}
 
-		/// @dev If pocket stop condition is based on price, return true if expectedAmountOut is greater than or equal condition value
+		/// @dev If pocket stop condition is based on price, return true if expectedAmountOut is less than or equal condition value
 		if (condition.stopType == Types.TradingStopConditionType.Price) {
 			/// @dev Calculate price
-			uint256 targetTokenDecimal = ERC20(pocket.targetTokenAddress)
+			uint256 targetTokenDecimals = ERC20(pocket.targetTokenAddress)
 				.decimals();
 			uint256 expectedAmountOut = receivedBaseTokenAmount
-				.mul(10**targetTokenDecimal)
+				.mul(10**targetTokenDecimals)
 				.div(swappedTargetTokenAmount);
 
 			return expectedAmountOut <= condition.value;
@@ -707,7 +707,13 @@ contract PocketRegistry is
 	function updatePocketClosingPositionStats(
 		Params.UpdatePocketClosingPositionStatsParams calldata params,
 		string calldata reason
-	) external onlyRole(RELAYER) mustBeOwnerOf(params.id, params.actor) {
+	) external onlyRole(RELAYER) {
+		/// @dev Check for permission
+		require(
+			hasRole(OPERATOR, params.actor),
+			"Operation error: only operator can update trading stats"
+		);
+
 		Types.Pocket storage pocket = pockets[params.id];
 
 		/// @dev Assigned value
@@ -717,7 +723,9 @@ contract PocketRegistry is
 			.receivedBaseTokenAmount;
 
 		/// @dev Update balance properly
-		pocket.baseTokenBalance = params.receivedBaseTokenAmount;
+		pocket.baseTokenBalance = pocket.baseTokenBalance.add(
+			params.receivedBaseTokenAmount
+		);
 		pocket.targetTokenBalance = 0;
 
 		/// @dev Emit events

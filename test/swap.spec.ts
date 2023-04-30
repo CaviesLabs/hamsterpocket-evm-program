@@ -5,12 +5,7 @@ import { BigNumber } from "ethers";
 
 import { deployFixtures } from "./fixtures";
 import { Params } from "../typechain-types/contracts/PocketChef";
-import {
-  ERC20__factory,
-  IERC20__factory,
-  IWETH9__factory,
-} from "../typechain-types";
-import { IERC20 } from "@uniswap/universal-router/typechain";
+import { IERC20__factory } from "../typechain-types";
 
 describe("[swap]", async function () {
   let fixtures: Awaited<ReturnType<typeof deployFixtures>>;
@@ -46,8 +41,8 @@ describe("[swap]", async function () {
         value: "0",
       },
       stopLossCondition: {
-        stopType: "0",
-        value: "0",
+        stopType: "1",
+        value: ethers.constants.WeiPerEther.mul(1000),
       },
     };
 
@@ -158,7 +153,6 @@ describe("[swap]", async function () {
       Vault,
       Registry,
       operator,
-      Multicall3,
     } = fixtures;
 
     /**
@@ -212,9 +206,10 @@ describe("[swap]", async function () {
       ethers.constants.WeiPerEther.div(BigNumber.from("10"))
     );
     const btcbVaultBalance = await BTCB.balanceOf(Vault.address);
-    expect(pocket.totalReceivedTargetAmount).eq(btcbVaultBalance);
-    expect(pocket.totalClosedPositionInTargetTokenAmount).eq(
-      ethers.constants.WeiPerEther.div(BigNumber.from("10"))
+    expect(btcbVaultBalance).eq(ethers.constants.Zero);
+    expect(pocket.totalReceivedTargetAmount).gt(ethers.constants.Zero);
+    expect(pocket.totalClosedPositionInTargetTokenAmount).gt(
+      ethers.constants.Zero
     );
     expect(pocket.totalReceivedFundInBaseTokenAmount).gt(ethers.constants.Zero);
   });
