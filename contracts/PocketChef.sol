@@ -56,7 +56,7 @@ contract PocketChef is
 	function createPocketAndDepositToken(
 		Params.CreatePocketParams calldata params,
 		uint256 depositAmount
-	) external {
+	) external nonReentrant {
 		/// @dev Create pocket
 		createPocket(params);
 
@@ -65,7 +65,10 @@ contract PocketChef is
 	}
 
 	/// @notice Update pocket data
-	function updatePocket(Params.UpdatePocketParams calldata params) external {
+	function updatePocket(Params.UpdatePocketParams calldata params)
+		external
+		nonReentrant
+	{
 		require(
 			registry.isAbleToUpdate(params.id, msg.sender),
 			"Operation error: the pocket is not able to update"
