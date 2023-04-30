@@ -91,7 +91,17 @@ Hamsterpocket (Pocket) is an Open Source self-managed dollar-cost-averaging prot
 
 ## **Getting started** 🚀
 
-**TO BE UPDATED**
+### Test
+
+```bash
+yarn test
+```
+
+### Deploy into BSC mainnet
+
+```bash
+npx hardhat run scripts/pocket/deploy.ts --network bsc
+```
 
 ## **Contribution** 🤝
 
