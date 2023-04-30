@@ -96,7 +96,6 @@ describe("[swap]", async function () {
       Vault,
       Registry,
       operator,
-      Multicall3,
     } = fixtures;
 
     /**
@@ -149,57 +148,74 @@ describe("[swap]", async function () {
     expect(pocket.totalReceivedFundInBaseTokenAmount).eq(ethers.constants.Zero);
   });
 
-  // it("[auto_investment] should: operator can close position of the swap", async () => {
-  //   const {Time, Chef, WBNBAddress, BTCBAddress, owner, Vault, Registry, operator, Multicall3} = fixtures;
-  //
-  //   /**
-  //    * @dev Increase time to make sure the blocktime is matched
-  //    */
-  //   await Time.increaseTo(parseInt(
-  //     (new Date().getTime() / 1000 + 36000).toString()
-  //   ));
-  //
-  //   const WBNB = IERC20__factory.connect(WBNBAddress, owner);
-  //   const BTCB = IERC20__factory.connect(BTCBAddress, owner);
-  //
-  //   expect(
-  //     (await WBNB.balanceOf(Vault.address)).eq(ethers.constants.WeiPerEther.sub(ethers.constants.WeiPerEther.div(BigNumber.from("10"))))
-  //   ).to.be.true;
-  //   expect(
-  //     (await BTCB.balanceOf(Vault.address)).gt(ethers.constants.Zero)
-  //   ).to.be.true;
-  //
-  //   let pocket = await Registry.pockets(toBeCreatedPocketData.id);
-  //   expect(
-  //     (pocket.baseTokenBalance)
-  //   ).eq(ethers.constants.WeiPerEther.sub(ethers.constants.WeiPerEther.div(BigNumber.from("10"))))
-  //   expect(
-  //     (pocket.targetTokenBalance)
-  //   ).gt(ethers.constants.Zero);
-  //
-  //   await Chef.connect(operator).tryClosingPosition(toBeCreatedPocketData.id);
-  //
-  //   expect(
-  //     (await WBNB.balanceOf(Vault.address))
-  //   ).gt(ethers.constants.WeiPerEther.sub(ethers.constants.WeiPerEther.div(BigNumber.from("10"))));
-  //   expect(
-  //     (await BTCB.balanceOf(Vault.address))
-  //   ).eq(ethers.constants.Zero);
-  //
-  //   pocket = await Registry.pockets(toBeCreatedPocketData.id);
-  //
-  //   expect(
-  //     (pocket.baseTokenBalance)
-  //   ).gt(ethers.constants.WeiPerEther.sub(ethers.constants.WeiPerEther.div(BigNumber.from("10"))));
-  //   expect(
-  //     (pocket.targetTokenBalance)
-  //   ).eq(ethers.constants.Zero);
-  //
-  //   expect(pocket.totalDepositedBaseAmount).eq(ethers.constants.WeiPerEther);
-  //   expect(pocket.totalSwappedBaseAmount).eq(ethers.constants.WeiPerEther.div(BigNumber.from("10")));
-  //   const btcbVaultBalance = await BTCB.balanceOf(Vault.address);
-  //   expect(pocket.totalReceivedTargetAmount).eq(btcbVaultBalance);
-  //   expect(pocket.totalClosedPositionInTargetTokenAmount).eq(ethers.constants.WeiPerEther.div(BigNumber.from("10")));
-  //   expect(pocket.totalReceivedFundInBaseTokenAmount).gt(ethers.constants.Zero);
-  // });
+  it("[auto_investment] should: operator can close position of the swap", async () => {
+    const {
+      Time,
+      Chef,
+      WBNBAddress,
+      BTCBAddress,
+      owner,
+      Vault,
+      Registry,
+      operator,
+      Multicall3,
+    } = fixtures;
+
+    /**
+     * @dev Increase time to make sure the blocktime is matched
+     */
+    await Time.increaseTo(
+      parseInt((new Date().getTime() / 1000 + 36000).toString())
+    );
+
+    const WBNB = IERC20__factory.connect(WBNBAddress, owner);
+    const BTCB = IERC20__factory.connect(BTCBAddress, owner);
+
+    expect(
+      (await WBNB.balanceOf(Vault.address)).eq(
+        ethers.constants.WeiPerEther.sub(
+          ethers.constants.WeiPerEther.div(BigNumber.from("10"))
+        )
+      )
+    ).to.be.true;
+    expect((await BTCB.balanceOf(Vault.address)).gt(ethers.constants.Zero)).to
+      .be.true;
+
+    let pocket = await Registry.pockets(toBeCreatedPocketData.id);
+    expect(pocket.baseTokenBalance).eq(
+      ethers.constants.WeiPerEther.sub(
+        ethers.constants.WeiPerEther.div(BigNumber.from("10"))
+      )
+    );
+    expect(pocket.targetTokenBalance).gt(ethers.constants.Zero);
+
+    await Chef.connect(operator).tryClosingPosition(toBeCreatedPocketData.id);
+
+    expect(await WBNB.balanceOf(Vault.address)).gt(
+      ethers.constants.WeiPerEther.sub(
+        ethers.constants.WeiPerEther.div(BigNumber.from("10"))
+      )
+    );
+    expect(await BTCB.balanceOf(Vault.address)).eq(ethers.constants.Zero);
+
+    pocket = await Registry.pockets(toBeCreatedPocketData.id);
+
+    expect(pocket.baseTokenBalance).gt(
+      ethers.constants.WeiPerEther.sub(
+        ethers.constants.WeiPerEther.div(BigNumber.from("10"))
+      )
+    );
+    expect(pocket.targetTokenBalance).eq(ethers.constants.Zero);
+
+    expect(pocket.totalDepositedBaseAmount).eq(ethers.constants.WeiPerEther);
+    expect(pocket.totalSwappedBaseAmount).eq(
+      ethers.constants.WeiPerEther.div(BigNumber.from("10"))
+    );
+    const btcbVaultBalance = await BTCB.balanceOf(Vault.address);
+    expect(pocket.totalReceivedTargetAmount).eq(btcbVaultBalance);
+    expect(pocket.totalClosedPositionInTargetTokenAmount).eq(
+      ethers.constants.WeiPerEther.div(BigNumber.from("10"))
+    );
+    expect(pocket.totalReceivedFundInBaseTokenAmount).gt(ethers.constants.Zero);
+  });
 });

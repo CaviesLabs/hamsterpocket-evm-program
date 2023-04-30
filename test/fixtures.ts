@@ -24,6 +24,9 @@ export async function deployFixtures() {
   const operator = await ethers.getImpersonatedSigner(
     "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
   );
+  const BTCBOwner = await ethers.getImpersonatedSigner(
+    "0xF68a4b64162906efF0fF6aE34E2bB1Cd42FEf62d"
+  );
 
   /**
    * @dev Deploy multicall3
@@ -145,6 +148,7 @@ export async function deployFixtures() {
     owner2,
     operator,
     Multicall3,
+    BTCBOwner,
     WBNBAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
     USDTAddress: "0x55d398326f99059fF775485246999027B3197955",
     BTCBAddress: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c",
