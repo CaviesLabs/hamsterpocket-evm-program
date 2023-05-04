@@ -44,7 +44,7 @@ contract PocketChef is
 	/// @notice create pocket
 	function createPocketAndDepositEther(
 		Params.CreatePocketParams calldata params
-	) external payable {
+	) external nonReentrant payable {
 		/// @dev Create pocket
 		createPocket(params);
 
@@ -67,7 +67,6 @@ contract PocketChef is
 	/// @notice Update pocket data
 	function updatePocket(Params.UpdatePocketParams calldata params)
 		external
-		nonReentrant
 	{
 		require(
 			registry.isAbleToUpdate(params.id, msg.sender),
