@@ -15,8 +15,8 @@ async function main() {
   const PocketChefContract = await ethers.getContractFactory("PocketChef");
   try {
     await upgrades.forceImport(Addresses.PocketChef, PocketChefContract);
-  } catch (e) {
-    console.log(e);
+  } catch {
+    console.log("skipped warning");
   }
   const Chef = (await upgrades.upgradeProxy(
     Addresses.PocketChef,
@@ -36,8 +36,8 @@ async function main() {
       Addresses.PocketRegistry,
       PocketRegistryContract
     );
-  } catch (e) {
-    console.log(e);
+  } catch {
+    console.log("skipped warning");
   }
   const Registry = (await upgrades.upgradeProxy(
     Addresses.PocketRegistry,
@@ -51,8 +51,8 @@ async function main() {
   const PocketVaultContract = await ethers.getContractFactory("PocketVault");
   try {
     await upgrades.forceImport(Addresses.PocketVault, PocketVaultContract);
-  } catch (e) {
-    console.log(e);
+  } catch {
+    console.log("skipped warning");
   }
   const Vault = (await upgrades.upgradeProxy(
     Addresses.PocketVault,

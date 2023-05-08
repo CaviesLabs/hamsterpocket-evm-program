@@ -455,6 +455,8 @@ contract PocketRegistry is
 		returns (bool)
 	{
 		return (pockets[pocketId].status == Types.PocketStatus.Active &&
+			pockets[pocketId].baseTokenBalance >=
+			pockets[pocketId].batchVolume &&
 			pockets[pocketId].startAt <= block.timestamp &&
 			pockets[pocketId].nextScheduledExecutionAt <= block.timestamp);
 	}
@@ -481,14 +483,8 @@ contract PocketRegistry is
 			params.startAt >= block.timestamp,
 			"Timestamp: must be equal or greater than block time"
 		);
-		require(
-			params.batchVolume >= 0,
-			"Batch volume: must be equal or greater than 0"
-		);
-		require(
-			params.frequency >= 1 hours,
-			"Frequency: must be equal or greater than 1 hour"
-		);
+		require(params.batchVolume > 0, "Batch volume: cannot be zero");
+		require(params.frequency > 0, "Frequency: cannot be zero");
 		require(params.owner != address(0), "Address: invalid owner");
 		require(
 			params.ammRouterAddress != address(0),
@@ -612,14 +608,8 @@ contract PocketRegistry is
 			params.startAt >= block.timestamp,
 			"Timestamp: must be equal or greater than block time"
 		);
-		require(
-			params.batchVolume >= 0,
-			"Batch volume: must be equal or greater than 0"
-		);
-		require(
-			params.frequency >= 1 hours,
-			"Frequency: must be equal or greater than 1 hour"
-		);
+		require(params.batchVolume > 0, "Batch volume: cannot be zero");
+		require(params.frequency > 0, "Frequency: cannot be zero");
 		/// @dev Validate stop condition through loop
 		for (uint256 index = 0; index < params.stopConditions.length; index++) {
 			require(

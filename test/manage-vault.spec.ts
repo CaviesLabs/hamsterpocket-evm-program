@@ -201,15 +201,6 @@ describe("[manage_vault]", async function () {
       toBeCreatedPocketData.stopConditions.length
     );
 
-    // uint256 totalDepositedBaseAmount;
-    // 		uint256 totalSwappedBaseAmount;
-    // 		uint256 totalReceivedTargetAmount;
-    // 		uint256 totalClosedPositionInTargetTokenAmount;
-    // 		uint256 totalReceivedFundInBaseTokenAmount;
-    // 		uint256 baseTokenBalance;
-    // 		uint256 targetTokenBalance;
-    // 		uint256 executedBatchAmount;
-    // 		uint256 nextScheduledExecutionAt;
     expect(createdPocket.totalDepositedBaseAmount).eq(
       ethers.constants.WeiPerEther
     );
