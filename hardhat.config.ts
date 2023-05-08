@@ -103,6 +103,13 @@ if (privateKey) {
       gasPrice: "auto",
       chainId: 5,
     },
+    mumbai: {
+      url: "https://matic-mumbai.chainstacklabs.com/",
+      accounts: [privateKey],
+      gas: "auto",
+      gasPrice: "auto",
+      chainId: 80001,
+    },
   };
 }
 

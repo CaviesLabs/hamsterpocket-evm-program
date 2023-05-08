@@ -44,12 +44,12 @@ contract PocketChef is
 	/// @notice create pocket
 	function createPocketAndDepositEther(
 		Params.CreatePocketParams calldata params
-	) external nonReentrant payable {
+	) external payable nonReentrant {
 		/// @dev Create pocket
 		createPocket(params);
 
 		/// @dev Calling deposit ether
-		depositEther(params.id);
+		_depositEther(params.id);
 	}
 
 	/// @notice create pocket
@@ -61,13 +61,11 @@ contract PocketChef is
 		createPocket(params);
 
 		/// @dev Calling deposit ether
-		depositToken(params.id, depositAmount);
+		_depositToken(params.id, depositAmount);
 	}
 
 	/// @notice Update pocket data
-	function updatePocket(Params.UpdatePocketParams calldata params)
-		external
-	{
+	function updatePocket(Params.UpdatePocketParams calldata params) external {
 		require(
 			registry.isAbleToUpdate(params.id, msg.sender),
 			"Operation error: the pocket is not able to update"
@@ -158,12 +156,25 @@ contract PocketChef is
 		}
 	}
 
-	/// @dev Wrap ether
+	/// @dev Deposit and wrap ether
 	function depositEther(string calldata pocketId)
-		public
+		external
 		payable
 		nonReentrant
 	{
+		_depositEther(pocketId);
+	}
+
+	/// @dev Deposit token
+	function depositToken(string calldata pocketId, uint256 amount)
+		external
+		nonReentrant
+	{
+		_depositToken(pocketId, amount);
+	}
+
+	/// @dev Deposit and wrap ether
+	function _depositEther(string calldata pocketId) private {
 		/// @dev Verify amount
 		uint256 amount = msg.value;
 		require(amount > 0, "Operation error: invalid amount");
@@ -200,10 +211,7 @@ contract PocketChef is
 	}
 
 	/// @notice Deposit token to a pocket
-	function depositToken(string calldata pocketId, uint256 amount)
-		public
-		nonReentrant
-	{
+	function _depositToken(string calldata pocketId, uint256 amount) private {
 		/// @dev verify pocket stats
 		require(
 			registry.isAbleToDeposit(pocketId, msg.sender),

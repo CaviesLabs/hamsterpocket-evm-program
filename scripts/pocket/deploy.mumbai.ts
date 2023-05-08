@@ -12,6 +12,7 @@ async function main() {
    */
   const Multicall3Contract = await ethers.getContractFactory("Multicall3");
   const Multicall3 = (await Multicall3Contract.deploy()) as Multicall3;
+  console.log("Multicall3 deployed at", Multicall3.address);
 
   /**
    * @dev Deploy contract
@@ -20,6 +21,7 @@ async function main() {
   const Chef = (await upgrades.deployProxy(PocketChefContract, [], {
     unsafeAllow: ["constructor", "delegatecall"],
   })) as PocketChef;
+  console.log("Chef deployed at", Chef.address);
 
   /**
    * @dev Deploy contract
@@ -30,6 +32,7 @@ async function main() {
   const Registry = (await upgrades.deployProxy(PocketRegistryContract, [], {
     unsafeAllow: ["constructor"],
   })) as PocketRegistry;
+  console.log("Registry deployed at", Registry.address);
 
   /**
    * @dev Deploy contract
@@ -38,6 +41,7 @@ async function main() {
   const Vault = (await upgrades.deployProxy(PocketVaultContract, [], {
     unsafeAllow: ["constructor"],
   })) as PocketVault;
+  console.log("Vault deployed at", Vault.address);
 
   /**
    * @dev Configure registry
@@ -53,7 +57,7 @@ async function main() {
    * @dev Whitelist addresses
    */
   await Registry.whitelistAddress(
-    "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6", // Wrapped ETher
+    "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889", // Wrapped ETher
     true
   );
   await Registry.whitelistAddress(
@@ -64,14 +68,10 @@ async function main() {
     "0x000000000022d473030f116ddee9f6b43ac78ba3", // permit2
     true
   );
-  // await Registry.whitelistAddress(
-  //   "0x55d398326f99059fF775485246999027B3197955", // USDT
-  //   true
-  // );
-  // await Registry.whitelistAddress(
-  //   "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c", // BTCB
-  //   true
-  // );
+  await Registry.whitelistAddress(
+    "0x6041fE60d443480F96546C927E0cE6E14A5741D4", // USDT
+    true
+  );
 
   /**
    * @dev Linking components

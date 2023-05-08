@@ -12,6 +12,7 @@ async function main() {
    */
   const Multicall3Contract = await ethers.getContractFactory("Multicall3");
   const Multicall3 = (await Multicall3Contract.deploy()) as Multicall3;
+  console.log("Multicall3 deployed at", Multicall3.address);
 
   /**
    * @dev Deploy contract
@@ -20,6 +21,7 @@ async function main() {
   const Chef = (await upgrades.deployProxy(PocketChefContract, [], {
     unsafeAllow: ["constructor", "delegatecall"],
   })) as PocketChef;
+  console.log("Chef deployed at", Chef.address);
 
   /**
    * @dev Deploy contract
@@ -30,6 +32,7 @@ async function main() {
   const Registry = (await upgrades.deployProxy(PocketRegistryContract, [], {
     unsafeAllow: ["constructor"],
   })) as PocketRegistry;
+  console.log("Registry deployed at", Registry.address);
 
   /**
    * @dev Deploy contract
@@ -38,6 +41,7 @@ async function main() {
   const Vault = (await upgrades.deployProxy(PocketVaultContract, [], {
     unsafeAllow: ["constructor"],
   })) as PocketVault;
+  console.log("Vault deployed at", Vault.address);
 
   /**
    * @dev Configure registry
