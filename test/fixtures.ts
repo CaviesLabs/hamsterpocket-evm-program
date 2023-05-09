@@ -131,6 +131,8 @@ export async function deployFixtures() {
   await Vault.connect(owner).setPermit2(
     "0x000000000022d473030f116ddee9f6b43ac78ba3"
   );
+  await Vault.setQuoter("0x78D78E420Da98ad378D7799bE8f4AF69033EB077");
+
   await Chef.connect(owner).setRegistry(Registry.address);
   await Chef.connect(owner).setVault(Vault.address);
 

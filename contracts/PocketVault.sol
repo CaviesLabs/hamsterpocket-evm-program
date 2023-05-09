@@ -106,23 +106,11 @@ contract PocketVault is
 	}
 
 	/// @dev Get quote of a pocket
-	function getCurrentQuote(string calldata pocketId)
-		public
-		returns (uint256, uint256)
-	{
-		/// @dev Extract necessary info
-		(
-			,
-			address baseTokenAddress,
-			address targetTokenAddress,
-			,
-			uint256 batchVolume,
-			,
-			,
-			,
-			,
-
-		) = registry.getTradingInfoOf(pocketId);
+	function getCurrentQuote(
+		address baseTokenAddress,
+		address targetTokenAddress
+	) public returns (uint256, uint256) {
+		uint256 amountIn = 10**ERC20(baseTokenAddress).decimals();
 
 		bytes memory path = abi.encodePacked(
 			baseTokenAddress,
@@ -130,7 +118,7 @@ contract PocketVault is
 			targetTokenAddress
 		);
 
-		return (batchVolume, quoter.quoteExactInput(path, batchVolume));
+		return (amountIn, quoter.quoteExactInput(path, amountIn));
 	}
 
 	/// @dev Make swap leverages uniswap universal router

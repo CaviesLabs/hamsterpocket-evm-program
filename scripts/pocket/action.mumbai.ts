@@ -1,5 +1,6 @@
 import { ethers } from "hardhat";
 import {
+  IQuoter__factory,
   PocketChef,
   PocketChef__factory,
   PocketRegistry__factory,
@@ -82,7 +83,9 @@ async function main() {
   const Vault = PocketVault__factory.connect(Addresses.PocketVault, signer);
   console.log("Loaded Vault contract at ", Vault.address);
 
-  console.log(await createPocket(Chef));
+  // await Registry.whitelistAddress("0xEEAd8f00306416147bb4445899392e8C72A310b6", true);
+  // await Vault.setQuoter("0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6");
+  // console.log(await createPocket(Chef));
 
   // await Registry.connect(signer).grantRole(
   //   Registry.OPERATOR(),
@@ -90,6 +93,24 @@ async function main() {
   // );
 
   // await Chef.tryMakingDCASwap("6458ac444b5220773f94b6e4");
+
+  console.log(await Vault.quoter());
+  console.log(
+    await Vault.callStatic.getCurrentQuote(
+      "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
+      "0xEEAd8f00306416147bb4445899392e8C72A310b6"
+    )
+  );
+  //
+  // const Quoter = IQuoter__factory.connect("0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6", signer);
+  //
+  // console.log(await Quoter.callStatic.quoteExactInputSingle(
+  //   "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
+  //   "0xEEAd8f00306416147bb4445899392e8C72A310b6",
+  //   "3000",
+  //   ethers.constants.WeiPerEther,
+  //   "0"
+  // ));
 }
 
 // We recommend this pattern to be able to use async/await everywhere

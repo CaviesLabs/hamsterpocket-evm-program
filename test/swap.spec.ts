@@ -53,6 +53,17 @@ describe("[swap]", async function () {
     );
   });
 
+  it("[quoter] should: quoter should work properly", async () => {
+    const { Vault, owner } = fixtures;
+    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+      toBeCreatedPocketData.baseTokenAddress,
+      toBeCreatedPocketData.targetTokenAddress
+    );
+
+    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountOut).gt(0);
+  });
+
   it("[auto_investment] should: non-operator cannot trigger the swap, even owner", async () => {
     const { Chef, owner, owner2 } = fixtures;
 
