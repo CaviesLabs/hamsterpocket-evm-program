@@ -108,10 +108,9 @@ contract PocketVault is
 	/// @dev Get quote of a pocket
 	function getCurrentQuote(
 		address baseTokenAddress,
-		address targetTokenAddress
+		address targetTokenAddress,
+		uint256 amountIn
 	) public returns (uint256, uint256) {
-		uint256 amountIn = 10**ERC20(baseTokenAddress).decimals();
-
 		bytes memory path = abi.encodePacked(
 			baseTokenAddress,
 			uint24(3000),

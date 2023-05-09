@@ -98,7 +98,8 @@ async function main() {
   console.log(
     await Vault.callStatic.getCurrentQuote(
       "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
-      "0xEEAd8f00306416147bb4445899392e8C72A310b6"
+      "0xEEAd8f00306416147bb4445899392e8C72A310b6",
+      ethers.constants.WeiPerEther
     )
   );
   //

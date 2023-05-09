@@ -57,10 +57,11 @@ describe("[swap]", async function () {
     const { Vault, owner } = fixtures;
     const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
       toBeCreatedPocketData.baseTokenAddress,
-      toBeCreatedPocketData.targetTokenAddress
+      toBeCreatedPocketData.targetTokenAddress,
+      toBeCreatedPocketData.batchVolume
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(toBeCreatedPocketData.batchVolume);
     expect(amountOut).gt(0);
   });
 
