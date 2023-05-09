@@ -60,7 +60,7 @@ contract PocketVault is
 	/// @dev Emit Withdrawn whenever a withdrawal happens
 	event Withdrawn(
 		address indexed actor,
-		string indexed pocketId,
+		string pocketId,
 		address baseTokenAddress,
 		uint256 baseTokenAmount,
 		address targetTokenAddress,
@@ -71,7 +71,7 @@ contract PocketVault is
 	/// @dev Emit Deposited whenever a deposit happens
 	event Deposited(
 		address indexed actor,
-		string indexed pocketId,
+		string pocketId,
 		address indexed tokenAddress,
 		uint256 amount,
 		uint256 timestamp
@@ -80,7 +80,7 @@ contract PocketVault is
 	/// @dev Emit ClosedPosition whenever a position is closed
 	event ClosedPosition(
 		address indexed actor,
-		string indexed pocketId,
+		string pocketId,
 		address baseTokenAddress,
 		uint256 baseTokenAmount,
 		address targetTokenAddress,
@@ -91,7 +91,7 @@ contract PocketVault is
 	/// @dev Emit Swapped whenever a swap happens
 	event Swapped(
 		address indexed actor,
-		string indexed pocketId,
+		string pocketId,
 		address baseTokenAddress,
 		uint256 baseTokenAmount,
 		address targetTokenAddress,

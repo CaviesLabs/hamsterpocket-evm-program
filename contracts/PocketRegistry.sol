@@ -55,7 +55,7 @@ contract PocketRegistry is
 	/// @notice Event emitted when initializing user pocket
 	event PocketInitialized(
 		address indexed actor,
-		string indexed pocketId,
+		string pocketId,
 		address indexed owner,
 		Types.Pocket pocketData,
 		uint256 timestamp
@@ -64,7 +64,7 @@ contract PocketRegistry is
 	/// @notice Event emitted when initializing user pocket
 	event PocketUpdated(
 		address indexed actor,
-		string indexed pocketId,
+		string pocketId,
 		address indexed owner,
 		string reason,
 		Types.Pocket pocketData,
