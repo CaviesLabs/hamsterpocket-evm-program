@@ -10,7 +10,7 @@ import { BigNumber } from "ethers";
 const createPocket = (Chef: PocketChef) => {
   // Create pocket
   const pocket = {
-    id: "6458ac664b5220773f94b6e4",
+    id: "6458e07dbbe9a9a182fbde5b",
     owner: "0xC988c21E794B0ad2008EAB90371d30eAd2c0c6f8",
     ammRouterAddress: "0x4648a43B2C14Da09FdF82B161150d3F634f40491",
     baseTokenAddress: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
@@ -82,14 +82,14 @@ async function main() {
   const Vault = PocketVault__factory.connect(Addresses.PocketVault, signer);
   console.log("Loaded Vault contract at ", Vault.address);
 
-  // console.log(await createPocket(Chef));
+  console.log(await createPocket(Chef));
 
   // await Registry.connect(signer).grantRole(
   //   Registry.OPERATOR(),
   //   signer.address
   // );
 
-  await Chef.tryMakingDCASwap("6458ac444b5220773f94b6e4");
+  // await Chef.tryMakingDCASwap("6458ac444b5220773f94b6e4");
 }
 
 // We recommend this pattern to be able to use async/await everywhere

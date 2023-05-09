@@ -92,23 +92,50 @@ contract PocketChef is
 		/// @dev Execute DCA Swap
 		(uint256 amountIn, uint256 amountOut) = vault.closePosition(pocketId);
 
+		bool shouldStopLoss = registry.shouldStopLoss(
+			pocketId,
+			amountIn,
+			amountOut
+		);
+		bool shouldTakeProfit = registry.shouldTakeProfit(
+			pocketId,
+			amountIn,
+			amountOut
+		);
+
 		/// @dev Check whether the buy condition meets
 		require(
-			registry.shouldStopLoss(pocketId, amountIn, amountOut) ||
-				registry.shouldTakeProfit(pocketId, amountIn, amountOut),
+			shouldStopLoss || shouldTakeProfit,
 			"Operation error: closing position condition does not reach"
 		);
 
-		/// @dev Update trading stats
-		registry.updatePocketClosingPositionStats(
-			Params.UpdatePocketClosingPositionStatsParams({
-				id: pocketId,
-				actor: msg.sender,
-				swappedTargetTokenAmount: amountIn,
-				receivedBaseTokenAmount: amountOut
-			}),
-			"OPERATOR_UPDATED_CLOSING_POSITION_STATS"
-		);
+		/// @dev Given reason for taking profit
+		if (shouldTakeProfit) {
+			/// @dev Update trading stats
+			registry.updatePocketClosingPositionStats(
+				Params.UpdatePocketClosingPositionStatsParams({
+					id: pocketId,
+					actor: msg.sender,
+					swappedTargetTokenAmount: amountIn,
+					receivedBaseTokenAmount: amountOut
+				}),
+				"OPERATOR_TAKE_PROFIT"
+			);
+		}
+
+		/// @dev Given reason for stopping loss
+		if (shouldStopLoss) {
+			/// @dev Update trading stats
+			registry.updatePocketClosingPositionStats(
+				Params.UpdatePocketClosingPositionStatsParams({
+					id: pocketId,
+					actor: msg.sender,
+					swappedTargetTokenAmount: amountIn,
+					receivedBaseTokenAmount: amountOut
+				}),
+				"OPERATOR_STOP_LOSS"
+			);
+		}
 	}
 
 	/// @notice Make DCA swap

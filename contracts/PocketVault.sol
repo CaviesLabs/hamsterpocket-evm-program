@@ -16,6 +16,7 @@ import "./PocketRegistry.sol";
 
 import "./Types.sol";
 import "./Params.sol";
+import "./IQuoter.sol";
 
 interface UniversalRouter {
 	function execute(
@@ -49,10 +50,12 @@ contract PocketVault is
 	/// @dev Declare pocket registry
 	PocketRegistry public registry;
 	IPermit2 public permit2;
+	IQuoter public quoter;
 
 	/// @dev RegistryUpdated emitted event
 	event RegistryUpdated(address indexed actor, address indexed registry);
 	event Permit2Updated(address indexed actor, address indexed permit2);
+	event QuoterUpdated(address indexed actor, address indexed quoter);
 
 	/// @dev Emit Withdrawn whenever a withdrawal happens
 	event Withdrawn(
@@ -100,6 +103,34 @@ contract PocketVault is
 		);
 
 		_;
+	}
+
+	/// @dev Get quote of a pocket
+	function getCurrentQuote(string calldata pocketId)
+		public
+		returns (uint256, uint256)
+	{
+		/// @dev Extract necessary info
+		(
+			,
+			address baseTokenAddress,
+			address targetTokenAddress,
+			,
+			uint256 batchVolume,
+			,
+			,
+			,
+			,
+
+		) = registry.getTradingInfoOf(pocketId);
+
+		bytes memory path = abi.encodePacked(
+			baseTokenAddress,
+			uint24(3000),
+			targetTokenAddress
+		);
+
+		return (batchVolume, quoter.quoteExactInput(path, batchVolume));
 	}
 
 	/// @dev Make swap leverages uniswap universal router
@@ -310,6 +341,12 @@ contract PocketVault is
 	function setPermit2(address permit2Address) external onlyOwner {
 		permit2 = IPermit2(permit2Address);
 		emit Permit2Updated(msg.sender, permit2Address);
+	}
+
+	/// @notice Set quoter address
+	function setQuoter(address quoterAddress) external onlyOwner {
+		quoter = IQuoter(quoterAddress);
+		emit QuoterUpdated(msg.sender, quoterAddress);
 	}
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
