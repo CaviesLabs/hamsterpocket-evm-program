@@ -64,7 +64,8 @@ contract PocketVault is
 		address baseTokenAddress,
 		uint256 baseTokenAmount,
 		address targetTokenAddress,
-		uint256 targetTokenAmount
+		uint256 targetTokenAmount,
+		uint256 timestamp
 	);
 
 	/// @dev Emit Deposited whenever a deposit happens
@@ -72,7 +73,8 @@ contract PocketVault is
 		address indexed actor,
 		string indexed pocketId,
 		address indexed tokenAddress,
-		uint256 amount
+		uint256 amount,
+		uint256 timestamp
 	);
 
 	/// @dev Emit ClosedPosition whenever a position is closed
@@ -82,7 +84,8 @@ contract PocketVault is
 		address baseTokenAddress,
 		uint256 baseTokenAmount,
 		address targetTokenAddress,
-		uint256 targetTokenAmount
+		uint256 targetTokenAmount,
+		uint256 timestamp
 	);
 
 	/// @dev Emit Swapped whenever a swap happens
@@ -92,7 +95,8 @@ contract PocketVault is
 		address baseTokenAddress,
 		uint256 baseTokenAmount,
 		address targetTokenAddress,
-		uint256 targetTokenAmount
+		uint256 targetTokenAmount,
+		uint256 timestamp
 	);
 
 	/// @notice Modifier to verify only permitted actor can perform the operation
@@ -200,7 +204,8 @@ contract PocketVault is
 			baseTokenAddress,
 			batchVolume,
 			targetTokenAddress,
-			amountOut
+			amountOut,
+			block.timestamp
 		);
 
 		/// @dev Return amount in and amount out
@@ -243,7 +248,8 @@ contract PocketVault is
 			baseTokenAddress,
 			amountOut,
 			targetTokenAddress,
-			targetTokenBalance
+			targetTokenBalance,
+			block.timestamp
 		);
 
 		/// @dev Return amount in and amount out
@@ -289,7 +295,8 @@ contract PocketVault is
 			baseTokenAddress,
 			baseTokenBalance,
 			targetTokenAddress,
-			targetTokenBalance
+			targetTokenBalance,
+			block.timestamp
 		);
 	}
 
@@ -314,7 +321,8 @@ contract PocketVault is
 			params.actor,
 			params.id,
 			params.tokenAddress,
-			params.amount
+			params.amount,
+			block.timestamp
 		);
 	}
 

@@ -57,7 +57,8 @@ contract PocketRegistry is
 		address indexed actor,
 		string indexed pocketId,
 		address indexed owner,
-		Types.Pocket pocketData
+		Types.Pocket pocketData,
+		uint256 timestamp
 	);
 
 	/// @notice Event emitted when initializing user pocket
@@ -66,7 +67,8 @@ contract PocketRegistry is
 		string indexed pocketId,
 		address indexed owner,
 		string reason,
-		Types.Pocket pocketData
+		Types.Pocket pocketData,
+		uint256 timestamp
 	);
 
 	/// @notice Check if id is unique
@@ -594,7 +596,8 @@ contract PocketRegistry is
 			msg.sender,
 			params.id,
 			params.owner,
-			pockets[params.id]
+			pockets[params.id],
+			block.timestamp
 		);
 	}
 
@@ -700,7 +703,8 @@ contract PocketRegistry is
 			currentPocket.id,
 			currentPocket.owner,
 			reason,
-			pockets[params.id]
+			pockets[params.id],
+			block.timestamp
 		);
 	}
 
@@ -731,7 +735,14 @@ contract PocketRegistry is
 		pocket.targetTokenBalance = 0;
 
 		/// @dev Emit events
-		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
+		emit PocketUpdated(
+			msg.sender,
+			params.id,
+			params.actor,
+			reason,
+			pocket,
+			block.timestamp
+		);
 	}
 
 	/// @notice The function to provide a method for relayers to update pocket stats
@@ -767,7 +778,14 @@ contract PocketRegistry is
 		);
 
 		/// @dev Emit events
-		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
+		emit PocketUpdated(
+			msg.sender,
+			params.id,
+			params.actor,
+			reason,
+			pocket,
+			block.timestamp
+		);
 	}
 
 	/// @notice The function to provide a method for relayers to update pocket stats
@@ -783,7 +801,14 @@ contract PocketRegistry is
 		pocket.status = Types.PocketStatus.Withdrawn;
 
 		/// @dev Emit events
-		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
+		emit PocketUpdated(
+			msg.sender,
+			params.id,
+			params.actor,
+			reason,
+			pocket,
+			block.timestamp
+		);
 	}
 
 	/// @notice The function to provide a method for relayers to update pocket stats
@@ -800,7 +825,14 @@ contract PocketRegistry is
 		pocket.baseTokenBalance = pocket.baseTokenBalance.add(params.amount);
 
 		/// @dev Emit events
-		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
+		emit PocketUpdated(
+			msg.sender,
+			params.id,
+			params.actor,
+			reason,
+			pocket,
+			block.timestamp
+		);
 	}
 
 	/// @notice The function to provide a method for relayers to update pocket stats
@@ -820,7 +852,14 @@ contract PocketRegistry is
 		pocket.status = params.status;
 
 		/// @dev Emit events
-		emit PocketUpdated(msg.sender, params.id, params.actor, reason, pocket);
+		emit PocketUpdated(
+			msg.sender,
+			params.id,
+			params.actor,
+			reason,
+			pocket,
+			block.timestamp
+		);
 	}
 
 	/// @notice Admin can update whitelisted address
