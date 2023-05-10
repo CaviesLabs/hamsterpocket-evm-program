@@ -16,3 +16,4 @@ curve.ts
 curve.json
 .nyc_output
 typechain-types.zip
+action*

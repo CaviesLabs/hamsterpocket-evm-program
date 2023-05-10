@@ -290,7 +290,7 @@ contract PocketVault is
 
 		/// @dev Emit event
 		emit Withdrawn(
-			owner,
+			msg.sender,
 			params.id,
 			baseTokenAddress,
 			baseTokenBalance,
@@ -318,7 +318,7 @@ contract PocketVault is
 
 		/// @dev Emit event
 		emit Deposited(
-			params.actor,
+			msg.sender,
 			params.id,
 			params.tokenAddress,
 			params.amount,
