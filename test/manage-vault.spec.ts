@@ -234,11 +234,15 @@ describe("[manage_vault]", async function () {
   });
 
   it("[close_and_withdraw] should: close and withdraw pocket with multicall", async () => {
-    const { Chef, Registry, Multicall3, Vault, WBNBAddress, owner } = fixtures;
+    const { Chef, Registry, Multicall3, WBNBAddress, owner } = fixtures;
 
     const WBNB = new ERC20__factory().connect(owner).attach(WBNBAddress);
+
     const beforeBalance = await WBNB.balanceOf(owner.address);
     expect(beforeBalance.eq(ethers.constants.Zero)).to.be.true;
+
+    const beforeNativeBalance = await Chef.provider.getBalance(owner.address);
+    expect(beforeNativeBalance).gt(0);
 
     await Chef.connect(owner).multicall([
       Chef.connect(owner).interface.encodeFunctionData("closePocket", [
@@ -275,7 +279,14 @@ describe("[manage_vault]", async function () {
     expect(createdPocket.status.toString()).eq("4"); // changed to withdrawn
 
     const afterBalance = await WBNB.balanceOf(owner.address);
-    expect(afterBalance.eq(ethers.constants.WeiPerEther)).to.be.true;
+    expect(afterBalance).eq(0);
+
+    const nativeAfterBalance = await Chef.provider.getBalance(owner.address);
+    expect(
+      ethers.constants.WeiPerEther.div(
+        nativeAfterBalance.sub(beforeNativeBalance)
+      )
+    ).eq(BigNumber.from(1));
 
     expect(createdPocket.totalDepositedBaseAmount).eq(
       ethers.constants.WeiPerEther

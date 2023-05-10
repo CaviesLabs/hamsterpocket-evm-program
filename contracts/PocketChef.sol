@@ -349,7 +349,7 @@ contract PocketChef is
 	}
 
 	/// @notice Set vault
-	function setVault(address vaultAddress) external onlyOwner {
+	function setVault(address payable vaultAddress) external onlyOwner {
 		vault = PocketVault(vaultAddress);
 		emit VaultUpdated(msg.sender, vaultAddress);
 	}

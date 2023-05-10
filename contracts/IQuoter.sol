@@ -7,6 +7,10 @@ pragma abicoder v2;
 /// @dev These functions are not marked view because they rely on calling non-view functions and reverting
 /// to compute the result. They are also not gas efficient and should not be called on-chain.
 interface IQuoter {
+	/// @notice Return the wrapped ether address that used for uniswap amm
+	/// @return wethAddress The wrapped ether address
+	function WETH9() external returns (address wethAddress);
+
 	/// @notice Returns the amount out received for a given exact input swap without executing the swap
 	/// @param path The path of the swap, i.e. each token pair and the pool fee
 	/// @param amountIn The amount of the first token to swap

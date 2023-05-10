@@ -279,14 +279,35 @@ contract PocketVault is
 			.getBalanceInfoOf(params.id);
 		address owner = registry.getOwnerOf(params.id);
 
-		require(
-			IERC20(baseTokenAddress).transfer(owner, baseTokenBalance),
-			"Error: cannot transfer token"
-		);
-		require(
-			IERC20(targetTokenAddress).transfer(owner, targetTokenBalance),
-			"Error: cannot transfer token"
-		);
+		/// @dev Try to withdraw native ether if token was held in the vault as wrapped erc20 ether
+		if (baseTokenAddress == quoter.WETH9()) {
+			IWETH9(quoter.WETH9()).withdraw(baseTokenBalance);
+
+			(bool success, ) = payable(owner).call{value: baseTokenBalance}("");
+			require(success, "Error: cannot withdraw ether");
+		} else {
+			/// @dev Otherwise transfer erc20 instead
+			require(
+				IERC20(baseTokenAddress).transfer(owner, baseTokenBalance),
+				"Error: cannot transfer token"
+			);
+		}
+
+		/// @dev Try to withdraw native ether if token was held in the vault as wrapped erc20 ether
+		if (targetTokenAddress == quoter.WETH9()) {
+			IWETH9(quoter.WETH9()).withdraw(baseTokenBalance);
+
+			(bool success, ) = payable(owner).call{value: targetTokenBalance}(
+				""
+			);
+			require(success, "Error: cannot withdraw ether");
+		} else {
+			/// @dev Otherwise transfer erc20 instead
+			require(
+				IERC20(targetTokenAddress).transfer(owner, targetTokenBalance),
+				"Error: cannot transfer token"
+			);
+		}
 
 		/// @dev Emit event
 		emit Withdrawn(
@@ -325,6 +346,9 @@ contract PocketVault is
 			block.timestamp
 		);
 	}
+
+	/// @notice Receive function to receive native ether
+	receive() external payable {}
 
 	/// @notice Set registry address
 	function setRegistry(address registryAddress) external onlyOwner {
