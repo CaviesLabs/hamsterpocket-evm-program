@@ -75,6 +75,33 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
+	function closePosition(string calldata pocketId) external nonReentrant {
+		/// @dev Verify swap condition
+		require(
+			registry.isOwnerOf(pocketId, msg.sender),
+			"Operation error: only owner is permitted for the operation"
+		);
+		require(
+			registry.isReadyToClosePosition(pocketId),
+			"Operation error: the pocket is not ready to close position"
+		);
+
+		/// @dev Execute DCA Swap
+		(uint256 amountIn, uint256 amountOut) = vault.closePosition(pocketId);
+
+		/// @dev Update closing position stats
+		registry.updatePocketClosingPositionStats(
+			Params.UpdatePocketClosingPositionStatsParams({
+				id: pocketId,
+				actor: msg.sender,
+				swappedTargetTokenAmount: amountIn,
+				receivedBaseTokenAmount: amountOut
+			}),
+			"USER_CLOSED_POSITION"
+		);
+	}
+
+	/// @notice Make DCA swap
 	function tryClosingPosition(string calldata pocketId)
 		external
 		nonReentrant

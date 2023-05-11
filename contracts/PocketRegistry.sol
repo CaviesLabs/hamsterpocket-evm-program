@@ -572,6 +572,7 @@ contract PocketRegistry is
 			baseTokenAddress: params.baseTokenAddress,
 			targetTokenAddress: params.targetTokenAddress,
 			startAt: params.startAt,
+			nextScheduledExecutionAt: params.startAt,
 			batchVolume: params.batchVolume,
 			frequency: params.frequency,
 			stopConditions: params.stopConditions,
@@ -587,8 +588,7 @@ contract PocketRegistry is
 			totalReceivedFundInBaseTokenAmount: 0,
 			baseTokenBalance: 0,
 			targetTokenBalance: 0,
-			executedBatchAmount: 0,
-			nextScheduledExecutionAt: 0
+			executedBatchAmount: 0
 		});
 
 		/// @dev Emit event
@@ -606,11 +606,20 @@ contract PocketRegistry is
 		Params.UpdatePocketParams calldata params,
 		string calldata reason
 	) external onlyRole(RELAYER) mustBeValidPocket(params.id) {
-		/// @dev Validate input
-		require(
-			params.startAt >= block.timestamp,
-			"Timestamp: must be equal or greater than block time"
-		);
+		Types.Pocket storage currentPocket = pockets[params.id];
+
+		if (currentPocket.startAt >= block.timestamp) {
+			/// @dev Validate input
+			require(
+				params.startAt >= block.timestamp,
+				"Timestamp: must be equal or greater than block time"
+			);
+
+			/// @dev Update field
+			currentPocket.startAt = params.startAt;
+			currentPocket.nextScheduledExecutionAt = params.startAt;
+		}
+
 		require(params.batchVolume > 0, "Batch volume: cannot be zero");
 		require(params.frequency > 0, "Frequency: cannot be zero");
 		/// @dev Validate stop condition through loop
@@ -665,12 +674,9 @@ contract PocketRegistry is
 			);
 		}
 
-		Types.Pocket storage currentPocket = pockets[params.id];
-
 		/// @dev Initialize user pocket data
 		pockets[params.id] = Types.Pocket({
 			/// @dev Those fields are updated
-			startAt: params.startAt,
 			batchVolume: params.batchVolume,
 			frequency: params.frequency,
 			stopConditions: params.stopConditions,
@@ -694,7 +700,8 @@ contract PocketRegistry is
 			baseTokenBalance: currentPocket.baseTokenBalance,
 			targetTokenBalance: currentPocket.targetTokenBalance,
 			executedBatchAmount: currentPocket.executedBatchAmount,
-			nextScheduledExecutionAt: currentPocket.nextScheduledExecutionAt
+			nextScheduledExecutionAt: currentPocket.nextScheduledExecutionAt,
+			startAt: currentPocket.startAt
 		});
 
 		/// @dev Emit event

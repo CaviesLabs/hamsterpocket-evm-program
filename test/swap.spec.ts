@@ -313,4 +313,67 @@ describe("[swap]", async function () {
       "Operation error: closing position condition does not reach"
     );
   });
+
+  it("[auto_investment] should: owner can close position", async () => {
+    const {
+      Time,
+      Chef,
+      Vault,
+      Registry,
+      owner,
+      operator,
+      WBNBAddress,
+      BTCBAddress,
+    } = fixtures;
+
+    const data = {
+      ...toBeCreatedPocketData,
+      id: "should-close-position-successfully",
+      takeProfitCondition: {
+        stopType: "1",
+        value: ethers.constants.WeiPerEther.mul(1000),
+      },
+      stopLossCondition: {
+        stopType: "0",
+        value: "0",
+      },
+      startAt: parseInt((new Date().getTime() / 1000 + 45002).toString()),
+    };
+
+    await Chef.connect(owner).createPocketAndDepositEther(data, {
+      value: ethers.constants.WeiPerEther,
+    });
+
+    await Time.increaseTo(
+      parseInt((new Date().getTime() / 1000 + 50000).toString())
+    );
+
+    await Chef.connect(operator).tryMakingDCASwap(data.id);
+
+    /// @dev Wont allow non-owner close position if condition does not reach
+    await expect(
+      Chef.connect(operator).tryClosingPosition(data.id)
+    ).to.be.revertedWith(
+      "Operation error: closing position condition does not reach"
+    );
+
+    /// @dev Wont allow non-owner close position manually
+    await expect(
+      Chef.connect(operator).closePosition(data.id)
+    ).to.be.revertedWith(
+      "Operation error: only owner is permitted for the operation"
+    );
+
+    const BTCB = IERC20__factory.connect(BTCBAddress, owner);
+    const WBNB = IERC20__factory.connect(WBNBAddress, owner);
+
+    const vaultBalanceBefore = await BTCB.balanceOf(Vault.address);
+    const vaultBNBBalanceBefore = await WBNB.balanceOf(Vault.address);
+
+    await Chef.connect(owner).closePosition(data.id);
+
+    /// @dev meaning that the close position works properly
+    expect(await BTCB.balanceOf(Vault.address)).lt(vaultBalanceBefore);
+    expect(await WBNB.balanceOf(Vault.address)).gt(vaultBNBBalanceBefore);
+  });
 });
