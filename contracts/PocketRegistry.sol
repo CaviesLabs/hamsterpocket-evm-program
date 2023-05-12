@@ -730,10 +730,12 @@ contract PocketRegistry is
 		Types.Pocket storage pocket = pockets[params.id];
 
 		/// @dev Assigned value
-		pocket.totalClosedPositionInTargetTokenAmount = params
-			.swappedTargetTokenAmount;
-		pocket.totalReceivedFundInBaseTokenAmount = params
-			.receivedBaseTokenAmount;
+		pocket.totalClosedPositionInTargetTokenAmount = pocket
+			.totalClosedPositionInTargetTokenAmount
+			.add(params.swappedTargetTokenAmount);
+		pocket.totalReceivedFundInBaseTokenAmount = pocket
+			.totalReceivedFundInBaseTokenAmount
+			.add(params.receivedBaseTokenAmount);
 
 		/// @dev Update balance properly
 		pocket.baseTokenBalance = pocket.baseTokenBalance.add(
