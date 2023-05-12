@@ -69,7 +69,7 @@ async function main() {
     true
   );
   await Registry.whitelistAddress(
-    "0x2170ed0880ac9a755fd29b2688956bd959f933f8", // USDT
+    "0x2170ed0880ac9a755fd29b2688956bd959f933f8", // ETH
     true
   );
   await Registry.whitelistAddress(

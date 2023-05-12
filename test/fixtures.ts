@@ -112,7 +112,15 @@ export async function deployFixtures() {
     true
   );
   await Registry.whitelistAddress(
+    "0x2170ed0880ac9a755fd29b2688956bd959f933f8", // ETH
+    true
+  );
+  await Registry.whitelistAddress(
     "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c", // BTCB
+    true
+  );
+  await Registry.whitelistAddress(
+    "0xbf5140a22578168fd562dccf235e5d43a02ce9b1", // Uniswap
     true
   );
   await Registry.whitelistAddress(
@@ -152,8 +160,10 @@ export async function deployFixtures() {
     Multicall3,
     BTCBOwner,
     WBNBAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+    UniswapAddress: "0xbf5140a22578168fd562dccf235e5d43a02ce9b1",
     USDTAddress: "0x55d398326f99059fF775485246999027B3197955",
     BTCBAddress: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c",
+    ETHAddress: "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
     RouterAddress: "0x5Dc88340E1c5c6366864Ee415d6034cadd1A9897",
     Permit2Address: "0x000000000022d473030f116ddee9f6b43ac78ba3",
   };
