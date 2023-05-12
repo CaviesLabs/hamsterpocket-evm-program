@@ -246,7 +246,7 @@ describe("[swap]", async function () {
     expect(pocket.totalReceivedFundInBaseTokenAmount).gt(ethers.constants.Zero);
 
     /// @dev Pocket has been closed after closing position
-    expect(pocket.status).eq(2);
+    expect(pocket.status).eq(3);
   });
 
   it("[auto_investment] should: operator will fail to close position as the condition is not reached (stop loss)", async () => {
@@ -381,6 +381,6 @@ describe("[swap]", async function () {
 
     /// @dev Pocket has been closed after closing position
     const pocket = await Registry.pockets(data.id);
-    expect(pocket.status).eq(2);
+    expect(pocket.status).eq(3);
   });
 });

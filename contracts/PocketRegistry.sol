@@ -741,7 +741,9 @@ contract PocketRegistry is
 		pocket.baseTokenBalance = pocket.baseTokenBalance.add(
 			params.receivedBaseTokenAmount
 		);
-		pocket.targetTokenBalance = 0;
+		pocket.targetTokenBalance = pocket.targetTokenBalance.sub(
+			params.swappedTargetTokenAmount
+		);
 
 		/// @dev Emit events
 		emit PocketUpdated(

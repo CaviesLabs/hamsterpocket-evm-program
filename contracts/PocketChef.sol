@@ -105,9 +105,9 @@ contract PocketChef is
 			Params.UpdatePocketStatusParams({
 				id: pocketId,
 				actor: msg.sender,
-				status: Types.PocketStatus.Paused
+				status: Types.PocketStatus.Closed
 			}),
-			"PAUSED_POCKET_DUE_TO_POSITION_CLOSED"
+			"CLOSED_POCKET_DUE_TO_POSITION_CLOSED"
 		);
 	}
 
@@ -174,14 +174,14 @@ contract PocketChef is
 			);
 		}
 
-		/// @dev Pause pocket due to closing position
+		/// @dev Close pocket after closing position
 		registry.updatePocketStatus(
 			Params.UpdatePocketStatusParams({
 				id: pocketId,
 				actor: msg.sender,
-				status: Types.PocketStatus.Paused
+				status: Types.PocketStatus.Closed
 			}),
-			"PAUSED_POCKET_DUE_TO_POSITION_CLOSED"
+			"CLOSED_POCKET_DUE_TO_POSITION_CLOSED"
 		);
 	}
 
