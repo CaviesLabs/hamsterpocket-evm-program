@@ -99,6 +99,16 @@ contract PocketChef is
 			}),
 			"USER_CLOSED_POSITION"
 		);
+
+		/// @dev Pause pocket due to closing position
+		registry.updatePocketStatus(
+			Params.UpdatePocketStatusParams({
+				id: pocketId,
+				actor: msg.sender,
+				status: Types.PocketStatus.Paused
+			}),
+			"PAUSED_POCKET_DUE_TO_POSITION_CLOSED"
+		);
 	}
 
 	/// @notice Make DCA swap
@@ -163,6 +173,16 @@ contract PocketChef is
 				"OPERATOR_STOP_LOSS"
 			);
 		}
+
+		/// @dev Pause pocket due to closing position
+		registry.updatePocketStatus(
+			Params.UpdatePocketStatusParams({
+				id: pocketId,
+				actor: msg.sender,
+				status: Types.PocketStatus.Paused
+			}),
+			"PAUSED_POCKET_DUE_TO_POSITION_CLOSED"
+		);
 	}
 
 	/// @notice Make DCA swap
