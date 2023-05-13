@@ -51,8 +51,10 @@ contract PocketVault is
 	PocketRegistry public registry;
 	IPermit2 public permit2;
 	IQuoter public quoter;
+	uint256 public swapFee;
 
 	/// @dev RegistryUpdated emitted event
+	event SwapFeeUpdated(address indexed actor, uint256 value);
 	event RegistryUpdated(address indexed actor, address indexed registry);
 	event Permit2Updated(address indexed actor, address indexed permit2);
 	event QuoterUpdated(address indexed actor, address indexed quoter);
@@ -130,8 +132,7 @@ contract PocketVault is
 		address router,
 		address baseTokenAddress,
 		address targetTokenAddress,
-		uint256 amount,
-		uint256 fee
+		uint256 amount
 	) private returns (uint256) {
 		IERC20(baseTokenAddress).approve(address(permit2), amount);
 
@@ -151,7 +152,11 @@ contract PocketVault is
 			address(this),
 			amount,
 			0,
-			abi.encodePacked(baseTokenAddress, uint24(fee), targetTokenAddress),
+			abi.encodePacked(
+				baseTokenAddress,
+				uint24(swapFee),
+				targetTokenAddress
+			),
 			true
 		);
 
@@ -168,7 +173,7 @@ contract PocketVault is
 	}
 
 	/// @notice Make DCA swap for the given pocket pocket
-	function makeDCASwap(string calldata pocketId, uint256 fee)
+	function makeDCASwap(string calldata pocketId)
 		external
 		onlyRelayer
 		nonReentrant
@@ -192,8 +197,7 @@ contract PocketVault is
 			ammRouterAddress,
 			baseTokenAddress,
 			targetTokenAddress,
-			batchVolume,
-			fee
+			batchVolume
 		);
 
 		/// @dev Emit event
@@ -212,7 +216,7 @@ contract PocketVault is
 	}
 
 	/// @notice Make close position for the given pocket
-	function closePosition(string calldata pocketId, uint256 fee)
+	function closePosition(string calldata pocketId)
 		external
 		onlyRelayer
 		nonReentrant
@@ -237,8 +241,7 @@ contract PocketVault is
 			ammRouterAddress,
 			targetTokenAddress,
 			baseTokenAddress,
-			targetTokenBalance,
-			fee
+			targetTokenBalance
 		);
 
 		/// @dev Emit event
@@ -366,6 +369,12 @@ contract PocketVault is
 	function setQuoter(address quoterAddress) external onlyOwner {
 		quoter = IQuoter(quoterAddress);
 		emit QuoterUpdated(msg.sender, quoterAddress);
+	}
+
+	/// @notice Set quoter address
+	function setSwapFee(uint256 fee) external onlyOwner {
+		swapFee = fee;
+		emit SwapFeeUpdated(msg.sender, fee);
 	}
 
 	/// @custom:oz-upgrades-unsafe-allow constructor

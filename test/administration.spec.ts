@@ -33,11 +33,11 @@ describe("[administration]", async function () {
     ).to.be.revertedWith("Permission: only relayer is permitted");
 
     await expect(
-      fixtures.Vault.connect(fixtures.owner2).makeDCASwap("random-id", 10000)
+      fixtures.Vault.connect(fixtures.owner2).makeDCASwap("random-id")
     ).to.be.revertedWith("Permission: only relayer is permitted");
 
     await expect(
-      fixtures.Vault.connect(fixtures.owner2).closePosition("random-id", 10000)
+      fixtures.Vault.connect(fixtures.owner2).closePosition("random-id")
     ).to.be.revertedWith("Permission: only relayer is permitted");
 
     await expect(

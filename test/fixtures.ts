@@ -135,6 +135,7 @@ export async function deployFixtures() {
   /**
    * @dev Linking components
    */
+  await Vault.connect(owner).setSwapFee(500);
   await Vault.connect(owner).setRegistry(Registry.address);
   await Vault.connect(owner).setPermit2(
     "0x000000000022d473030f116ddee9f6b43ac78ba3"

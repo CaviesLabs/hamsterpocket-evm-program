@@ -75,10 +75,7 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
-	function closePosition(string calldata pocketId, uint256 fee)
-		external
-		nonReentrant
-	{
+	function closePosition(string calldata pocketId) external nonReentrant {
 		/// @dev Verify swap condition
 		require(
 			registry.isOwnerOf(pocketId, msg.sender),
@@ -90,10 +87,7 @@ contract PocketChef is
 		);
 
 		/// @dev Execute DCA Swap
-		(uint256 amountIn, uint256 amountOut) = vault.closePosition(
-			pocketId,
-			fee
-		);
+		(uint256 amountIn, uint256 amountOut) = vault.closePosition(pocketId);
 
 		/// @dev Update closing position stats
 		registry.updatePocketClosingPositionStats(
@@ -118,7 +112,7 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
-	function tryClosingPosition(string calldata pocketId, uint256 fee)
+	function tryClosingPosition(string calldata pocketId)
 		external
 		nonReentrant
 	{
@@ -133,10 +127,7 @@ contract PocketChef is
 		);
 
 		/// @dev Execute DCA Swap
-		(uint256 amountIn, uint256 amountOut) = vault.closePosition(
-			pocketId,
-			fee
-		);
+		(uint256 amountIn, uint256 amountOut) = vault.closePosition(pocketId);
 
 		bool shouldStopLoss = registry.shouldStopLoss(
 			pocketId,
@@ -195,10 +186,7 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
-	function tryMakingDCASwap(string calldata pocketId, uint256 fee)
-		external
-		nonReentrant
-	{
+	function tryMakingDCASwap(string calldata pocketId) external nonReentrant {
 		/// @dev Verify swap condition
 		require(
 			registry.hasRole(registry.OPERATOR(), msg.sender),
@@ -210,10 +198,7 @@ contract PocketChef is
 		);
 
 		/// @dev Execute DCA Swap
-		(uint256 amountIn, uint256 amountOut) = vault.makeDCASwap(
-			pocketId,
-			fee
-		);
+		(uint256 amountIn, uint256 amountOut) = vault.makeDCASwap(pocketId);
 
 		/// @dev Check whether the buy condition meets
 		require(

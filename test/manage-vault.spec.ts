@@ -337,7 +337,7 @@ describe("[manage_vault]", async function () {
 
     expect(await Quoter.WETH9()).eq(pocketStateBefore.baseTokenAddress);
     expect(pocketStateBefore.baseTokenBalance).gt(0);
-    expect(pocketStateBefore.targetTokenBalance).eq(0);
+    expect(pocketStateBefore.targetTokenBalance).gt(0);
 
     const balanceBefore = await owner.getBalance();
 
@@ -352,7 +352,12 @@ describe("[manage_vault]", async function () {
 
     const balanceAfter = await owner.getBalance();
     expect(
-      pocketStateBefore.baseTokenBalance.div(balanceAfter.sub(balanceBefore))
-    ).eq(1);
+      parseFloat(
+        (
+          parseFloat(pocketStateBefore.baseTokenBalance.toString()) /
+          parseFloat(balanceAfter.sub(balanceBefore).toString())
+        ).toFixed(2)
+      )
+    ).eq(1.0);
   });
 });
