@@ -17,6 +17,7 @@ import "./PocketRegistry.sol";
 import "./Types.sol";
 import "./Params.sol";
 import "./IQuoter.sol";
+import "./Etherman.sol";
 
 interface UniversalRouter {
 	function execute(
@@ -52,10 +53,15 @@ contract PocketVault is
 	IPermit2 public permit2;
 	IQuoter public quoter;
 	uint256 public swapFee;
+	Etherman public etherman;
 
 	/// @dev RegistryUpdated emitted event
 	event SwapFeeUpdated(address indexed actor, uint256 value);
 	event RegistryUpdated(address indexed actor, address indexed registry);
+	event EthermanUpdated(
+		address indexed actor,
+		address indexed ethermanAddress
+	);
 	event Permit2Updated(address indexed actor, address indexed permit2);
 	event QuoterUpdated(address indexed actor, address indexed quoter);
 
@@ -284,10 +290,11 @@ contract PocketVault is
 
 		/// @dev Try to withdraw native ether if token was held in the vault as wrapped erc20 ether
 		if (baseTokenAddress == quoter.WETH9()) {
-			IWETH9(quoter.WETH9()).withdraw(baseTokenBalance);
-
-			(bool success, ) = payable(owner).call{value: baseTokenBalance}("");
-			require(success, "Error: cannot withdraw ether");
+			IERC20(baseTokenAddress).approve(
+				address(etherman),
+				baseTokenBalance
+			);
+			etherman.unwrapWETH(baseTokenBalance, payable(owner));
 		} else {
 			/// @dev Otherwise transfer erc20 instead
 			require(
@@ -298,12 +305,11 @@ contract PocketVault is
 
 		/// @dev Try to withdraw native ether if token was held in the vault as wrapped erc20 ether
 		if (targetTokenAddress == quoter.WETH9()) {
-			IWETH9(quoter.WETH9()).withdraw(targetTokenBalance);
-
-			(bool success, ) = payable(owner).call{value: targetTokenBalance}(
-				""
+			IERC20(targetTokenAddress).approve(
+				address(etherman),
+				targetTokenBalance
 			);
-			require(success, "Error: cannot withdraw ether");
+			etherman.unwrapWETH(targetTokenBalance, payable(owner));
 		} else {
 			/// @dev Otherwise transfer erc20 instead
 			require(
@@ -375,6 +381,18 @@ contract PocketVault is
 	function setSwapFee(uint256 fee) external onlyOwner {
 		swapFee = fee;
 		emit SwapFeeUpdated(msg.sender, fee);
+	}
+
+	/// @notice Set etherman address
+	function setEtherman(address payable ethermanAddress) external onlyOwner {
+		etherman = Etherman(ethermanAddress);
+		emit EthermanUpdated(msg.sender, ethermanAddress);
+	}
+
+	/// @notice Initialize etherman
+	function initEtherman() external onlyOwner {
+		etherman = new Etherman();
+		emit EthermanUpdated(msg.sender, address(etherman));
 	}
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
