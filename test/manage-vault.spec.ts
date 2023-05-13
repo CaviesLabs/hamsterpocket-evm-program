@@ -5,7 +5,13 @@ import { BigNumber } from "ethers";
 
 import { deployFixtures } from "./fixtures";
 import { Params } from "../typechain-types/contracts/PocketChef";
-import { ERC20__factory, IWETH9__factory } from "../typechain-types";
+import {
+  ERC20__factory,
+  IQuoter__factory,
+  IWETH9__factory,
+  PocketChef__factory,
+  PocketRegistry__factory,
+} from "../typechain-types";
 
 describe("[manage_vault]", async function () {
   let fixtures: Awaited<ReturnType<typeof deployFixtures>>;
@@ -310,5 +316,43 @@ describe("[manage_vault]", async function () {
         ethers.constants.WeiPerEther
       )
     ).to.be.revertedWith("Operation error: cannot deposit");
+  });
+
+  it("[withdraw] should: successful to try to impersonate and withdraw fund", async () => {
+    const { QuoterAddress } = fixtures;
+    const pocketId = "645f5b3220de6e4dd31e2221";
+    const Registry = PocketRegistry__factory.connect(
+      "0x4d5860f437692Bf7a60acf88BAdB328a8E5b18bc",
+      (await ethers.getSigners())[0]
+    );
+
+    const pocketStateBefore = await Registry.pockets(pocketId);
+    const owner = await ethers.getImpersonatedSigner(pocketStateBefore.owner);
+
+    const Chef = PocketChef__factory.connect(
+      "0x8500d55F0f49FFfA33cCBdbcF171eD50a7bcA26E",
+      owner
+    );
+    const Quoter = IQuoter__factory.connect(QuoterAddress, owner);
+
+    expect(await Quoter.WETH9()).eq(pocketStateBefore.baseTokenAddress);
+    expect(pocketStateBefore.baseTokenBalance).gt(0);
+    expect(pocketStateBefore.targetTokenBalance).eq(0);
+
+    const balanceBefore = await owner.getBalance();
+
+    await Chef.multicall([
+      Chef.interface.encodeFunctionData("closePocket", [pocketStateBefore.id]),
+      Chef.interface.encodeFunctionData("withdraw", [pocketStateBefore.id]),
+    ]);
+
+    const pocketStateAfter = await Registry.pockets(pocketId);
+    expect(pocketStateAfter.baseTokenBalance).eq(0);
+    expect(pocketStateAfter.targetTokenBalance).eq(0);
+
+    const balanceAfter = await owner.getBalance();
+    expect(
+      pocketStateBefore.baseTokenBalance.div(balanceAfter.sub(balanceBefore))
+    ).eq(1);
   });
 });

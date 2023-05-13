@@ -9,7 +9,7 @@ pragma abicoder v2;
 interface IQuoter {
 	/// @notice Return the wrapped ether address that used for uniswap amm
 	/// @return wethAddress The wrapped ether address
-	function WETH9() external returns (address wethAddress);
+	function WETH9() external view returns (address);
 
 	/// @notice Returns the amount out received for a given exact input swap without executing the swap
 	/// @param path The path of the swap, i.e. each token pair and the pool fee

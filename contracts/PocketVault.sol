@@ -113,11 +113,12 @@ contract PocketVault is
 	function getCurrentQuote(
 		address baseTokenAddress,
 		address targetTokenAddress,
-		uint256 amountIn
+		uint256 amountIn,
+		uint256 fee
 	) public returns (uint256, uint256) {
 		bytes memory path = abi.encodePacked(
 			baseTokenAddress,
-			uint24(3000),
+			uint24(fee),
 			targetTokenAddress
 		);
 
@@ -129,7 +130,8 @@ contract PocketVault is
 		address router,
 		address baseTokenAddress,
 		address targetTokenAddress,
-		uint256 amount
+		uint256 amount,
+		uint256 fee
 	) private returns (uint256) {
 		IERC20(baseTokenAddress).approve(address(permit2), amount);
 
@@ -149,11 +151,7 @@ contract PocketVault is
 			address(this),
 			amount,
 			0,
-			abi.encodePacked(
-				baseTokenAddress,
-				uint24(3000),
-				targetTokenAddress
-			),
+			abi.encodePacked(baseTokenAddress, uint24(fee), targetTokenAddress),
 			true
 		);
 
@@ -170,7 +168,7 @@ contract PocketVault is
 	}
 
 	/// @notice Make DCA swap for the given pocket pocket
-	function makeDCASwap(string calldata pocketId)
+	function makeDCASwap(string calldata pocketId, uint256 fee)
 		external
 		onlyRelayer
 		nonReentrant
@@ -194,7 +192,8 @@ contract PocketVault is
 			ammRouterAddress,
 			baseTokenAddress,
 			targetTokenAddress,
-			batchVolume
+			batchVolume,
+			fee
 		);
 
 		/// @dev Emit event
@@ -213,7 +212,7 @@ contract PocketVault is
 	}
 
 	/// @notice Make close position for the given pocket
-	function closePosition(string calldata pocketId)
+	function closePosition(string calldata pocketId, uint256 fee)
 		external
 		onlyRelayer
 		nonReentrant
@@ -238,7 +237,8 @@ contract PocketVault is
 			ammRouterAddress,
 			targetTokenAddress,
 			baseTokenAddress,
-			targetTokenBalance
+			targetTokenBalance,
+			fee
 		);
 
 		/// @dev Emit event
@@ -295,7 +295,7 @@ contract PocketVault is
 
 		/// @dev Try to withdraw native ether if token was held in the vault as wrapped erc20 ether
 		if (targetTokenAddress == quoter.WETH9()) {
-			IWETH9(quoter.WETH9()).withdraw(baseTokenBalance);
+			IWETH9(quoter.WETH9()).withdraw(targetTokenBalance);
 
 			(bool success, ) = payable(owner).call{value: targetTokenBalance}(
 				""

@@ -58,7 +58,8 @@ describe("[swap]", async function () {
     const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
       toBeCreatedPocketData.baseTokenAddress,
       toBeCreatedPocketData.targetTokenAddress,
-      ethers.constants.WeiPerEther
+      ethers.constants.WeiPerEther,
+      3000
     );
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
@@ -70,7 +71,8 @@ describe("[swap]", async function () {
     const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
       UniswapAddress,
       WBNBAddress,
-      ethers.constants.WeiPerEther
+      ethers.constants.WeiPerEther,
+      3000
     );
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
@@ -82,7 +84,47 @@ describe("[swap]", async function () {
     const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
       ETHAddress,
       WBNBAddress,
-      ethers.constants.WeiPerEther
+      ethers.constants.WeiPerEther,
+      3000
+    );
+
+    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountOut).gt(0);
+  });
+
+  it("[quoter] should: BTCB/WBNB on fee 1% should work properly", async () => {
+    const { Vault } = fixtures;
+    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+      toBeCreatedPocketData.baseTokenAddress,
+      toBeCreatedPocketData.targetTokenAddress,
+      ethers.constants.WeiPerEther,
+      10000
+    );
+
+    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountOut).gt(0);
+  });
+
+  it("[quoter] should: UNI/WBNB on fee 1% should work", async () => {
+    const { Vault, UniswapAddress, WBNBAddress } = fixtures;
+    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+      UniswapAddress,
+      WBNBAddress,
+      ethers.constants.WeiPerEther,
+      10000
+    );
+
+    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountOut).gt(0);
+  });
+
+  it("[quoter] should: ETH/WBNB on fee 1% should work", async () => {
+    const { Vault, ETHAddress, WBNBAddress } = fixtures;
+    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+      ETHAddress,
+      WBNBAddress,
+      ethers.constants.WeiPerEther,
+      10000
     );
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
@@ -93,25 +135,25 @@ describe("[swap]", async function () {
     const { Chef, owner, owner2 } = fixtures;
 
     await expect(
-      Chef.connect(owner).tryMakingDCASwap(toBeCreatedPocketData.id)
+      Chef.connect(owner).tryMakingDCASwap(toBeCreatedPocketData.id, 10000)
     ).to.be.revertedWith(
       "Operation error: only operator is permitted for the operation"
     );
 
     await expect(
-      Chef.connect(owner).tryClosingPosition(toBeCreatedPocketData.id)
+      Chef.connect(owner).tryClosingPosition(toBeCreatedPocketData.id, 10000)
     ).to.be.revertedWith(
       "Operation error: only operator is permitted for the operation"
     );
 
     await expect(
-      Chef.connect(owner2).tryClosingPosition(toBeCreatedPocketData.id)
+      Chef.connect(owner2).tryClosingPosition(toBeCreatedPocketData.id, 10000)
     ).to.be.revertedWith(
       "Operation error: only operator is permitted for the operation"
     );
 
     await expect(
-      Chef.connect(owner2).tryClosingPosition(toBeCreatedPocketData.id)
+      Chef.connect(owner2).tryClosingPosition(toBeCreatedPocketData.id, 10000)
     ).to.be.revertedWith(
       "Operation error: only operator is permitted for the operation"
     );
@@ -149,7 +191,10 @@ describe("[swap]", async function () {
     expect(pocket.baseTokenBalance).eq(ethers.constants.WeiPerEther);
     expect(pocket.targetTokenBalance).eq(ethers.constants.Zero);
 
-    await Chef.connect(operator).tryMakingDCASwap(toBeCreatedPocketData.id);
+    await Chef.connect(operator).tryMakingDCASwap(
+      toBeCreatedPocketData.id,
+      10000
+    );
 
     expect(await WBNB.balanceOf(Vault.address)).eq(
       ethers.constants.WeiPerEther.sub(
@@ -216,7 +261,7 @@ describe("[swap]", async function () {
       parseInt((new Date().getTime() / 1000 + 36000).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 10000);
 
     const WBNB = IERC20__factory.connect(WBNBAddress, owner);
     const BTCB = IERC20__factory.connect(BTCBAddress, owner);
@@ -237,7 +282,7 @@ describe("[swap]", async function () {
     expect(pocket.targetTokenBalance).gt(ethers.constants.Zero);
 
     const vaultBalanceBefore = await BTCB.balanceOf(Vault.address);
-    await Chef.connect(operator).tryClosingPosition(data.id);
+    await Chef.connect(operator).tryClosingPosition(data.id, 10000);
 
     expect(await WBNB.balanceOf(Vault.address)).gt(
       ethers.constants.WeiPerEther.sub(
@@ -298,10 +343,10 @@ describe("[swap]", async function () {
       parseInt((new Date().getTime() / 1000 + 38000).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 10000);
 
     await expect(
-      Chef.connect(operator).tryClosingPosition(data.id)
+      Chef.connect(operator).tryClosingPosition(data.id, 10000)
     ).to.be.revertedWith(
       "Operation error: closing position condition does not reach"
     );
@@ -332,10 +377,10 @@ describe("[swap]", async function () {
       parseInt((new Date().getTime() / 1000 + 45000).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 10000);
 
     await expect(
-      Chef.connect(operator).tryClosingPosition(data.id)
+      Chef.connect(operator).tryClosingPosition(data.id, 3000)
     ).to.be.revertedWith(
       "Operation error: closing position condition does not reach"
     );
@@ -375,18 +420,18 @@ describe("[swap]", async function () {
       parseInt((new Date().getTime() / 1000 + 50000).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 10000);
 
     /// @dev Wont allow non-owner close position if condition does not reach
     await expect(
-      Chef.connect(operator).tryClosingPosition(data.id)
+      Chef.connect(operator).tryClosingPosition(data.id, 3000)
     ).to.be.revertedWith(
       "Operation error: closing position condition does not reach"
     );
 
     /// @dev Wont allow non-owner close position manually
     await expect(
-      Chef.connect(operator).closePosition(data.id)
+      Chef.connect(operator).closePosition(data.id, 3000)
     ).to.be.revertedWith(
       "Operation error: only owner is permitted for the operation"
     );
@@ -397,7 +442,7 @@ describe("[swap]", async function () {
     const vaultBalanceBefore = await BTCB.balanceOf(Vault.address);
     const vaultBNBBalanceBefore = await WBNB.balanceOf(Vault.address);
 
-    await Chef.connect(owner).closePosition(data.id);
+    await Chef.connect(owner).closePosition(data.id, 10000);
 
     /// @dev meaning that the close position works properly
     expect(await BTCB.balanceOf(Vault.address)).lt(vaultBalanceBefore);

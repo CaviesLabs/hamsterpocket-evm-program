@@ -159,6 +159,7 @@ export async function deployFixtures() {
     operator,
     Multicall3,
     BTCBOwner,
+    QuoterAddress: "0x78D78E420Da98ad378D7799bE8f4AF69033EB077",
     WBNBAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
     UniswapAddress: "0xbf5140a22578168fd562dccf235e5d43a02ce9b1",
     USDTAddress: "0x55d398326f99059fF775485246999027B3197955",
