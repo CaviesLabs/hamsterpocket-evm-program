@@ -96,6 +96,7 @@ async function main() {
   await Vault.setPermit2("0x000000000022d473030f116ddee9f6b43ac78ba3");
   await Vault.setQuoter("0x78D78E420Da98ad378D7799bE8f4AF69033EB077");
   await Vault.setSwapFee(500);
+  await Vault.initEtherman();
 
   await Chef.setRegistry(Registry.address);
   await Chef.setVault(Vault.address);
