@@ -53,6 +53,45 @@ describe("[swap]", async function () {
     );
   });
 
+  it("[quoter] should: BTCB/WBNB on fee 0.05% should work properly", async () => {
+    const { Vault } = fixtures;
+    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+      toBeCreatedPocketData.baseTokenAddress,
+      toBeCreatedPocketData.targetTokenAddress,
+      ethers.constants.WeiPerEther,
+      500
+    );
+
+    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountOut).gt(0);
+  });
+  //
+  // it("[quoter] should: UNI/WBNB on fee 0.05% should work", async () => {
+  //   const { Vault, UniswapAddress, WBNBAddress } = fixtures;
+  //   const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+  //     UniswapAddress,
+  //     WBNBAddress,
+  //     ethers.constants.WeiPerEther,
+  //     500
+  //   );
+  //
+  //   expect(amountIn).eq(ethers.constants.WeiPerEther);
+  //   expect(amountOut).gt(0);
+  // });
+
+  it("[quoter] should: ETH/WBNB on fee 0.05% should work", async () => {
+    const { Vault, ETHAddress, WBNBAddress } = fixtures;
+    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+      ETHAddress,
+      WBNBAddress,
+      ethers.constants.WeiPerEther,
+      500
+    );
+
+    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountOut).gt(0);
+  });
+
   it("[quoter] should: BTCB/WBNB on fee 0.3% should work properly", async () => {
     const { Vault } = fixtures;
     const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
