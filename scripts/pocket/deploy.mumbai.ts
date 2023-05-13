@@ -76,7 +76,6 @@ async function main() {
   /**
    * @dev Linking components
    */
-  await Vault.setSwapFee(3000);
   await Vault.setRegistry(Registry.address);
   await Vault.setPermit2("0x000000000022d473030f116ddee9f6b43ac78ba3");
   await Vault.setQuoter("0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6");

@@ -131,6 +131,8 @@ contract PocketRegistry is
 		/// @dev Save some gas
 		if (stopConditions.length == 0) return false;
 
+		bool shouldStop = false;
+
 		for (uint256 index = 0; index < stopConditions.length; index++) {
 			Types.StopCondition storage condition = stopConditions[index];
 
@@ -138,32 +140,42 @@ contract PocketRegistry is
 			if (
 				condition.operator == Types.StopConditionOperator.EndTimeReach
 			) {
-				return condition.value <= block.timestamp;
+				shouldStop = shouldStop || condition.value <= block.timestamp;
+				continue;
 			}
 
 			if (
 				condition.operator ==
 				Types.StopConditionOperator.BatchAmountReach
 			) {
-				return pocket.executedBatchAmount >= condition.value;
+				shouldStop =
+					shouldStop ||
+					pocket.executedBatchAmount >= condition.value;
+				continue;
 			}
 
 			if (
 				condition.operator ==
 				Types.StopConditionOperator.SpentBaseTokenAmountReach
 			) {
-				return pocket.totalSwappedBaseAmount >= condition.value;
+				shouldStop =
+					shouldStop ||
+					pocket.totalSwappedBaseAmount >= condition.value;
+				continue;
 			}
 
 			if (
 				condition.operator ==
 				Types.StopConditionOperator.ReceivedTargetTokenAmountReach
 			) {
-				return pocket.totalReceivedTargetAmount >= condition.value;
+				shouldStop =
+					shouldStop ||
+					pocket.totalReceivedTargetAmount >= condition.value;
+				continue;
 			}
 		}
 
-		return false;
+		return shouldStop;
 	}
 
 	/// @notice Check whether a pocket meet buy condition. The pocket should not be settled until this condition is verified.

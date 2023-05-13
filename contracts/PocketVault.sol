@@ -52,7 +52,6 @@ contract PocketVault is
 	PocketRegistry public registry;
 	IPermit2 public permit2;
 	IQuoter public quoter;
-	uint256 public swapFee;
 	Etherman public etherman;
 
 	/// @dev RegistryUpdated emitted event
@@ -138,7 +137,8 @@ contract PocketVault is
 		address router,
 		address baseTokenAddress,
 		address targetTokenAddress,
-		uint256 amount
+		uint256 amount,
+		uint256 fee
 	) private returns (uint256) {
 		IERC20(baseTokenAddress).approve(address(permit2), amount);
 
@@ -158,11 +158,7 @@ contract PocketVault is
 			address(this),
 			amount,
 			0,
-			abi.encodePacked(
-				baseTokenAddress,
-				uint24(swapFee),
-				targetTokenAddress
-			),
+			abi.encodePacked(baseTokenAddress, uint24(fee), targetTokenAddress),
 			true
 		);
 
@@ -179,7 +175,7 @@ contract PocketVault is
 	}
 
 	/// @notice Make DCA swap for the given pocket pocket
-	function makeDCASwap(string calldata pocketId)
+	function makeDCASwap(string calldata pocketId, uint256 fee)
 		external
 		onlyRelayer
 		nonReentrant
@@ -203,7 +199,8 @@ contract PocketVault is
 			ammRouterAddress,
 			baseTokenAddress,
 			targetTokenAddress,
-			batchVolume
+			batchVolume,
+			fee
 		);
 
 		/// @dev Emit event
@@ -222,7 +219,7 @@ contract PocketVault is
 	}
 
 	/// @notice Make close position for the given pocket
-	function closePosition(string calldata pocketId)
+	function closePosition(string calldata pocketId, uint256 fee)
 		external
 		onlyRelayer
 		nonReentrant
@@ -247,7 +244,8 @@ contract PocketVault is
 			ammRouterAddress,
 			targetTokenAddress,
 			baseTokenAddress,
-			targetTokenBalance
+			targetTokenBalance,
+			fee
 		);
 
 		/// @dev Emit event
@@ -375,12 +373,6 @@ contract PocketVault is
 	function setQuoter(address quoterAddress) external onlyOwner {
 		quoter = IQuoter(quoterAddress);
 		emit QuoterUpdated(msg.sender, quoterAddress);
-	}
-
-	/// @notice Set quoter address
-	function setSwapFee(uint256 fee) external onlyOwner {
-		swapFee = fee;
-		emit SwapFeeUpdated(msg.sender, fee);
 	}
 
 	/// @notice Set etherman address
