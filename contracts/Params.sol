@@ -19,6 +19,7 @@ library Params {
 		address ammRouterAddress;
 		address baseTokenAddress;
 		address targetTokenAddress;
+		Types.AMMRouterVersion ammRouterVersion;
 		/**
 		 * @dev Pocket trade config
 		 **/

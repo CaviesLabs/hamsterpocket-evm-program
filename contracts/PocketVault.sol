@@ -18,6 +18,7 @@ import "./Types.sol";
 import "./Params.sol";
 import "./IQuoter.sol";
 import "./Etherman.sol";
+import "./IRouterV2.sol";
 
 interface UniversalRouter {
 	function execute(
@@ -116,13 +117,42 @@ contract PocketVault is
 		_;
 	}
 
-	/// @dev Get quote of a pocket
+	/// @notice Get current quote
 	function getCurrentQuote(
+		address baseTokenAddress,
+		address targetTokenAddress,
+		address ammRouterAddress,
+		uint256 amountIn,
+		uint256 fee
+	) public returns (uint256, uint256) {
+		/// @dev Try returning v2 first
+		try
+			this.getCurrentQuoteV2(
+				baseTokenAddress,
+				targetTokenAddress,
+				ammRouterAddress,
+				amountIn
+			)
+		returns (uint256, uint256) {} catch {}
+
+		/// @dev If getting v2 fails, we return v3
+		return
+			getCurrentQuoteV3(
+				baseTokenAddress,
+				targetTokenAddress,
+				ammRouterAddress,
+				amountIn,
+				fee
+			);
+	}
+
+	/// @notice Get quote of a pocket
+	function getQuote(
 		address baseTokenAddress,
 		address targetTokenAddress,
 		uint256 amountIn,
 		uint256 fee
-	) public returns (uint256, uint256) {
+	) private returns (uint256, uint256) {
 		bytes memory path = abi.encodePacked(
 			baseTokenAddress,
 			uint24(fee),
@@ -132,8 +162,76 @@ contract PocketVault is
 		return (amountIn, quoter.quoteExactInput(path, amountIn));
 	}
 
-	/// @dev Make swap leverages uniswap universal router
+	/// @notice Get current quote v3
+	function getCurrentQuoteV3(
+		address baseTokenAddress,
+		address targetTokenAddress,
+		address ammRouterV3Address,
+		uint256 amountIn,
+		uint256 fee
+	) public returns (uint256, uint256) {
+		require(
+			registry.allowedInteractiveAddresses(ammRouterV3Address) == false,
+			"Error: amm address is not supported"
+		);
+		return getQuote(baseTokenAddress, targetTokenAddress, amountIn, fee);
+	}
+
+	/// @notice Get current quote for v2
+	function getCurrentQuoteV2(
+		address baseTokenAddress,
+		address targetTokenAddress,
+		address ammRouterV2Address,
+		uint256 amountIn
+	) public returns (uint256, uint256) {
+		require(
+			registry.allowedInteractiveAddresses(ammRouterV2Address) == false,
+			"Error: amm address is not supported"
+		);
+
+		address[] memory path = new address[](2);
+		path[0] = baseTokenAddress;
+		path[1] = targetTokenAddress;
+
+		return (
+			amountIn,
+			IUniswapV2Router(ammRouterV2Address).getAmountsOut(amountIn, path)[
+				0
+			]
+		);
+	}
+
+	/// @notice Make swap with v2 or v3
 	function makeSwap(
+		address router,
+		address baseTokenAddress,
+		address targetTokenAddress,
+		Types.AMMRouterVersion version,
+		uint256 amount,
+		uint256 fee
+	) private returns (uint256) {
+		if (version == Types.AMMRouterVersion.V2) {
+			return
+				makeSwapV2(
+					router,
+					baseTokenAddress,
+					targetTokenAddress,
+					amount
+				);
+		}
+
+		return
+			makeSwapV3(
+				router,
+				baseTokenAddress,
+				targetTokenAddress,
+				amount,
+				fee
+			);
+	}
+
+	/// @notice Make swap leverages uniswap universal router
+	function makeSwapV3(
 		address router,
 		address baseTokenAddress,
 		address targetTokenAddress,
@@ -174,6 +272,38 @@ contract PocketVault is
 			);
 	}
 
+	/// @notice Make swap leverages uniswap universal router
+	function makeSwapV2(
+		address router,
+		address baseTokenAddress,
+		address targetTokenAddress,
+		uint256 amount
+	) private returns (uint256) {
+		IERC20(baseTokenAddress).approve(address(router), amount);
+
+		address[] memory path = new address[](2);
+		path[0] = baseTokenAddress;
+		path[1] = targetTokenAddress;
+
+		uint256 beforeBalance = IERC20(targetTokenAddress).balanceOf(
+			address(this)
+		);
+
+		IUniswapV2Router(router)
+			.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+				amount,
+				0,
+				path,
+				address(this),
+				block.timestamp
+			);
+
+		return
+			IERC20(targetTokenAddress).balanceOf(address(this)).sub(
+				beforeBalance
+			);
+	}
+
 	/// @notice Make DCA swap for the given pocket pocket
 	function makeDCASwap(string calldata pocketId, uint256 fee)
 		external
@@ -186,6 +316,7 @@ contract PocketVault is
 			address ammRouterAddress,
 			address baseTokenAddress,
 			address targetTokenAddress,
+			Types.AMMRouterVersion version,
 			,
 			uint256 batchVolume,
 			,
@@ -199,6 +330,7 @@ contract PocketVault is
 			ammRouterAddress,
 			baseTokenAddress,
 			targetTokenAddress,
+			version,
 			batchVolume,
 			fee
 		);
@@ -230,6 +362,7 @@ contract PocketVault is
 			address ammRouterAddress,
 			address baseTokenAddress,
 			address targetTokenAddress,
+			Types.AMMRouterVersion version,
 			,
 			,
 			,
@@ -244,6 +377,7 @@ contract PocketVault is
 			ammRouterAddress,
 			targetTokenAddress,
 			baseTokenAddress,
+			version,
 			targetTokenBalance,
 			fee
 		);
@@ -274,6 +408,7 @@ contract PocketVault is
 			,
 			address baseTokenAddress,
 			address targetTokenAddress,
+			,
 			,
 			,
 			,

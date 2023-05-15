@@ -274,7 +274,7 @@ contract PocketChef is
 			"Operation error: cannot deposit"
 		);
 
-		(, address baseTokenAddress, , , , , , , , ) = registry
+		(, address baseTokenAddress, , , , , , , , , ) = registry
 			.getTradingInfoOf(pocketId);
 
 		/// @dev Wrap ether here
@@ -307,7 +307,7 @@ contract PocketChef is
 			"Operation error: cannot deposit"
 		);
 
-		(, address baseTokenAddress, , , , , , , , ) = registry
+		(, address baseTokenAddress, , , , , , , , , ) = registry
 			.getTradingInfoOf(pocketId);
 
 		/// @dev Spend user token

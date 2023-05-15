@@ -57,6 +57,12 @@ library Types {
 		StopConditionOperator operator;
 	}
 
+	/// @dev Declare AMM router version
+	enum AMMRouterVersion {
+		V3,
+		V2
+	}
+
 	/**
 	 * @dev Define Pocket
 	 */
@@ -92,7 +98,6 @@ library Types {
 		/**
 		 * @dev Pocket trade config
 		 **/
-
 		uint256 startAt;
 		uint256 batchVolume;
 		uint256 frequency;
@@ -100,5 +105,9 @@ library Types {
 		StopCondition[] stopConditions;
 		TradingStopCondition takeProfitCondition;
 		TradingStopCondition stopLossCondition;
+		/**
+		 * @dev AMM router version
+		 */
+		AMMRouterVersion ammRouterVersion;
 	}
 }
