@@ -133,7 +133,9 @@ contract PocketVault is
 				ammRouterAddress,
 				amountIn
 			)
-		returns (uint256, uint256) {} catch {}
+		returns (uint256 _in, uint256 _out) {
+			return (_in, _out);
+		} catch {}
 
 		/// @dev If getting v2 fails, we return v3
 		return
@@ -171,7 +173,7 @@ contract PocketVault is
 		uint256 fee
 	) public returns (uint256, uint256) {
 		require(
-			registry.allowedInteractiveAddresses(ammRouterV3Address) == false,
+			registry.allowedInteractiveAddresses(ammRouterV3Address) == true,
 			"Error: amm address is not supported"
 		);
 		return getQuote(baseTokenAddress, targetTokenAddress, amountIn, fee);
@@ -183,9 +185,9 @@ contract PocketVault is
 		address targetTokenAddress,
 		address ammRouterV2Address,
 		uint256 amountIn
-	) public returns (uint256, uint256) {
+	) public view returns (uint256, uint256) {
 		require(
-			registry.allowedInteractiveAddresses(ammRouterV2Address) == false,
+			registry.allowedInteractiveAddresses(ammRouterV2Address) == true,
 			"Error: amm address is not supported"
 		);
 

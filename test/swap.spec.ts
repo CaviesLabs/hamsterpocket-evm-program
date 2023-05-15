@@ -19,6 +19,7 @@ describe("[swap]", async function () {
       owner: fixtures.owner.address,
       ammRouterAddress: fixtures.RouterAddress,
       baseTokenAddress: fixtures.WBNBAddress,
+      ammRouterVersion: "0",
       targetTokenAddress: fixtures.BTCBAddress,
       startAt: parseInt((new Date().getTime() / 1000).toString()).toString(),
       batchVolume: ethers.constants.WeiPerEther.div(BigNumber.from("10")), // 0.1 BNB per batch
@@ -51,123 +52,6 @@ describe("[swap]", async function () {
       toBeCreatedPocketData,
       { value: ethers.constants.WeiPerEther }
     );
-  });
-
-  it("[quoter] should: BTCB/WBNB on fee 0.05% should work properly", async () => {
-    const { Vault } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
-      toBeCreatedPocketData.baseTokenAddress,
-      toBeCreatedPocketData.targetTokenAddress,
-      ethers.constants.WeiPerEther,
-      500
-    );
-
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
-    expect(amountOut).gt(0);
-  });
-  //
-  // it("[quoter] should: UNI/WBNB on fee 0.05% should work", async () => {
-  //   const { Vault, UniswapAddress, WBNBAddress } = fixtures;
-  //   const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
-  //     UniswapAddress,
-  //     WBNBAddress,
-  //     ethers.constants.WeiPerEther,
-  //     500
-  //   );
-  //
-  //   expect(amountIn).eq(ethers.constants.WeiPerEther);
-  //   expect(amountOut).gt(0);
-  // });
-
-  it("[quoter] should: ETH/WBNB on fee 0.05% should work", async () => {
-    const { Vault, ETHAddress, WBNBAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
-      ETHAddress,
-      WBNBAddress,
-      ethers.constants.WeiPerEther,
-      500
-    );
-
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
-    expect(amountOut).gt(0);
-  });
-
-  it("[quoter] should: BTCB/WBNB on fee 0.3% should work properly", async () => {
-    const { Vault } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
-      toBeCreatedPocketData.baseTokenAddress,
-      toBeCreatedPocketData.targetTokenAddress,
-      ethers.constants.WeiPerEther,
-      3000
-    );
-
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
-    expect(amountOut).gt(0);
-  });
-
-  it("[quoter] should: UNI/WBNB on fee 0.3% should work", async () => {
-    const { Vault, UniswapAddress, WBNBAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
-      UniswapAddress,
-      WBNBAddress,
-      ethers.constants.WeiPerEther,
-      3000
-    );
-
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
-    expect(amountOut).gt(0);
-  });
-
-  it("[quoter] should: ETH/WBNB on fee 0.3% should work", async () => {
-    const { Vault, ETHAddress, WBNBAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
-      ETHAddress,
-      WBNBAddress,
-      ethers.constants.WeiPerEther,
-      3000
-    );
-
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
-    expect(amountOut).gt(0);
-  });
-
-  it("[quoter] should: BTCB/WBNB on fee 1% should work properly", async () => {
-    const { Vault } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
-      toBeCreatedPocketData.baseTokenAddress,
-      toBeCreatedPocketData.targetTokenAddress,
-      ethers.constants.WeiPerEther,
-      10000
-    );
-
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
-    expect(amountOut).gt(0);
-  });
-
-  it("[quoter] should: UNI/WBNB on fee 1% should work", async () => {
-    const { Vault, UniswapAddress, WBNBAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
-      UniswapAddress,
-      WBNBAddress,
-      ethers.constants.WeiPerEther,
-      10000
-    );
-
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
-    expect(amountOut).gt(0);
-  });
-
-  it("[quoter] should: ETH/WBNB on fee 1% should work", async () => {
-    const { Vault, ETHAddress, WBNBAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
-      ETHAddress,
-      WBNBAddress,
-      ethers.constants.WeiPerEther,
-      10000
-    );
-
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
-    expect(amountOut).gt(0);
   });
 
   it("[auto_investment] should: non-operator cannot trigger the swap, even owner", async () => {
@@ -491,6 +375,7 @@ describe("[swap]", async function () {
     const pocket = await Registry.pockets(data.id);
     expect(pocket.status).eq(3);
   });
+
   it("[auto_investment] should: auto close whenever pocket reaches stop conditions", async () => {
     const {
       Time,
@@ -505,7 +390,7 @@ describe("[swap]", async function () {
 
     const data = {
       ...toBeCreatedPocketData,
-      id: "should-auto-close-pocket-successfully",
+      id: "should-routerv2-auto-close-pocket-successfully",
       startAt: parseInt((new Date().getTime() / 1000 + 50002).toString()),
       stopConditions: [
         {
@@ -535,6 +420,53 @@ describe("[swap]", async function () {
 
     await Time.increaseTo(
       parseInt((new Date().getTime() / 1000 + 60000).toString())
+    );
+
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000);
+
+    /// @dev Pocket has been closed after closing position
+    const pocket = await Registry.pockets(data.id);
+    expect(pocket.status).eq(3);
+  });
+
+  it("[auto_investment] should: should work with pcs router v2", async () => {
+    const { Time, Chef, Registry, owner, operator, PancakeSwapRouterV2 } =
+      fixtures;
+
+    const data = {
+      ...toBeCreatedPocketData,
+      id: "should-auto-close-pocket-successfully",
+      startAt: parseInt((new Date().getTime() / 1000 + 60002).toString()),
+      ammRouterAddress: PancakeSwapRouterV2,
+      ammRouterVersion: "1", // Meaning this is v2
+      stopConditions: [
+        {
+          operator: "0",
+          value: parseInt(
+            (new Date().getTime() / 1000 + 60010).toString()
+          ).toString(),
+        },
+        {
+          operator: "1",
+          value: BigNumber.from("1"),
+        },
+        {
+          operator: "2",
+          value: ethers.constants.WeiPerEther,
+        },
+        {
+          operator: "3",
+          value: ethers.constants.WeiPerEther,
+        },
+      ],
+    };
+
+    await Chef.connect(owner).createPocketAndDepositEther(data, {
+      value: ethers.constants.WeiPerEther,
+    });
+
+    await Time.increaseTo(
+      parseInt((new Date().getTime() / 1000 + 70000).toString())
     );
 
     await Chef.connect(operator).tryMakingDCASwap(data.id, 3000);

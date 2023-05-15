@@ -106,6 +106,56 @@ Hamsterpocket (Pocket) is an Open Source self-managed dollar-cost-averaging prot
 yarn test
 ```
 
+```bash
+  [administration]
+    ✔ [administration] should: non deployer wont be allowed to modify contracts (253ms)
+
+  [manage_pocket]
+    ✔ [create_pocket] should: owner creates pocket successfully (369ms)
+    ✔ [get_trading_info] should: getTradingInfoOf should work properly
+    ✔ [create_pocket] should: cannot create with a duplicated id
+    ✔ [update_pocket] should: owner updates pocket will fail if owner provides invalid id
+    ✔ [update_pocket] should: non-owner updates pocket will fail
+    ✔ [update_pocket] should: owner updates pocket successfully (285ms)
+    ✔ [update_pocket_status] should: non-owner will fail to update pocket status
+    ✔ [update_pocket_status] should: owner can pause/close pocket status (707ms)
+    ✔ [update_pocket_status] should: owner will fail to update pocket status if it's not available
+
+  [manage_vault]
+    ✔ [create_and_deposit] should: owner creates and deposits to pocket with native ether (1332ms)
+    ✔ [create_and_deposit] should: owner creates and deposits to pocket using multicall (1061ms)
+    ✔ [withdraw] should: owner fails to withdraw an active pocket
+    ✔ [deposit] should: non-owner fails to deposit to an active pocket
+    ✔ [close_and_withdraw] should: close and withdraw pocket with multicall (1484ms)
+    ✔ [deposit] should: owner fails to deposit to a closed pocket
+
+  [quoter]
+    ✔ [quoter] should: BTCB/WBNB on RouterV2 should work properly (444ms)
+    ✔ [quoter] should: UNI/WBNB on RouterV2 should work properly (304ms)
+    ✔ [quoter] should: ETH/WBNB on RouterV2 should work properly (311ms)
+    ✔ [quoter] should: BTCB/WBNB on fee 0.05% should work properly (1761ms)
+    ✔ [quoter] should: ETH/WBNB on fee 0.05% should work (1612ms)
+    ✔ [quoter] should: BTCB/WBNB on fee 0.3% should work properly (6033ms)
+    ✔ [quoter] should: UNI/WBNB on fee 0.3% should work (1695ms)
+    ✔ [quoter] should: ETH/WBNB on fee 0.3% should work (1832ms)
+    ✔ [quoter] should: BTCB/WBNB on fee 1% should work properly (4985ms)
+    ✔ [quoter] should: UNI/WBNB on fee 1% should work (1178ms)
+    ✔ [quoter] should: ETH/WBNB on fee 1% should work (3415ms)
+
+  [swap]
+    ✔ [auto_investment] should: non-operator cannot trigger the swap, even owner
+    ✔ [auto_investment] should: operator can trigger the swap (1352ms)
+    ✔ [auto_investment] should: operator can close position of the swap (3234ms)
+    ✔ [auto_investment] should: operator will fail to close position as the condition is not reached (stop loss) (1331ms)
+    ✔ [auto_investment] should: operator will fail to close position as the condition is not reached (take profit) (1189ms)
+    ✔ [auto_investment] should: owner can close position (3504ms)
+    ✔ [auto_investment] should: auto close whenever pocket reaches stop conditions (3352ms)
+    ✔ [auto_investment] should: should work with pcs router v2 (5067ms)
+
+
+  35 passing (57s)
+```
+
 ### Deploy into BSC mainnet
 
 ```bash

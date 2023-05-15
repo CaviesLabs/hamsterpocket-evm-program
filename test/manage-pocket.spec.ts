@@ -50,6 +50,7 @@ describe("[manage_pocket]", async function () {
       ammRouterAddress: fixtures.RouterAddress,
       baseTokenAddress: fixtures.WBNBAddress,
       targetTokenAddress: fixtures.BTCBAddress,
+      ammRouterVersion: 0,
       startAt: parseInt(
         (new Date().getTime() / 1000 + 30000).toString()
       ).toString(),
@@ -137,6 +138,24 @@ describe("[manage_pocket]", async function () {
 
     expect(eventLogs.length).eq(1);
     expect(eventLogs[0].name).eq("PocketInitialized");
+  });
+
+  it("[get_trading_info] should: getTradingInfoOf should work properly", async () => {
+    const { Registry } = fixtures;
+
+    const pocket = await Registry.getTradingInfoOf(toBeCreatedPocketData.id);
+
+    expect(pocket[0]).eq(toBeCreatedPocketData.ammRouterAddress);
+    expect(pocket[1]).eq(toBeCreatedPocketData.baseTokenAddress);
+    expect(pocket[2]).eq(toBeCreatedPocketData.targetTokenAddress);
+    expect(pocket[3]).eq(toBeCreatedPocketData.ammRouterVersion);
+    expect(pocket[4]).eq(toBeCreatedPocketData.startAt);
+    expect(pocket[5]).eq(toBeCreatedPocketData.batchVolume);
+    expect(pocket[6]).eq(toBeCreatedPocketData.frequency);
+    expect(pocket[7]).eq(toBeCreatedPocketData.startAt);
+    expect(pocket[8].operator).eq(BigNumber.from("0"));
+    expect(pocket[9].stopType).eq(BigNumber.from("0"));
+    expect(pocket[10].stopType).eq(BigNumber.from("0"));
   });
 
   it("[create_pocket] should: cannot create with a duplicated id", async () => {

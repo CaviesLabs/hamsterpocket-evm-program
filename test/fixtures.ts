@@ -128,6 +128,10 @@ export async function deployFixtures() {
     true
   );
   await Registry.whitelistAddress(
+    "0x10ED43C718714eb63d5aA57B78B54704E256024E", // PancakeSwap router v2
+    true
+  );
+  await Registry.whitelistAddress(
     "0x000000000022d473030f116ddee9f6b43ac78ba3", // permit2
     true
   );
@@ -162,11 +166,12 @@ export async function deployFixtures() {
     BTCBOwner,
     QuoterAddress: "0x78D78E420Da98ad378D7799bE8f4AF69033EB077",
     WBNBAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
-    UniswapAddress: "0xbf5140a22578168fd562dccf235e5d43a02ce9b1",
+    UniswapAddress: "0xBf5140A22578168FD562DCcF235E5D43A02ce9B1",
     USDTAddress: "0x55d398326f99059fF775485246999027B3197955",
     BTCBAddress: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c",
     ETHAddress: "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
     RouterAddress: "0x5Dc88340E1c5c6366864Ee415d6034cadd1A9897",
     Permit2Address: "0x000000000022d473030f116ddee9f6b43ac78ba3",
+    PancakeSwapRouterV2: "0x10ED43C718714eb63d5aA57B78B54704E256024E",
   };
 }
