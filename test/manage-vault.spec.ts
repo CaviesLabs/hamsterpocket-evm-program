@@ -224,7 +224,7 @@ describe("[manage_vault]", async function () {
   });
 
   it("[deposit] should: non-owner fails to deposit to an active pocket", async () => {
-    const { Chef, owner, owner2 } = fixtures;
+    const { Chef, owner2 } = fixtures;
 
     await expect(
       Chef.connect(owner2).depositToken(

@@ -377,16 +377,7 @@ describe("[swap]", async function () {
   });
 
   it("[auto_investment] should: auto close whenever pocket reaches stop conditions", async () => {
-    const {
-      Time,
-      Chef,
-      Vault,
-      Registry,
-      owner,
-      operator,
-      WBNBAddress,
-      BTCBAddress,
-    } = fixtures;
+    const { Time, Chef, Registry, owner, operator } = fixtures;
 
     const data = {
       ...toBeCreatedPocketData,
