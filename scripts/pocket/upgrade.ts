@@ -3,12 +3,19 @@ import { PocketChef, PocketRegistry, PocketVault } from "../../typechain-types";
 
 async function main() {
   const Addresses = {
-    PocketVault: "0x11dB248796EFF8A82cf0cF6460a463E4d8127e1d",
-    PocketRegistry: "0x4d5860f437692Bf7a60acf88BAdB328a8E5b18bc",
-    PocketChef: "0x8500d55F0f49FFfA33cCBdbcF171eD50a7bcA26E",
-    Multicall3: "0x76DB16c04F9683288E912e986C3F4EBB52266F1C",
+    PocketVault: "0x4bcD48D0Af9b48716EDb30BFF560d08036439871",
+    PocketRegistry: "0xb9599963729Acf22a18629355dA23e0bA4fBa611",
+    PocketChef: "0xd74Ad94208935a47b1Bd289d28d45Bce6369E064",
+    Multicall3: "0x292A7C55443850a30A6BCC17aF306b4Dc8864476",
+    WBNBAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+    UniswapAddress: "0xBf5140A22578168FD562DCcF235E5D43A02ce9B1",
+    USDTAddress: "0x55d398326f99059fF775485246999027B3197955",
+    BTCBAddress: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c",
+    ETHAddress: "0x2170ed0880ac9a755fd29b2688956bd959f933f8",
+    RouterAddress: "0x5Dc88340E1c5c6366864Ee415d6034cadd1A9897",
+    Permit2Address: "0x000000000022d473030f116ddee9f6b43ac78ba3",
+    PancakeSwapRouterV2: "0x10ED43C718714eb63d5aA57B78B54704E256024E",
   };
-
   /**
    * @dev Deploy contract
    */

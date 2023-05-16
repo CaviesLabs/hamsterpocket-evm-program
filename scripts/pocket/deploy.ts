@@ -85,6 +85,10 @@ async function main() {
     true
   );
   await Registry.whitelistAddress(
+    "0x10ED43C718714eb63d5aA57B78B54704E256024E", // PCS Router v2
+    true
+  );
+  await Registry.whitelistAddress(
     "0x000000000022d473030f116ddee9f6b43ac78ba3", // permit2
     true
   );

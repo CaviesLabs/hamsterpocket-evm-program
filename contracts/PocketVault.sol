@@ -198,7 +198,7 @@ contract PocketVault is
 		return (
 			amountIn,
 			IUniswapV2Router(ammRouterV2Address).getAmountsOut(amountIn, path)[
-				0
+				1
 			]
 		);
 	}
