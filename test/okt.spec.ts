@@ -8,6 +8,8 @@ import {
   PocketRegistry,
   Multicall3,
   MockedERC20,
+  PocketChef__factory,
+  PocketRegistry__factory,
 } from "../typechain-types";
 import { Params } from "../typechain-types/contracts/PocketChef";
 import { expect } from "chai";
@@ -250,5 +252,78 @@ describe("[okt]", function () {
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
+  });
+
+  it("[auto_investment] should: integration test should work", async () => {
+    const { Time } = fixtures;
+
+    const Addresses = {
+      PocketVault: "0x76DB16c04F9683288E912e986C3F4EBB52266F1C",
+      PocketRegistry: "0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6",
+      PocketChef: "0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c",
+      Multicall3: "0x292A7C55443850a30A6BCC17aF306b4Dc8864476",
+    };
+
+    const signer = await ethers.getImpersonatedSigner(
+      "0xC988c21E794B0ad2008EAB90371d30eAd2c0c6f8"
+    );
+
+    /**
+     * @dev Deploy contract
+     */
+    const Chef = PocketChef__factory.connect(Addresses.PocketChef, signer);
+
+    /**
+     * @dev Deploy contract
+     */
+    const Registry = PocketRegistry__factory.connect(
+      Addresses.PocketRegistry,
+      signer
+    );
+
+    /**
+     * @dev Deploy contract
+     */
+    const data = {
+      ...toBeCreatedPocketData,
+      owner: signer.address,
+      startAt: parseInt(
+        (new Date().getTime() / 1000 + 20).toString()
+      ).toString(),
+      stopConditions: [
+        {
+          operator: "0",
+          value: parseInt(
+            (new Date().getTime() / 1000 + 3000).toString()
+          ).toString(),
+        },
+        {
+          operator: "1",
+          value: BigNumber.from("1"),
+        },
+        {
+          operator: "2",
+          value: ethers.constants.WeiPerEther,
+        },
+        {
+          operator: "3",
+          value: ethers.constants.WeiPerEther,
+        },
+      ],
+    };
+
+    await Chef.connect(signer).createPocketAndDepositEther(data, {
+      value: ethers.constants.WeiPerEther,
+    });
+
+    await Time.increaseTo(
+      parseInt((new Date().getTime() / 1000 + 100).toString())
+    );
+
+    await Chef.connect(signer).tryMakingDCASwap(data.id, 3000);
+
+    /// @dev Pocket has been closed after closing position
+    const pocket = await Registry.pockets(data.id);
+    expect(pocket.status).eq(3);
   });
 });

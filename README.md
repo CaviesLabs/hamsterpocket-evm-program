@@ -92,12 +92,12 @@ Hamsterpocket (Pocket) is an Open Source self-managed dollar-cost-averaging prot
 ## **Getting started** 🚀
 
 ### **Deployed Contracts addresses** 📢
-| Contract       | BSC Mainnet  | Mumbai                                     |
-|----------------|----------------------------------------------|--------------------------------------------|
-| PocketChef     | 0x8500d55F0f49FFfA33cCBdbcF171eD50a7bcA26E | 0x9ac25725B8465E70cc2458592C9104c0f06C8e87 |
-| PocketRegistry | 0x4d5860f437692Bf7a60acf88BAdB328a8E5b18bc | 0xA7671257D29a2fDC5c585Dc67D6F0EfF9cF9b457 |
-| PocketVault    | 0x11dB248796EFF8A82cf0cF6460a463E4d8127e1d | 0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c |
-| Multicall3     | 0x76DB16c04F9683288E912e986C3F4EBB52266F1C | 0x292A7C55443850a30A6BCC17aF306b4Dc8864476 |
+| Contract       | BSC Mainnet  | Mumbai                                     | XDC | OKT |
+|----------------|----------------------------------------------|--------------------------------------------|-----|-----|
+| PocketChef     | 0x8500d55F0f49FFfA33cCBdbcF171eD50a7bcA26E | 0x9ac25725B8465E70cc2458592C9104c0f06C8e87 | 0x2E2eEFcD211658035b77AC4D1a4c40Be7174B441    | 0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c    |
+| PocketRegistry | 0x4d5860f437692Bf7a60acf88BAdB328a8E5b18bc | 0xA7671257D29a2fDC5c585Dc67D6F0EfF9cF9b457 | 0x8FbaCBb3B09c876cA0AD0939A746935456D5793F    | 0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6    |
+| PocketVault    | 0x11dB248796EFF8A82cf0cF6460a463E4d8127e1d | 0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c | 0x8500d55F0f49FFfA33cCBdbcF171eD50a7bcA26E    | 0x76DB16c04F9683288E912e986C3F4EBB52266F1C    |
+| Multicall3     | 0x76DB16c04F9683288E912e986C3F4EBB52266F1C | 0x292A7C55443850a30A6BCC17aF306b4Dc8864476 | 0x9ac25725B8465E70cc2458592C9104c0f06C8e87    | 0x292A7C55443850a30A6BCC17aF306b4Dc8864476    |
 
 
 ### Test

@@ -118,7 +118,7 @@ if (privateKey) {
       chainId: 50,
     },
     okt: {
-      url: "https://exchainrpc.okex.org",
+      url: "https://okc-mainnet.gateway.pokt.network/v1/lb/6275309bea1b320039c893ff",
       accounts: [privateKey],
       gas: "auto",
       gasPrice: "auto",
