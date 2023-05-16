@@ -110,6 +110,20 @@ if (privateKey) {
       gasPrice: "auto",
       chainId: 80001,
     },
+    xdc: {
+      url: "https://erpc.xinfin.network",
+      accounts: [privateKey],
+      gas: "auto",
+      gasPrice: "auto",
+      chainId: 50,
+    },
+    okt: {
+      url: "https://exchainrpc.okex.org",
+      accounts: [privateKey],
+      gas: "auto",
+      gasPrice: "auto",
+      chainId: 66,
+    },
   };
 }
 

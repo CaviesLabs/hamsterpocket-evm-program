@@ -23,6 +23,7 @@ describe("[quoter]", async () => {
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: UNI/WBNB on RouterV2 should work properly", async () => {
@@ -38,6 +39,7 @@ describe("[quoter]", async () => {
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: ETH/WBNB on RouterV2 should work properly", async () => {
@@ -52,6 +54,7 @@ describe("[quoter]", async () => {
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: BTCB/WBNB on fee 0.05% should work properly", async () => {
@@ -66,6 +69,7 @@ describe("[quoter]", async () => {
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
   });
 
   // it("[quoter] should: UNI/WBNB on fee 0.05% should work", async () => {
@@ -94,6 +98,7 @@ describe("[quoter]", async () => {
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: BTCB/WBNB on fee 0.3% should work properly", async () => {
@@ -108,6 +113,7 @@ describe("[quoter]", async () => {
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: UNI/WBNB on fee 0.3% should work", async () => {
@@ -122,6 +128,7 @@ describe("[quoter]", async () => {
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: ETH/WBNB on fee 0.3% should work", async () => {
@@ -136,6 +143,7 @@ describe("[quoter]", async () => {
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: BTCB/WBNB on fee 1% should work properly", async () => {
@@ -150,6 +158,7 @@ describe("[quoter]", async () => {
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: UNI/WBNB on fee 1% should work", async () => {
@@ -164,6 +173,7 @@ describe("[quoter]", async () => {
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: ETH/WBNB on fee 1% should work", async () => {
@@ -178,5 +188,6 @@ describe("[quoter]", async () => {
 
     expect(amountIn).eq(ethers.constants.WeiPerEther);
     expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
   });
 });

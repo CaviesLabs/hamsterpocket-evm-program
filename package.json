@@ -4,6 +4,8 @@
   "license": "MIT",
   "scripts": {
     "test": "hardhat test --network hardhat",
+    "test:okt": "hardhat test test/okt.spec.ts --config okt-forked.config.ts --network hardhat",
+    "test:xdc": "hardhat test test/xdc.spec.ts --config xdc-forked.config.ts --network hardhat",
     "test:coverage": "hardhat coverage --network hardhat",
     "lint": "hardhat compile && eslint . --ext .ts --fix",
     "prettier": "prettier --write 'contracts/**/*.sol'",
