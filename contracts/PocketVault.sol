@@ -424,7 +424,7 @@ contract PocketVault is
 		address owner = registry.getOwnerOf(params.id);
 
 		/// @dev Try to withdraw native ether if token was held in the vault as wrapped erc20 ether
-		if (baseTokenAddress == quoter.WETH9()) {
+		if (baseTokenAddress == etherman.WETH()) {
 			IERC20(baseTokenAddress).approve(
 				address(etherman),
 				baseTokenBalance
@@ -439,7 +439,7 @@ contract PocketVault is
 		}
 
 		/// @dev Try to withdraw native ether if token was held in the vault as wrapped erc20 ether
-		if (targetTokenAddress == quoter.WETH9()) {
+		if (targetTokenAddress == etherman.WETH()) {
 			IERC20(targetTokenAddress).approve(
 				address(etherman),
 				targetTokenBalance
