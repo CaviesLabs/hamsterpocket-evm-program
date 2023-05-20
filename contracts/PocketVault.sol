@@ -519,8 +519,8 @@ contract PocketVault is
 	}
 
 	/// @notice Initialize etherman
-	function initEtherman() external onlyOwner {
-		etherman = new Etherman();
+	function initEtherman(address _weth) external onlyOwner {
+		etherman = new Etherman(_weth);
 		emit EthermanUpdated(msg.sender, address(etherman));
 	}
 

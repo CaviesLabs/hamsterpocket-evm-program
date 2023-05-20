@@ -8,7 +8,6 @@ export default {
       ...(hardhatConfig as any).networks.hardhat,
       forking: {
         url: (hardhatConfig as any).networks.okt.url,
-        blockNumber: 19473873,
       },
     },
   },

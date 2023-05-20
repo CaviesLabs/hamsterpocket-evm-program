@@ -65,7 +65,7 @@ async function main() {
     true
   );
   await Registry.whitelistAddress(
-    "0x951857744785E80e2De051c32EE7b25f9c458C42", // W0x
+    "0x951857744785E80e2De051c32EE7b25f9c458C42", // WxDC
     true
   );
   await Registry.whitelistAddress(
@@ -81,7 +81,7 @@ async function main() {
    * @dev Linking components
    */
   await Vault.setRegistry(Registry.address);
-  await Vault.initEtherman();
+  await Vault.initEtherman("0x951857744785E80e2De051c32EE7b25f9c458C42");
 
   await Chef.setRegistry(Registry.address);
   await Chef.setVault(Vault.address);

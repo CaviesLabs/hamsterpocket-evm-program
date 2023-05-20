@@ -144,7 +144,7 @@ export async function deployFixtures() {
     "0x000000000022d473030f116ddee9f6b43ac78ba3"
   );
   await Vault.setQuoter("0x78D78E420Da98ad378D7799bE8f4AF69033EB077");
-  await Vault.initEtherman();
+  await Vault.initEtherman("0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c");
 
   await Chef.connect(owner).setRegistry(Registry.address);
   await Chef.connect(owner).setVault(Vault.address);

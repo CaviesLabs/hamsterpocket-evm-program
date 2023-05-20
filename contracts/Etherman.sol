@@ -6,9 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/universal-router/contracts/libraries/Constants.sol";
 
 contract Etherman is Ownable {
-	constructor() Ownable() {}
+	address public immutable WETH;
 
-	address constant WETH = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+	constructor(address _weth) Ownable() {
+		WETH = _weth;
+	}
 
 	/// @notice Unwrap WBNB for owner
 	function unwrapWETH(uint256 amount, address payable target)

@@ -81,7 +81,7 @@ async function main() {
    * @dev Linking components
    */
   await Vault.setRegistry(Registry.address);
-  await Vault.initEtherman();
+  await Vault.initEtherman("0x8F8526dbfd6E38E3D8307702cA8469Bae6C56C15");
 
   await Chef.setRegistry(Registry.address);
   await Chef.setVault(Vault.address);
