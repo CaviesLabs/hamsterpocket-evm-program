@@ -4,6 +4,7 @@ import {
   PocketRegistry,
   PocketVault,
   Multicall3,
+  Etherman,
 } from "../../typechain-types";
 
 async function main() {
@@ -44,6 +45,15 @@ async function main() {
   console.log("Vault deployed at", Vault.address);
 
   /**
+   * @dev Deploy contract
+   */
+  const EthermanContract = await ethers.getContractFactory("Etherman");
+  const EthermanObj = (await EthermanContract.deploy(
+    "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889"
+  )) as Etherman;
+  console.log("Etherman deployed at", EthermanObj.address);
+
+  /**
    * @dev Configure registry
    */
   await Registry.grantRole(
@@ -79,10 +89,12 @@ async function main() {
   await Vault.setRegistry(Registry.address);
   await Vault.setPermit2("0x000000000022d473030f116ddee9f6b43ac78ba3");
   await Vault.setQuoter("0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6");
-  await Vault.initEtherman();
 
   await Chef.setRegistry(Registry.address);
   await Chef.setVault(Vault.address);
+
+  await EthermanObj.transferOwnership(Vault.address);
+  await Vault.setEtherman(EthermanObj.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
