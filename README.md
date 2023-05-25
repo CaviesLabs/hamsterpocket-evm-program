@@ -49,7 +49,8 @@
 
 ![Hero image](https://files.slack.com/files-pri/T03N86YEZ6Z-F04TQLW6JCU/heroimage.png?pub_secret=014779ae87)
 
-Hamsterpocket (Pocket) is an Open Source self-managed dollar-cost-averaging protocol that lets users create and run their own saving pools (“pockets”) that will automatically execute the chosen strategies over time.
+Hamsterpocket (Pocket) is an Open Source self-managed dollar-cost-averaging protocol that lets users create and run
+their own saving pools (“pockets”) that will automatically execute the chosen strategies over time.
 
 ## **What we deliver out-of-the-box** 📦
 
@@ -57,8 +58,10 @@ Hamsterpocket (Pocket) is an Open Source self-managed dollar-cost-averaging prot
   <img alt="Architecture" src="https://files.slack.com/files-pri/T03N86YEZ6Z-F04T783JZAB/out-of-the-box.png?pub_secret=3ca2221066">
 </p>
 
-- **Convenient** - Users only need to set up the desired pools and strategies once, then top up (reload) said pools with the required funds for execution anytime.
-- **Trustless** - Users are able to manage their own pools. Every pocket can only be paused, resumed, terminated and withdrawn at will by the pockets’ owners.
+- **Convenient** - Users only need to set up the desired pools and strategies once, then top up (reload) said pools with
+  the required funds for execution anytime.
+- **Trustless** - Users are able to manage their own pools. Every pocket can only be paused, resumed, terminated and
+  withdrawn at will by the pockets’ owners.
 - **Flexible use cases**:
 
   • Run a TWAP strategy on-chain
@@ -69,7 +72,8 @@ Hamsterpocket (Pocket) is an Open Source self-managed dollar-cost-averaging prot
 
 ## **Prototype Design & Test cases** 🚴
 
-- [**Figma**](https://www.figma.com/file/Tx32sB0eC2iwkBD7rZRRut/Hamsterpocket-(DCA)?node-id=1902%3A43690&t=JpssstVDMVaaWHSf-0)
+- [**Figma
+  **](https://www.figma.com/file/Tx32sB0eC2iwkBD7rZRRut/Hamsterpocket-(DCA)?node-id=1902%3A43690&t=JpssstVDMVaaWHSf-0)
 - [**Test cases**](https://docs.google.com/spreadsheets/d/1xdPHErMtTJtk0zH2-huzkDcuJx9lwZgb/edit#gid=1292533007)
 
 ## **Our Tech Stack** 🛠
@@ -92,13 +96,14 @@ Hamsterpocket (Pocket) is an Open Source self-managed dollar-cost-averaging prot
 ## **Getting started** 🚀
 
 ### **Deployed Contracts addresses** 📢
-| Contract       | BSC Mainnet  | Mumbai                                     | XDC | OKT | Gnosis                                      |
-|----------------|----------------------------------------------|--------------------------------------------|-----|-----|---------------------------------------------| 
-| PocketChef     | 0xd74Ad94208935a47b1Bd289d28d45Bce6369E064 | 0xD156e603a421efbba39BDcAC9F1a7ed0081d2fBF | 0x2E2eEFcD211658035b77AC4D1a4c40Be7174B441    | 0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c    | 0xf406C8ef305a56ddD4E05f2cF9DC72C5fe9884ad  |
-| PocketRegistry | 0xb9599963729Acf22a18629355dA23e0bA4fBa611 | 0x691a63b8259c5C11E68DbF295571A53D6273aC8d | 0x8FbaCBb3B09c876cA0AD0939A746935456D5793F    | 0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6    |  0xa5c78d241254eB6566C178Bf359b219F4bC7Ac9e                                           |
-| PocketVault    | 0x4bcD48D0Af9b48716EDb30BFF560d08036439871 | 0xF90884eB5bDE6B8Ea306e1912B600d0ce2f73292 | 0x8500d55F0f49FFfA33cCBdbcF171eD50a7bcA26E    | 0x76DB16c04F9683288E912e986C3F4EBB52266F1C    |  0xaC85009E1A69f634b7b77EFC45dEBf66993d3661                                           |
-| Multicall3     | 0x3156935b16C6c6742961dfb57811c086A2dbDF1e | 0xB3A38B447903a594076C9eF11F54203C870638C5 | 0x9ac25725B8465E70cc2458592C9104c0f06C8e87    | 0x292A7C55443850a30A6BCC17aF306b4Dc8864476    |  0x0B843Dd651D048185Cd021828cDA95542a61742c                                           |
 
+| Chain          | PocketChef                                 | PocketRegistry                             | PocketVault                                | Multicall3                                 | 
+|----------------|--------------------------------------------|--------------------------------------------|--------------------------------------------|--------------------------------------------| 
+| BNB Chain      | 0xd74Ad94208935a47b1Bd289d28d45Bce6369E064 | 0xb9599963729Acf22a18629355dA23e0bA4fBa611 | 0x4bcD48D0Af9b48716EDb30BFF560d08036439871 | 0x3156935b16C6c6742961dfb57811c086A2dbDF1e | 
+| Gnosis Chain   | 0xf406C8ef305a56ddD4E05f2cF9DC72C5fe9884ad | 0xa5c78d241254eB6566C178Bf359b219F4bC7Ac9e | 0xaC85009E1A69f634b7b77EFC45dEBf66993d3661 | 0x0B843Dd651D048185Cd021828cDA95542a61742c | 
+| OKX Chain      | 0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c | 0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6 | 0x76DB16c04F9683288E912e986C3F4EBB52266F1C | 0x292A7C55443850a30A6BCC17aF306b4Dc8864476 | 
+| XinFin Network | 0x2E2eEFcD211658035b77AC4D1a4c40Be7174B441 | 0x8FbaCBb3B09c876cA0AD0939A746935456D5793F | 0x8500d55F0f49FFfA33cCBdbcF171eD50a7bcA26E | 0x9ac25725B8465E70cc2458592C9104c0f06C8e87 |
+| Polygon Mumbai | 0xD156e603a421efbba39BDcAC9F1a7ed0081d2fBF | 0x691a63b8259c5C11E68DbF295571A53D6273aC8d | 0xF90884eB5bDE6B8Ea306e1912B600d0ce2f73292 | 0xB3A38B447903a594076C9eF11F54203C870638C5 |
 
 ### Test
 
@@ -164,13 +169,15 @@ npx hardhat run scripts/pocket/deploy.ts --network <network-name>
 
 ## **Contribution** 🤝
 
-Hamsterpocket is an Open Source project and we encourage everyone to help us making it better. If you are interested in contributing to the project, please feel free to do so.
+Hamsterpocket is an Open Source project and we encourage everyone to help us making it better. If you are interested in
+contributing to the project, please feel free to do so.
 
 If you have any questions about contributing, please refer to our twitter <a href="https://twitter.com/CaviesLabs">
 <img alt="Follow Us on Twitter" src="https://img.shields.io/twitter/follow/CaviesLabs?style=social" />
 </a> - we are happy to help you!
 
-Discovered a 🐜 or have feature suggestion? Feel free to [create an issue](https://github.com/CaviesLabs/hamsterpocket-program/issues/new/choose) on Github.
+Discovered a 🐜 or have feature suggestion? Feel free
+to [create an issue](https://github.com/CaviesLabs/hamsterpocket-program/issues/new/choose) on Github.
 
 ## **Support us** ❤️
 
@@ -180,7 +187,8 @@ How you can help us:
 
 - **Contribute** - this is how the Core Team is supporting the project.
 - **Spread the word** - tell your friends, colleagues, and followers about Hamsterpocket.
-- **Create content** - write a blog post, record a video, or create a tutorial. We will be happy to share it on our social media channels.
+- **Create content** - write a blog post, record a video, or create a tutorial. We will be happy to share it on our
+  social media channels.
 
 ### **Follow us on Social Media**
 
@@ -189,8 +197,10 @@ How you can help us:
 
 ## **Careers** 👩‍💻👨‍💻
 
-We are growing and we are looking for talented people to join our team. If you are interested in working with us, please check our [Careers page](https://www.notion.so/cavies/Job-Board-320ac7987dc64a53b0d3d3e7c52c5ce7).
+We are growing and we are looking for talented people to join our team. If you are interested in working with us, please
+check our [Careers page](https://www.notion.so/cavies/Job-Board-320ac7987dc64a53b0d3d3e7c52c5ce7).
 
 ## **Contacts** 📱📱
 
-Feel free to submit your inquiries to <a href="mailto:dev@cavies.xyz">dev@cavies.xyz</a> or <a href="mailto:hello@cavies.xyz">hello@cavies.xyz</a>
+Feel free to submit your inquiries to <a href="mailto:dev@cavies.xyz">dev@cavies.xyz</a>
+or <a href="mailto:hello@cavies.xyz">hello@cavies.xyz</a>
