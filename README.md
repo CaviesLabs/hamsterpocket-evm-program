@@ -92,12 +92,12 @@ Hamsterpocket (Pocket) is an Open Source self-managed dollar-cost-averaging prot
 ## **Getting started** 🚀
 
 ### **Deployed Contracts addresses** 📢
-| Contract       | BSC Mainnet  | Mumbai                                     | XDC | OKT |
-|----------------|----------------------------------------------|--------------------------------------------|-----|-----|
-| PocketChef     | 0xd74Ad94208935a47b1Bd289d28d45Bce6369E064 | 0xD156e603a421efbba39BDcAC9F1a7ed0081d2fBF | 0x2E2eEFcD211658035b77AC4D1a4c40Be7174B441    | 0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c    |
-| PocketRegistry | 0xb9599963729Acf22a18629355dA23e0bA4fBa611 | 0x691a63b8259c5C11E68DbF295571A53D6273aC8d | 0x8FbaCBb3B09c876cA0AD0939A746935456D5793F    | 0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6    |
-| PocketVault    | 0x4bcD48D0Af9b48716EDb30BFF560d08036439871 | 0xF90884eB5bDE6B8Ea306e1912B600d0ce2f73292 | 0x8500d55F0f49FFfA33cCBdbcF171eD50a7bcA26E    | 0x76DB16c04F9683288E912e986C3F4EBB52266F1C    |
-| Multicall3     | 0x3156935b16C6c6742961dfb57811c086A2dbDF1e | 0xB3A38B447903a594076C9eF11F54203C870638C5 | 0x9ac25725B8465E70cc2458592C9104c0f06C8e87    | 0x292A7C55443850a30A6BCC17aF306b4Dc8864476    |
+| Contract       | BSC Mainnet  | Mumbai                                     | XDC | OKT | Gnosis                                      |
+|----------------|----------------------------------------------|--------------------------------------------|-----|-----|---------------------------------------------| 
+| PocketChef     | 0xd74Ad94208935a47b1Bd289d28d45Bce6369E064 | 0xD156e603a421efbba39BDcAC9F1a7ed0081d2fBF | 0x2E2eEFcD211658035b77AC4D1a4c40Be7174B441    | 0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c    | 0xf406C8ef305a56ddD4E05f2cF9DC72C5fe9884ad  |
+| PocketRegistry | 0xb9599963729Acf22a18629355dA23e0bA4fBa611 | 0x691a63b8259c5C11E68DbF295571A53D6273aC8d | 0x8FbaCBb3B09c876cA0AD0939A746935456D5793F    | 0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6    |  0xa5c78d241254eB6566C178Bf359b219F4bC7Ac9e                                           |
+| PocketVault    | 0x4bcD48D0Af9b48716EDb30BFF560d08036439871 | 0xF90884eB5bDE6B8Ea306e1912B600d0ce2f73292 | 0x8500d55F0f49FFfA33cCBdbcF171eD50a7bcA26E    | 0x76DB16c04F9683288E912e986C3F4EBB52266F1C    |  0xaC85009E1A69f634b7b77EFC45dEBf66993d3661                                           |
+| Multicall3     | 0x3156935b16C6c6742961dfb57811c086A2dbDF1e | 0xB3A38B447903a594076C9eF11F54203C870638C5 | 0x9ac25725B8465E70cc2458592C9104c0f06C8e87    | 0x292A7C55443850a30A6BCC17aF306b4Dc8864476    |  0x0B843Dd651D048185Cd021828cDA95542a61742c                                           |
 
 
 ### Test

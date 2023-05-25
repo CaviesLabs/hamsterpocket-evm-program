@@ -124,6 +124,13 @@ if (privateKey) {
       gasPrice: "auto",
       chainId: 66,
     },
+    gnosis: {
+      url: "https://rpc.ankr.com/gnosis",
+      accounts: [privateKey],
+      gas: "auto",
+      gasPrice: "auto",
+      chainId: 100,
+    },
   };
 }
 

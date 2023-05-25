@@ -114,7 +114,7 @@ export async function deployFixtures() {
    * @dev Linking components
    */
   await Vault.connect(owner).setRegistry(Registry.address);
-  await Vault.initEtherman();
+  await Vault.initEtherman("0x951857744785E80e2De051c32EE7b25f9c458C42");
 
   await Chef.connect(owner).setRegistry(Registry.address);
   await Chef.connect(owner).setVault(Vault.address);

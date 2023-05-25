@@ -13,6 +13,7 @@ import {
 } from "../typechain-types";
 import { Params } from "../typechain-types/contracts/PocketChef";
 import { expect } from "chai";
+import exp from "constants";
 
 export async function deployFixtures() {
   const [owner, owner2, operator] = await ethers.getSigners();
@@ -93,19 +94,23 @@ export async function deployFixtures() {
    * @dev Whitelist addresses
    */
   await Registry.whitelistAddress(
-    "0xc97b81B8a38b9146010Df85f1Ac714aFE1554343", // V2 Router
+    "0x1c232f01118cb8b424793ae03f870aa7d0ac7f77", // V2 Router
     true
   );
   await Registry.whitelistAddress(
-    "0x8F8526dbfd6E38E3D8307702cA8469Bae6C56C15", // WOKT
+    "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb", // GNO
     true
   );
   await Registry.whitelistAddress(
-    "0x97B05e6C5026D5480c4B6576A8699866eb58003b", // stOKT
+    "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d", // WXDAI
     true
   );
   await Registry.whitelistAddress(
-    "0x382bB369d343125BfB2117af9c149795C6C65C50", // USDT
+    "0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252", // WBTC
+    true
+  );
+  await Registry.whitelistAddress(
+    "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1", // WETH
     true
   );
 
@@ -113,7 +118,7 @@ export async function deployFixtures() {
    * @dev Linking components
    */
   await Vault.connect(owner).setRegistry(Registry.address);
-  await Vault.initEtherman("0x8F8526dbfd6E38E3D8307702cA8469Bae6C56C15");
+  await Vault.initEtherman("0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d");
 
   await Chef.connect(owner).setRegistry(Registry.address);
   await Chef.connect(owner).setVault(Vault.address);
@@ -132,14 +137,15 @@ export async function deployFixtures() {
     owner2,
     operator,
     Multicall3,
-    RouterAddress: "0xc97b81B8a38b9146010Df85f1Ac714aFE1554343",
-    WOKT: "0x8F8526dbfd6E38E3D8307702cA8469Bae6C56C15",
-    stOKT: "0x97B05e6C5026D5480c4B6576A8699866eb58003b",
-    USDT: "0x382bB369d343125BfB2117af9c149795C6C65C50",
+    RouterAddress: "0x1c232f01118cb8b424793ae03f870aa7d0ac7f77",
+    WXDAI: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+    WBTC: "0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252",
+    WETH: "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1",
+    GNO: "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
   };
 }
 
-describe("[okt]", function () {
+describe("[gnosis]", function () {
   let fixtures: Awaited<ReturnType<typeof deployFixtures>>;
   let toBeCreatedPocketData: Params.CreatePocketParamsStruct;
 
@@ -150,9 +156,9 @@ describe("[okt]", function () {
       id: "test-swap-pocket",
       owner: fixtures.owner.address,
       ammRouterAddress: fixtures.RouterAddress,
-      baseTokenAddress: fixtures.WOKT,
+      baseTokenAddress: fixtures.WXDAI,
       ammRouterVersion: "1",
-      targetTokenAddress: fixtures.USDT,
+      targetTokenAddress: fixtures.GNO,
       startAt: parseInt(
         (new Date().getTime() / 1000 + 1).toString()
       ).toString(),
@@ -222,13 +228,20 @@ describe("[okt]", function () {
     /// @dev Pocket has been closed after closing position
     const pocket = await Registry.pockets(data.id);
     expect(pocket.status).eq(3);
+
+    await Chef.connect(owner).withdraw(data.id);
+    const pocketState = await Registry.pockets(data.id);
+
+    expect(pocketState.status).eq(4);
+    expect(pocketState.baseTokenBalance).eq(0);
+    expect(pocketState.targetTokenBalance).eq(0);
   });
 
-  it("[quoter] should: USDT/WOKT on RouterV2 should work properly", async () => {
-    const { Vault, WOKT, USDT, RouterAddress } = fixtures;
+  it("[quoter] should: GNO/XWDAI on RouterV2 should work properly", async () => {
+    const { Vault, WXDAI, GNO, RouterAddress } = fixtures;
     const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
-      USDT,
-      WOKT,
+      WXDAI,
+      GNO,
       RouterAddress,
       ethers.constants.WeiPerEther,
       0
@@ -239,11 +252,26 @@ describe("[okt]", function () {
     expect(amountIn).not.eq(amountOut);
   });
 
-  it("[quoter] should: stOKT/WOKT on RouterV2 should work properly", async () => {
-    const { Vault, WOKT, stOKT, RouterAddress } = fixtures;
+  it("[quoter] should: WBTC/WXDAI on RouterV2 should work properly", async () => {
+    const { Vault, WXDAI, WBTC, RouterAddress } = fixtures;
     const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
-      stOKT,
-      WOKT,
+      WXDAI,
+      WBTC,
+      RouterAddress,
+      ethers.constants.WeiPerEther,
+      0
+    );
+
+    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountOut).gt(0);
+    expect(amountIn).not.eq(amountOut);
+  });
+
+  it("[quoter] should: WETH/WXDAI on RouterV2 should work properly", async () => {
+    const { Vault, WXDAI, WETH, RouterAddress } = fixtures;
+    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+      WXDAI,
+      WETH,
       RouterAddress,
       ethers.constants.WeiPerEther,
       0
@@ -258,10 +286,10 @@ describe("[okt]", function () {
     const { Time } = fixtures;
 
     const Addresses = {
-      PocketVault: "0x76DB16c04F9683288E912e986C3F4EBB52266F1C",
-      PocketRegistry: "0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6",
-      PocketChef: "0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c",
-      Multicall3: "0x292A7C55443850a30A6BCC17aF306b4Dc8864476",
+      PocketVault: "0xaC85009E1A69f634b7b77EFC45dEBf66993d3661",
+      PocketRegistry: "0xa5c78d241254eB6566C178Bf359b219F4bC7Ac9e",
+      PocketChef: "0xf406C8ef305a56ddD4E05f2cF9DC72C5fe9884ad",
+      Multicall3: "0x0B843Dd651D048185Cd021828cDA95542a61742c",
     };
 
     const signer = await ethers.getImpersonatedSigner(
@@ -285,11 +313,16 @@ describe("[okt]", function () {
      * @dev Deploy contract
      */
     const data = {
-      ...toBeCreatedPocketData,
-      owner: signer.address,
+      id: "testpocket",
+      owner: "0xC988c21E794B0ad2008EAB90371d30eAd2c0c6f8",
+      ammRouterAddress: "0x1c232f01118cb8b424793ae03f870aa7d0ac7f77",
+      baseTokenAddress: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+      targetTokenAddress: "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",
+      ammRouterVersion: "1",
       startAt: parseInt(
-        (new Date().getTime() / 1000 + 20).toString()
+        (new Date().getTime() / 1000 + 70005).toString()
       ).toString(),
+      batchVolume: ethers.constants.WeiPerEther, // 0.1 BNB per batch
       stopConditions: [
         {
           operator: "0",
@@ -310,6 +343,20 @@ describe("[okt]", function () {
           value: ethers.constants.WeiPerEther,
         },
       ],
+      frequency: "3600",
+      openingPositionCondition: {
+        value0: ethers.constants.WeiPerEther,
+        value1: "0",
+        operator: "0",
+      },
+      takeProfitCondition: {
+        stopType: "1",
+        value: ethers.constants.WeiPerEther,
+      },
+      stopLossCondition: {
+        stopType: "1",
+        value: ethers.constants.WeiPerEther,
+      },
     };
 
     await Chef.connect(signer).createPocketAndDepositEther(data, {
@@ -317,7 +364,7 @@ describe("[okt]", function () {
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 100).toString())
+      parseInt((new Date().getTime() / 1000 + 100000).toString())
     );
 
     await Chef.connect(signer).tryMakingDCASwap(data.id, 3000);
@@ -325,5 +372,12 @@ describe("[okt]", function () {
     /// @dev Pocket has been closed after closing position
     const pocket = await Registry.pockets(data.id);
     expect(pocket.status).eq(3);
+
+    await Chef.connect(signer).withdraw(data.id);
+    const pocketState = await Registry.pockets(data.id);
+
+    expect(pocketState.status).eq(4);
+    expect(pocketState.baseTokenBalance).eq(0);
+    expect(pocketState.targetTokenBalance).eq(0);
   });
 });

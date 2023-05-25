@@ -12,7 +12,6 @@ async function main() {
    */
   const Multicall3Contract = await ethers.getContractFactory("Multicall3");
   const Multicall3 = (await Multicall3Contract.deploy()) as Multicall3;
-  await Multicall3.deployTransaction.wait(30);
   console.log("Multicall3 deployed at", Multicall3.address);
 
   /**
@@ -22,7 +21,6 @@ async function main() {
   const Chef = (await upgrades.deployProxy(PocketChefContract, [], {
     unsafeAllow: ["constructor", "delegatecall"],
   })) as PocketChef;
-  await Chef.deployTransaction.wait(30);
   console.log("Chef deployed at", Chef.address);
 
   /**
@@ -34,7 +32,6 @@ async function main() {
   const Registry = (await upgrades.deployProxy(PocketRegistryContract, [], {
     unsafeAllow: ["constructor"],
   })) as PocketRegistry;
-  await Registry.deployTransaction.wait(30);
   console.log("Registry deployed at", Registry.address);
 
   /**
@@ -44,7 +41,6 @@ async function main() {
   const Vault = (await upgrades.deployProxy(PocketVaultContract, [], {
     unsafeAllow: ["constructor"],
   })) as PocketVault;
-  await Vault.deployTransaction.wait(30);
   console.log("Vault deployed at", Vault.address);
 
   /**
@@ -61,35 +57,23 @@ async function main() {
    * @dev Whitelist addresses
    */
   await Registry.whitelistAddress(
-    "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", // WBNB
+    "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d", // WXDAI
     true
   );
   await Registry.whitelistAddress(
-    "0x55d398326f99059fF775485246999027B3197955", // USDT
+    "0x1c232f01118cb8b424793ae03f870aa7d0ac7f77", // PCS Router v2
     true
   );
   await Registry.whitelistAddress(
-    "0x2170ed0880ac9a755fd29b2688956bd959f933f8", // ETH
+    "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb", // GNO
     true
   );
   await Registry.whitelistAddress(
-    "0xbf5140a22578168fd562dccf235e5d43a02ce9b1", // Uniswap
+    "0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252", // WBTC
     true
   );
   await Registry.whitelistAddress(
-    "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c", // BTCB
-    true
-  );
-  await Registry.whitelistAddress(
-    "0x5Dc88340E1c5c6366864Ee415d6034cadd1A9897", // Universal router
-    true
-  );
-  await Registry.whitelistAddress(
-    "0x10ED43C718714eb63d5aA57B78B54704E256024E", // PCS Router v2
-    true
-  );
-  await Registry.whitelistAddress(
-    "0x000000000022d473030f116ddee9f6b43ac78ba3", // permit2
+    "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1", // WETH
     true
   );
 
@@ -97,9 +81,7 @@ async function main() {
    * @dev Linking components
    */
   await Vault.setRegistry(Registry.address);
-  await Vault.setPermit2("0x000000000022d473030f116ddee9f6b43ac78ba3");
-  await Vault.setQuoter("0x78D78E420Da98ad378D7799bE8f4AF69033EB077");
-  await Vault.initEtherman("0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c");
+  await Vault.initEtherman("0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d");
 
   await Chef.setRegistry(Registry.address);
   await Chef.setVault(Vault.address);
