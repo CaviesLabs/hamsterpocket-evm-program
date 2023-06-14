@@ -4,6 +4,7 @@
   "license": "MIT",
   "scripts": {
     "test": "hardhat test test/pocket.test.ts --network hardhat",
+    "test:avax": "hardhat test test/avax.spec.ts --config avaxc-forked.config.ts --network hardhat",
     "test:okt": "hardhat test test/okt.spec.ts --config okt-forked.config.ts --network hardhat",
     "test:xdc": "hardhat test test/xdc.spec.ts --config xdc-forked.config.ts --network hardhat",
     "test:coverage": "hardhat coverage --network hardhat",

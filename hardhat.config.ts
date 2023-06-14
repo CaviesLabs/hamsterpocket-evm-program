@@ -131,6 +131,13 @@ if (privateKey) {
       gasPrice: "auto",
       chainId: 100,
     },
+    avaxc: {
+      url: "https://rpc.ankr.com/avalanche",
+      accounts: [privateKey],
+      gas: "auto",
+      gasPrice: "auto",
+      chainId: 43114,
+    },
   };
 }
 
