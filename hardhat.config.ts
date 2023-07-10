@@ -138,6 +138,13 @@ if (privateKey) {
       gasPrice: "auto",
       chainId: 43114,
     },
+    klaytn: {
+      url: "https://public-node-api.klaytnapi.com/v1/cypress",
+      accounts: [privateKey],
+      gas: "auto",
+      gasPrice: "auto",
+      chainId: 8217,
+    },
   };
 }
 
