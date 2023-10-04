@@ -5,6 +5,7 @@ import {
   PocketVault,
   Multicall3,
 } from "../../typechain-types";
+import { ensureTransaction } from "./utils/transaction";
 
 async function main() {
   /**
@@ -50,38 +51,54 @@ async function main() {
   /**
    * @dev Configure registry
    */
-  await Registry.grantRole(
-    await Registry.OPERATOR(),
-    "0x95C7022924A0379FeE2b950DdaE0195F6bC5E13" /// OPERATOR
+  await ensureTransaction(
+    await Registry.grantRole(
+      await Registry.OPERATOR(),
+      "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13" /// OPERATOR
+    )
   );
-  await Registry.grantRole(await Registry.RELAYER(), Chef.address);
-  await Registry.grantRole(await Registry.RELAYER(), Vault.address);
+  await ensureTransaction(
+    await Registry.grantRole(await Registry.RELAYER(), Chef.address)
+  );
+  await ensureTransaction(
+    await Registry.grantRole(await Registry.RELAYER(), Vault.address)
+  );
 
-  await Registry.whitelistAddress(
-    "0x60aE616a2155Ee3d9A68541Ba4544862310933d4", // V2 Router
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0x60aE616a2155Ee3d9A68541Ba4544862310933d4", // V2 Router
+      true
+    )
   );
-  await Registry.whitelistAddress(
-    "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7", // WAVAX
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7", // WAVAX
+      true
+    )
   );
-  await Registry.whitelistAddress(
-    "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E", // USDC
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E", // USDC
+      true
+    )
   );
-  await Registry.whitelistAddress(
-    "0x152b9d0FdC40C096757F570A51E494bd4b943E50", // BTCB
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0x152b9d0FdC40C096757F570A51E494bd4b943E50", // BTCB
+      true
+    )
   );
 
   /**
    * @dev Linking components
    */
-  await Vault.setRegistry(Registry.address);
-  await Vault.initEtherman("0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7");
+  await ensureTransaction(await Vault.setRegistry(Registry.address));
+  await ensureTransaction(
+    await Vault.initEtherman("0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7")
+  );
 
-  await Chef.setRegistry(Registry.address);
-  await Chef.setVault(Vault.address);
+  await ensureTransaction(await Chef.setRegistry(Registry.address));
+  await ensureTransaction(await Chef.setVault(Vault.address));
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -153,7 +153,7 @@ if (privateKey) {
       chainId: 43114,
     },
     klaytn: {
-      url: "https://public-node-api.klaytnapi.com/v1/cypress",
+      url: "https://klaytn.blockpi.network/v1/rpc/public",
       accounts: [privateKey],
       gas: "auto",
       gasPrice: "auto",

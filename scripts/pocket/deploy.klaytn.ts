@@ -5,6 +5,7 @@ import {
   PocketVault,
   Multicall3,
 } from "../../typechain-types";
+import { ensureTransaction } from "./utils/transaction";
 
 async function main() {
   /**
@@ -50,42 +51,60 @@ async function main() {
   /**
    * @dev Configure registry
    */
-  await Registry.grantRole(
-    await Registry.OPERATOR(),
-    "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13" /// OPERATOR
+  await ensureTransaction(
+    await Registry.grantRole(
+      await Registry.OPERATOR(),
+      "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13" /// OPERATOR
+    )
   );
-  await Registry.grantRole(await Registry.RELAYER(), Chef.address);
-  await Registry.grantRole(await Registry.RELAYER(), Vault.address);
+  await ensureTransaction(
+    await Registry.grantRole(await Registry.RELAYER(), Chef.address)
+  );
+  await ensureTransaction(
+    await Registry.grantRole(await Registry.RELAYER(), Vault.address)
+  );
 
-  await Registry.whitelistAddress(
-    "0xEf71750C100f7918d6Ded239Ff1CF09E81dEA92D", // V2 Router
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0xEf71750C100f7918d6Ded239Ff1CF09E81dEA92D", // V2 Router
+      true
+    )
   );
-  await Registry.whitelistAddress(
-    "0xe4f05A66Ec68B54A58B17c22107b02e0232cC817", // WKLAYTN
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0xe4f05A66Ec68B54A58B17c22107b02e0232cC817", // WKLAYTN
+      true
+    )
   );
-  await Registry.whitelistAddress(
-    "0xceE8FAF64bB97a73bb51E115Aa89C17FfA8dD167", // oUSDT
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0xceE8FAF64bB97a73bb51E115Aa89C17FfA8dD167", // oUSDT
+      true
+    )
   );
-  await Registry.whitelistAddress(
-    "0x946BC715501413B9454BB6A31412A21998763F2D", // KBT
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0x946BC715501413B9454BB6A31412A21998763F2D", // KBT
+      true
+    )
   );
-  await Registry.whitelistAddress(
-    "0xCF87f94fD8F6B6f0b479771F10dF672f99eADa63", // CLA
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0xCF87f94fD8F6B6f0b479771F10dF672f99eADa63", // CLA
+      true
+    )
   );
 
   /**
    * @dev Linking components
    */
-  await Vault.setRegistry(Registry.address);
-  await Vault.initEtherman("0xe4f05A66Ec68B54A58B17c22107b02e0232cC817");
+  await ensureTransaction(await Vault.setRegistry(Registry.address));
+  await ensureTransaction(
+    await Vault.initEtherman("0xe4f05A66Ec68B54A58B17c22107b02e0232cC817")
+  );
 
-  await Chef.setRegistry(Registry.address);
-  await Chef.setVault(Vault.address);
+  await ensureTransaction(await Chef.setRegistry(Registry.address));
+  await ensureTransaction(await Chef.setVault(Vault.address));
 }
 
 // We recommend this pattern to be able to use async/await everywhere

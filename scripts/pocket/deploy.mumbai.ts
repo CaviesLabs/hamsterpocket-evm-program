@@ -6,6 +6,7 @@ import {
   Multicall3,
   Etherman,
 } from "../../typechain-types";
+import { ensureTransaction } from "./utils/transaction";
 
 async function main() {
   /**
@@ -56,45 +57,63 @@ async function main() {
   /**
    * @dev Configure registry
    */
-  await Registry.grantRole(
-    await Registry.OPERATOR(),
-    "0xAC118F16238b5aba99f3C9dDDB74D3e635136FEC" /// OPERATOR
+  await ensureTransaction(
+    await Registry.grantRole(
+      await Registry.OPERATOR(),
+      "0xAC118F16238b5aba99f3C9dDDB74D3e635136FEC" /// OPERATOR
+    )
   );
-  await Registry.grantRole(await Registry.RELAYER(), Chef.address);
-  await Registry.grantRole(await Registry.RELAYER(), Vault.address);
+  await ensureTransaction(
+    await Registry.grantRole(await Registry.RELAYER(), Chef.address)
+  );
+  await ensureTransaction(
+    await Registry.grantRole(await Registry.RELAYER(), Vault.address)
+  );
 
   /**
    * @dev Whitelist addresses
    */
-  await Registry.whitelistAddress(
-    "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889", // Wrapped ETher
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889", // Wrapped ETher
+      true
+    )
   );
-  await Registry.whitelistAddress(
-    "0x4648a43B2C14Da09FdF82B161150d3F634f40491", // Universal router
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0x4648a43B2C14Da09FdF82B161150d3F634f40491", // Universal router
+      true
+    )
   );
-  await Registry.whitelistAddress(
-    "0x000000000022d473030f116ddee9f6b43ac78ba3", // permit2
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0x000000000022d473030f116ddee9f6b43ac78ba3", // permit2
+      true
+    )
   );
-  await Registry.whitelistAddress(
-    "0x6041fE60d443480F96546C927E0cE6E14A5741D4", // USDT
-    true
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0x6041fE60d443480F96546C927E0cE6E14A5741D4", // USDT
+      true
+    )
   );
 
   /**
    * @dev Linking components
    */
-  await Vault.setRegistry(Registry.address);
-  await Vault.setPermit2("0x000000000022d473030f116ddee9f6b43ac78ba3");
-  await Vault.setQuoter("0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6");
+  await ensureTransaction(await Vault.setRegistry(Registry.address));
+  await ensureTransaction(
+    await Vault.setPermit2("0x000000000022d473030f116ddee9f6b43ac78ba3")
+  );
+  await ensureTransaction(
+    await Vault.setQuoter("0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6")
+  );
 
-  await Chef.setRegistry(Registry.address);
-  await Chef.setVault(Vault.address);
+  await ensureTransaction(await Chef.setRegistry(Registry.address));
+  await ensureTransaction(await Chef.setVault(Vault.address));
 
-  await EthermanObj.transferOwnership(Vault.address);
-  await Vault.setEtherman(EthermanObj.address);
+  await ensureTransaction(await EthermanObj.transferOwnership(Vault.address));
+  await ensureTransaction(await Vault.setEtherman(EthermanObj.address));
 }
 
 // We recommend this pattern to be able to use async/await everywhere
