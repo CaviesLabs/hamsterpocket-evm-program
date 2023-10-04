@@ -83,11 +83,17 @@ export async function deployFixtures() {
    * @dev Configure registry
    */
   await Registry.connect(owner).grantRole(
-    Registry.OPERATOR(),
+    await Registry.OPERATOR(),
     operator.address
   );
-  await Registry.connect(owner).grantRole(Registry.RELAYER(), Chef.address);
-  await Registry.connect(owner).grantRole(Registry.RELAYER(), Vault.address);
+  await Registry.connect(owner).grantRole(
+    await Registry.RELAYER(),
+    Chef.address
+  );
+  await Registry.connect(owner).grantRole(
+    await Registry.RELAYER(),
+    Vault.address
+  );
 
   /**
    * @dev Whitelist addresses
@@ -292,7 +298,7 @@ describe("[gnosis]", function () {
     };
 
     const signer = await ethers.getImpersonatedSigner(
-      "0xC988c21E794B0ad2008EAB90371d30eAd2c0c6f8"
+      "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13"
     );
 
     /**
@@ -313,7 +319,7 @@ describe("[gnosis]", function () {
      */
     const data = {
       id: "testpocket",
-      owner: "0xC988c21E794B0ad2008EAB90371d30eAd2c0c6f8",
+      owner: "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13",
       ammRouterAddress: "0x1c232f01118cb8b424793ae03f870aa7d0ac7f77",
       baseTokenAddress: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
       targetTokenAddress: "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb",

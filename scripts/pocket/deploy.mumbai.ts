@@ -57,11 +57,11 @@ async function main() {
    * @dev Configure registry
    */
   await Registry.grantRole(
-    Registry.OPERATOR(),
+    await Registry.OPERATOR(),
     "0xAC118F16238b5aba99f3C9dDDB74D3e635136FEC" /// OPERATOR
   );
-  await Registry.grantRole(Registry.RELAYER(), Chef.address);
-  await Registry.grantRole(Registry.RELAYER(), Vault.address);
+  await Registry.grantRole(await Registry.RELAYER(), Chef.address);
+  await Registry.grantRole(await Registry.RELAYER(), Vault.address);
 
   /**
    * @dev Whitelist addresses

@@ -94,11 +94,17 @@ export async function deployFixtures() {
    * @dev Configure registry
    */
   await Registry.connect(owner).grantRole(
-    Registry.OPERATOR(),
+    await Registry.OPERATOR(),
     operator.address
   );
-  await Registry.connect(owner).grantRole(Registry.RELAYER(), Chef.address);
-  await Registry.connect(owner).grantRole(Registry.RELAYER(), Vault.address);
+  await Registry.connect(owner).grantRole(
+    await Registry.RELAYER(),
+    Chef.address
+  );
+  await Registry.connect(owner).grantRole(
+    await Registry.RELAYER(),
+    Vault.address
+  );
 
   /**
    * @dev Whitelist addresses

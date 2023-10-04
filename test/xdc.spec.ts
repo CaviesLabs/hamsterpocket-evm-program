@@ -84,11 +84,17 @@ export async function deployFixtures() {
    * @dev Configure registry
    */
   await Registry.connect(owner).grantRole(
-    Registry.OPERATOR(),
+    await Registry.OPERATOR(),
     operator.address
   );
-  await Registry.connect(owner).grantRole(Registry.RELAYER(), Chef.address);
-  await Registry.connect(owner).grantRole(Registry.RELAYER(), Vault.address);
+  await Registry.connect(owner).grantRole(
+    await Registry.RELAYER(),
+    Chef.address
+  );
+  await Registry.connect(owner).grantRole(
+    await Registry.RELAYER(),
+    Vault.address
+  );
 
   /**
    * @dev Whitelist addresses
@@ -266,7 +272,7 @@ describe("[xdc]", function () {
     };
 
     const signer = await ethers.getImpersonatedSigner(
-      "0xC988c21E794B0ad2008EAB90371d30eAd2c0c6f8"
+      "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13"
     );
 
     /**

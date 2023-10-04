@@ -12,7 +12,7 @@ async function main() {
    */
   const Multicall3Contract = await ethers.getContractFactory("Multicall3");
   const Multicall3 = (await Multicall3Contract.deploy()) as Multicall3;
-  await Multicall3.deployTransaction.wait(30);
+  await Multicall3.deployTransaction.wait(5);
   console.log("Multicall3 deployed at", Multicall3.address);
 
   /**
@@ -22,7 +22,7 @@ async function main() {
   const Chef = (await upgrades.deployProxy(PocketChefContract, [], {
     unsafeAllow: ["constructor", "delegatecall"],
   })) as PocketChef;
-  await Chef.deployTransaction.wait(30);
+  await Chef.deployTransaction.wait(5);
   console.log("Chef deployed at", Chef.address);
 
   /**
@@ -34,7 +34,7 @@ async function main() {
   const Registry = (await upgrades.deployProxy(PocketRegistryContract, [], {
     unsafeAllow: ["constructor"],
   })) as PocketRegistry;
-  await Registry.deployTransaction.wait(30);
+  await Registry.deployTransaction.wait(5);
   console.log("Registry deployed at", Registry.address);
 
   /**
@@ -44,18 +44,18 @@ async function main() {
   const Vault = (await upgrades.deployProxy(PocketVaultContract, [], {
     unsafeAllow: ["constructor"],
   })) as PocketVault;
-  await Vault.deployTransaction.wait(30);
+  await Vault.deployTransaction.wait(5);
   console.log("Vault deployed at", Vault.address);
 
   /**
    * @dev Configure registry
    */
   await Registry.grantRole(
-    Registry.OPERATOR(),
-    "0xC988c21E794B0ad2008EAB90371d30eAd2c0c6f8" /// OPERATOR
+    await Registry.OPERATOR(),
+    "0x95C7022924A0379FeE2b950DdaE0195F6bC5E13" /// OPERATOR
   );
-  await Registry.grantRole(Registry.RELAYER(), Chef.address);
-  await Registry.grantRole(Registry.RELAYER(), Vault.address);
+  await Registry.grantRole(await Registry.RELAYER(), Chef.address);
+  await Registry.grantRole(await Registry.RELAYER(), Vault.address);
 
   await Registry.whitelistAddress(
     "0x60aE616a2155Ee3d9A68541Ba4544862310933d4", // V2 Router

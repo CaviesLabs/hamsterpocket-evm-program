@@ -13,7 +13,7 @@ describe("[administration]", async function () {
   it("[administration] should: non deployer wont be allowed to modify contracts", async () => {
     await expect(
       fixtures.Registry.connect(fixtures.owner2).grantRole(
-        fixtures.Registry.OPERATOR(),
+        await fixtures.Registry.OPERATOR(),
         fixtures.owner2.address
       )
     ).to.be.revertedWith("Ownable: caller is not the owner");
