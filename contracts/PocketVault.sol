@@ -53,8 +53,9 @@ contract PocketVault is
 	/// @dev Declare pocket registry
 	PocketRegistry public registry;
 	IPermit2 public permit2;
-	IQuoter public quoter;
 	Etherman public etherman;
+
+	mapping(address => address) public quoterMapping;
 
 	/// @dev RegistryUpdated emitted event
 	event SwapFeeUpdated(address indexed actor, uint256 value);
@@ -153,6 +154,7 @@ contract PocketVault is
 	function getQuote(
 		address baseTokenAddress,
 		address targetTokenAddress,
+		address ammRouterV3Address,
 		uint256 amountIn,
 		uint256 fee
 	) private returns (uint256, uint256) {
@@ -161,6 +163,7 @@ contract PocketVault is
 			uint24(fee),
 			targetTokenAddress
 		);
+		IQuoter quoter = IQuoter(quoterMapping[ammRouterV3Address]);
 
 		return (amountIn, quoter.quoteExactInput(path, amountIn));
 	}
@@ -177,7 +180,14 @@ contract PocketVault is
 			registry.allowedInteractiveAddresses(ammRouterV3Address) == true,
 			"Error: amm address is not supported"
 		);
-		return getQuote(baseTokenAddress, targetTokenAddress, amountIn, fee);
+		return
+			getQuote(
+				baseTokenAddress,
+				targetTokenAddress,
+				ammRouterV3Address,
+				amountIn,
+				fee
+			);
 	}
 
 	/// @notice Get current quote for v2
@@ -312,7 +322,7 @@ contract PocketVault is
 		inputs[0] = abi.encode(
 			address(this),
 			amount,
-			0,
+			minimumAmountOut,
 			abi.encodePacked(baseTokenAddress, uint24(fee), targetTokenAddress),
 			true
 		);
@@ -558,8 +568,15 @@ contract PocketVault is
 	}
 
 	/// @notice Set quoter address
-	function setQuoter(address quoterAddress) external onlyOwner {
-		quoter = IQuoter(quoterAddress);
+	function setQuoter(address router, address quoterAddress)
+		external
+		onlyOwner
+	{
+		require(
+			registry.allowedInteractiveAddresses(router) == true,
+			"Error: router is not supported"
+		);
+		quoterMapping[router] = quoterAddress;
 		emit QuoterUpdated(msg.sender, quoterAddress);
 	}
 

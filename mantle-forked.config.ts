@@ -7,7 +7,7 @@ export default {
     hardhat: {
       ...(hardhatConfig as any).networks.hardhat,
       forking: {
-        url: (hardhatConfig as any).networks.gnosis.url,
+        url: (hardhatConfig as any).networks.mantle.url,
       },
     },
   },

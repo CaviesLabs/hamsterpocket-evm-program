@@ -13,7 +13,7 @@ async function main() {
    */
   const Multicall3Contract = await ethers.getContractFactory("Multicall3");
   const Multicall3 = (await Multicall3Contract.deploy()) as Multicall3;
-  await Multicall3.deployTransaction.wait(5);
+  await Multicall3.deployTransaction.wait(10);
   console.log("Multicall3 deployed at", Multicall3.address);
 
   /**
@@ -45,9 +45,9 @@ async function main() {
   const Vault = (await upgrades.deployProxy(PocketVaultContract, [], {
     unsafeAllow: ["constructor"],
   })) as PocketVault;
-  await Vault.deployTransaction.wait(40);
+  await Vault.deployTransaction.wait(10);
   console.log("Vault deployed at", Vault.address);
-
+  //
   /**
    * @dev Configure registry
    */
@@ -55,6 +55,12 @@ async function main() {
     await Registry.grantRole(
       await Registry.OPERATOR(),
       "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13" /// OPERATOR
+    )
+  );
+  await ensureTransaction(
+    await Registry.grantRole(
+      await Registry.OPERATOR(),
+      Multicall3.address /// OPERATOR
     )
   );
   await ensureTransaction(
@@ -122,22 +128,28 @@ async function main() {
     )
   );
 
-  /**
-   * @dev Linking components
-   */
+  await ensureTransaction(await Chef.setRegistry(Registry.address));
+  await ensureTransaction(await Chef.setVault(Vault.address));
   await ensureTransaction(await Vault.setRegistry(Registry.address));
+
   await ensureTransaction(
     await Vault.setPermit2("0x000000000022d473030f116ddee9f6b43ac78ba3")
   );
   await ensureTransaction(
-    await Vault.setQuoter("0x78D78E420Da98ad378D7799bE8f4AF69033EB077")
+    await Vault.setQuoter(
+      "0x1b81D678ffb9C0263b24A97847620C99d213eB14",
+      "0x78D78E420Da98ad378D7799bE8f4AF69033EB077"
+    )
+  );
+  await ensureTransaction(
+    await Vault.setQuoter(
+      "0x5Dc88340E1c5c6366864Ee415d6034cadd1A9897",
+      "0x78D78E420Da98ad378D7799bE8f4AF69033EB077"
+    )
   );
   await ensureTransaction(
     await Vault.initEtherman("0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c")
   );
-
-  await ensureTransaction(await Chef.setRegistry(Registry.address));
-  await ensureTransaction(await Chef.setVault(Vault.address));
 }
 
 // We recommend this pattern to be able to use async/await everywhere

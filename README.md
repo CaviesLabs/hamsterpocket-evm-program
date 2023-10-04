@@ -97,15 +97,12 @@ their own saving pools (“pockets”) that will automatically execute the chose
 
 ### **Deployed Contracts addresses** 📢
 
-| Chain          | PocketChef                                 | PocketRegistry                             | PocketVault                                | Multicall3                                 | 
-|----------------|--------------------------------------------|--------------------------------------------|--------------------------------------------|--------------------------------------------| 
-| BNB Chain      | 0xd74Ad94208935a47b1Bd289d28d45Bce6369E064 | 0xb9599963729Acf22a18629355dA23e0bA4fBa611 | 0x4bcD48D0Af9b48716EDb30BFF560d08036439871 | 0x3156935b16C6c6742961dfb57811c086A2dbDF1e | 
-| AvaxC Chain    | 0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c | 0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6 | 0x76DB16c04F9683288E912e986C3F4EBB52266F1C | 0x292A7C55443850a30A6BCC17aF306b4Dc8864476 | 
-| Klaytn         | 0x4d5860f437692Bf7a60acf88BAdB328a8E5b18bc | 0x9C002CD37D25bb5020189405E02D90e2b9193c78 | 0x777d0036b8d65dD78be2D0449783E38920442656 | 0xC6030cF709D22E80e20F91DA1153b36eEe573A36 | 
-| Gnosis Chain   | 0xf406C8ef305a56ddD4E05f2cF9DC72C5fe9884ad | 0xa5c78d241254eB6566C178Bf359b219F4bC7Ac9e | 0xaC85009E1A69f634b7b77EFC45dEBf66993d3661 | 0x0B843Dd651D048185Cd021828cDA95542a61742c | 
-| OKX Chain      | 0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c | 0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6 | 0x76DB16c04F9683288E912e986C3F4EBB52266F1C | 0x292A7C55443850a30A6BCC17aF306b4Dc8864476 | 
-| XinFin Network | 0x2E2eEFcD211658035b77AC4D1a4c40Be7174B441 | 0x8FbaCBb3B09c876cA0AD0939A746935456D5793F | 0x8500d55F0f49FFfA33cCBdbcF171eD50a7bcA26E | 0x9ac25725B8465E70cc2458592C9104c0f06C8e87 |
-| Polygon Mumbai | 0xD156e603a421efbba39BDcAC9F1a7ed0081d2fBF | 0x691a63b8259c5C11E68DbF295571A53D6273aC8d | 0xF90884eB5bDE6B8Ea306e1912B600d0ce2f73292 | 0xB3A38B447903a594076C9eF11F54203C870638C5 |
+| Chain       | PocketChef                                 | PocketRegistry                             | PocketVault                                | Multicall3                                 | 
+|-------------|--------------------------------------------|--------------------------------------------|--------------------------------------------|--------------------------------------------| 
+| BNB Chain   | 0x6591D9D02f1699B3C5ac0F396526d09C276b5754 | 0xC3Bc90aAB2471F3031e25fb3097391EAbd9E5D1F | 0xA78c8Da9e3Bac9B790d109Cf9023B3b6dB72b0E0 | 0x3156935b16C6c6742961dfb57811c086A2dbDF1e | 
+| AvaxC Chain | 0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c | 0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6 | 0x76DB16c04F9683288E912e986C3F4EBB52266F1C | 0x83Cb92492667a8334381c95A02007c8bF0811b89 | 
+| Klaytn      | 0x4599F85F19CF7D508690bd790c5756F0B0059bc0 | 0x7DbD520FF867c6b0c3bEeD1eC1E969C372895983 | 0x5D785A46c0C17E7Eea91fa637D6Dd77a56EA6d1F | 0x39bE4c5cE17c0FaB9737AE436070Fcd83bf1464C | 
+| Mantle      | 0xDe46E6Ce41421C08c342b9cCddf9DB2b0E11B9b1 | 0xf5196199a3C0e1dd441488f0CFFCAb65d47f1166 | 0xf0C82C47B95143e14633A7EA9B5849fE7Ea9F8dA | 0xd54eC92F1e27E707773F4dF2ba697f15264f6690 | 
 
 ### Test
 

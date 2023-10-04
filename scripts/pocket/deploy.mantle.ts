@@ -23,7 +23,7 @@ async function main() {
   const Chef = (await upgrades.deployProxy(PocketChefContract, [], {
     unsafeAllow: ["constructor", "delegatecall"],
   })) as PocketChef;
-  await Chef.deployTransaction.wait(5);
+  await Chef.deployTransaction.wait(10);
   console.log("Chef deployed at", Chef.address);
 
   /**
@@ -35,7 +35,7 @@ async function main() {
   const Registry = (await upgrades.deployProxy(PocketRegistryContract, [], {
     unsafeAllow: ["constructor"],
   })) as PocketRegistry;
-  await Registry.deployTransaction.wait(5);
+  await Registry.deployTransaction.wait(10);
   console.log("Registry deployed at", Registry.address);
 
   /**
@@ -45,7 +45,7 @@ async function main() {
   const Vault = (await upgrades.deployProxy(PocketVaultContract, [], {
     unsafeAllow: ["constructor"],
   })) as PocketVault;
-  await Vault.deployTransaction.wait(5);
+  await Vault.deployTransaction.wait(40);
   console.log("Vault deployed at", Vault.address);
 
   /**
@@ -70,33 +70,42 @@ async function main() {
     await Registry.grantRole(await Registry.RELAYER(), Vault.address)
   );
 
+  /**
+   * @dev Whitelist addresses
+   */
   await ensureTransaction(
     await Registry.whitelistAddress(
-      "0xEf71750C100f7918d6Ded239Ff1CF09E81dEA92D", // V2 Router
+      "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8", // WMNT
       true
     )
   );
   await ensureTransaction(
     await Registry.whitelistAddress(
-      "0xe4f05A66Ec68B54A58B17c22107b02e0232cC817", // WKLAYTN
+      "0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE", // USDT
       true
     )
   );
   await ensureTransaction(
     await Registry.whitelistAddress(
-      "0xceE8FAF64bB97a73bb51E115Aa89C17FfA8dD167", // oUSDT
+      "0xdEAddEaDdeadDEadDEADDEAddEADDEAddead1111", // ETH
       true
     )
   );
   await ensureTransaction(
     await Registry.whitelistAddress(
-      "0x946BC715501413B9454BB6A31412A21998763F2D", // KBT
+      "0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9", // USDC
       true
     )
   );
   await ensureTransaction(
     await Registry.whitelistAddress(
-      "0xCF87f94fD8F6B6f0b479771F10dF672f99eADa63", // CLA
+      "0x97174506AafcC846A40832719bD8899a588Bd05c", // RealBenZ
+      true
+    )
+  );
+  await ensureTransaction(
+    await Registry.whitelistAddress(
+      "0x319B69888b0d11cEC22caA5034e25FfFBDc88421", // router v3
       true
     )
   );
@@ -106,7 +115,13 @@ async function main() {
    */
   await ensureTransaction(await Vault.setRegistry(Registry.address));
   await ensureTransaction(
-    await Vault.initEtherman("0xe4f05A66Ec68B54A58B17c22107b02e0232cC817")
+    await Vault.setQuoter(
+      "0x319B69888b0d11cEC22caA5034e25FfFBDc88421",
+      "0xc4aaDc921E1cdb66c5300Bc158a313292923C0cb"
+    )
+  );
+  await ensureTransaction(
+    await Vault.initEtherman("0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8")
   );
 
   await ensureTransaction(await Chef.setRegistry(Registry.address));

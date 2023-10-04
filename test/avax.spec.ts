@@ -267,7 +267,7 @@ describe("[avaxc]", function () {
       PocketVault: "0x76DB16c04F9683288E912e986C3F4EBB52266F1C",
       PocketRegistry: "0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6",
       PocketChef: "0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c",
-      Multicall3: "0x292A7C55443850a30A6BCC17aF306b4Dc8864476",
+      Multicall3: "0x83Cb92492667a8334381c95A02007c8bF0811b89",
     };
 
     const signer = await ethers.getImpersonatedSigner(

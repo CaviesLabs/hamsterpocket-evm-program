@@ -3,10 +3,10 @@ import { PocketChef, PocketRegistry, PocketVault } from "../../typechain-types";
 
 async function main() {
   const Addresses = {
-    PocketVault: "0x4dBbbf24C757341d6bff85A768cCBF2267161C50",
-    PocketRegistry: "0x68B4646c9B6133e1FC741d587830B706B9e22b57",
-    PocketChef: "0x5a76D1Ca3FC8F2B0D1A3b219F88fd35d0eED185B",
-    Multicall3: "0xd54eC92F1e27E707773F4dF2ba697f15264f6690",
+    PocketVault: "0x19a6263fA09281B177ad6789D2e2a30674471Cb6",
+    PocketRegistry: "0x6A375e5FE01809987507Ee8D793FF8455512D804",
+    PocketChef: "0x70f52112c00527F0357d55eD52C31181840508cB",
+    Multicall3: "0x94eC37b16D48Ca4974d589cEF3F6F5964997F4DF",
   };
 
   /**

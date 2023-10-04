@@ -60,7 +60,13 @@ async function main() {
   await ensureTransaction(
     await Registry.grantRole(
       await Registry.OPERATOR(),
-      "0xAC118F16238b5aba99f3C9dDDB74D3e635136FEC" /// OPERATOR
+      "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13" /// OPERATOR
+    )
+  );
+  await ensureTransaction(
+    await Registry.grantRole(
+      await Registry.OPERATOR(),
+      Multicall3.address /// OPERATOR
     )
   );
   await ensureTransaction(
@@ -106,7 +112,10 @@ async function main() {
     await Vault.setPermit2("0x000000000022d473030f116ddee9f6b43ac78ba3")
   );
   await ensureTransaction(
-    await Vault.setQuoter("0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6")
+    await Vault.setQuoter(
+      "0x4648a43B2C14Da09FdF82B161150d3F634f40491",
+      "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+    )
   );
 
   await ensureTransaction(await Chef.setRegistry(Registry.address));

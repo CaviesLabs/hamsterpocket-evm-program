@@ -58,6 +58,12 @@ async function main() {
     )
   );
   await ensureTransaction(
+    await Registry.grantRole(
+      await Registry.OPERATOR(),
+      Multicall3.address /// OPERATOR
+    )
+  );
+  await ensureTransaction(
     await Registry.grantRole(await Registry.RELAYER(), Chef.address)
   );
   await ensureTransaction(

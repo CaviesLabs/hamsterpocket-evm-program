@@ -164,7 +164,7 @@ if (privateKey) {
       accounts: [privateKey],
       gas: "auto",
       gasPrice: "auto",
-      chainId: 8217,
+      chainId: 5000,
     },
   };
 }
