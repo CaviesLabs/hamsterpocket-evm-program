@@ -132,6 +132,10 @@ export async function deployFixtures() {
     true
   );
   await Registry.whitelistAddress(
+    "0x1b81D678ffb9C0263b24A97847620C99d213eB14", // PancakeSwap router v3
+    true
+  );
+  await Registry.whitelistAddress(
     "0x000000000022d473030f116ddee9f6b43ac78ba3", // permit2
     true
   );
@@ -173,5 +177,6 @@ export async function deployFixtures() {
     RouterAddress: "0x5Dc88340E1c5c6366864Ee415d6034cadd1A9897",
     Permit2Address: "0x000000000022d473030f116ddee9f6b43ac78ba3",
     PancakeSwapRouterV2: "0x10ED43C718714eb63d5aA57B78B54704E256024E",
+    PancakeSwapRouterV3: "0x1b81D678ffb9C0263b24A97847620C99d213eB14",
   };
 }

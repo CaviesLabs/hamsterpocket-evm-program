@@ -467,4 +467,51 @@ describe("[swap]", async function () {
     const pocket = await Registry.pockets(data.id);
     expect(pocket.status).eq(3);
   });
+
+  it("[auto_investment] should: should work with pcs router v3", async () => {
+    const { Time, Chef, Registry, owner, operator, PancakeSwapRouterV3 } =
+      fixtures;
+
+    const data = {
+      ...toBeCreatedPocketData,
+      id: "should-auto-close-pocket-successfully-pcs-v3",
+      startAt: parseInt((new Date().getTime() / 1000 + 70002).toString()),
+      ammRouterAddress: PancakeSwapRouterV3,
+      ammRouterVersion: "2", // Meaning this is v3 non-universal
+      stopConditions: [
+        {
+          operator: "0",
+          value: parseInt(
+            (new Date().getTime() / 1000 + 70010).toString()
+          ).toString(),
+        },
+        {
+          operator: "1",
+          value: BigNumber.from("1"),
+        },
+        {
+          operator: "2",
+          value: ethers.constants.WeiPerEther,
+        },
+        {
+          operator: "3",
+          value: ethers.constants.WeiPerEther,
+        },
+      ],
+    };
+
+    await Chef.connect(owner).createPocketAndDepositEther(data, {
+      value: ethers.constants.WeiPerEther,
+    });
+
+    await Time.increaseTo(
+      parseInt((new Date().getTime() / 1000 + 80000).toString())
+    );
+
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 500, 0);
+
+    /// @dev Pocket has been closed after closing position
+    const pocket = await Registry.pockets(data.id);
+    expect(pocket.status).eq(3);
+  });
 });

@@ -248,7 +248,7 @@ contract PocketVault is
 			);
 	}
 
-	/// @notice Make swap leverages uniswap universal router
+	/// @notice Make swap leverages uniswap non universal router
 	function makeSwapV3(
 		address router,
 		address baseTokenAddress,
@@ -257,14 +257,7 @@ contract PocketVault is
 		uint256 fee,
 		uint256 minimumAmountOut
 	) private returns (uint256) {
-		IERC20(baseTokenAddress).approve(address(permit2), amount);
-
-		permit2.approve(
-			baseTokenAddress,
-			router,
-			uint160(amount),
-			uint48(block.timestamp)
-		);
+		IERC20(baseTokenAddress).approve(router, amount);
 
 		uint256 beforeBalance = IERC20(targetTokenAddress).balanceOf(
 			address(this)
