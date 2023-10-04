@@ -60,7 +60,8 @@ library Types {
 	/// @dev Declare AMM router version
 	enum AMMRouterVersion {
 		V3,
-		V2
+		V2,
+		V3NonUniversal
 	}
 
 	/**

@@ -136,17 +136,17 @@ contract PocketVault is
 			)
 		returns (uint256 _in, uint256 _out) {
 			return (_in, _out);
-		} catch {}
-
-		/// @dev If getting v2 fails, we return v3
-		return
-			getCurrentQuoteV3(
-				baseTokenAddress,
-				targetTokenAddress,
-				ammRouterAddress,
-				amountIn,
-				fee
-			);
+		} catch {
+			/// @dev If getting v2 fails, we return v3
+			return
+				getCurrentQuoteV3(
+					baseTokenAddress,
+					targetTokenAddress,
+					ammRouterAddress,
+					amountIn,
+					fee
+				);
+		}
 	}
 
 	/// @notice Get quote of a pocket
@@ -225,8 +225,20 @@ contract PocketVault is
 				);
 		}
 
+		if (version == Types.AMMRouterVersion.V3NonUniversal) {
+			return
+				makeSwapV3(
+					router,
+					baseTokenAddress,
+					targetTokenAddress,
+					amount,
+					fee,
+					minimumAmountOut
+				);
+		}
+
 		return
-			makeSwapV3(
+			makeSwapV3WithUniversalV3Router(
 				router,
 				baseTokenAddress,
 				targetTokenAddress,
@@ -271,6 +283,47 @@ contract PocketVault is
 			amountOutMinimum: minimumAmountOut
 		});
 		IRouterV3(router).exactInput(params);
+
+		return
+			IERC20(targetTokenAddress).balanceOf(address(this)).sub(
+				beforeBalance
+			);
+	}
+
+	/// @notice Make swap leverages uniswap universal router
+	function makeSwapV3WithUniversalV3Router(
+		address router,
+		address baseTokenAddress,
+		address targetTokenAddress,
+		uint256 amount,
+		uint256 fee,
+		uint256 minimumAmountOut
+	) private returns (uint256) {
+		IERC20(baseTokenAddress).approve(address(permit2), amount);
+
+		permit2.approve(
+			baseTokenAddress,
+			router,
+			uint160(amount),
+			uint48(block.timestamp)
+		);
+
+		uint256 beforeBalance = IERC20(targetTokenAddress).balanceOf(
+			address(this)
+		);
+
+		bytes memory commands = abi.encodePacked(
+			bytes1(uint8(Commands.V3_SWAP_EXACT_IN))
+		);
+		bytes[] memory inputs = new bytes[](1);
+		inputs[0] = abi.encode(
+			address(this),
+			amount,
+			0,
+			abi.encodePacked(baseTokenAddress, uint24(fee), targetTokenAddress),
+			true
+		);
+		UniversalRouter(router).execute(commands, inputs);
 
 		return
 			IERC20(targetTokenAddress).balanceOf(address(this)).sub(
