@@ -58,25 +58,25 @@ describe("[swap]", async function () {
     const { Chef, owner, owner2 } = fixtures;
 
     await expect(
-      Chef.connect(owner).tryMakingDCASwap(toBeCreatedPocketData.id, 3000)
+      Chef.connect(owner).tryMakingDCASwap(toBeCreatedPocketData.id, 3000, 0)
     ).to.be.revertedWith(
       "Operation error: only operator is permitted for the operation"
     );
 
     await expect(
-      Chef.connect(owner).tryClosingPosition(toBeCreatedPocketData.id, 3000)
+      Chef.connect(owner).tryClosingPosition(toBeCreatedPocketData.id, 3000, 0)
     ).to.be.revertedWith(
       "Operation error: only operator is permitted for the operation"
     );
 
     await expect(
-      Chef.connect(owner2).tryClosingPosition(toBeCreatedPocketData.id, 3000)
+      Chef.connect(owner2).tryClosingPosition(toBeCreatedPocketData.id, 3000, 0)
     ).to.be.revertedWith(
       "Operation error: only operator is permitted for the operation"
     );
 
     await expect(
-      Chef.connect(owner2).tryClosingPosition(toBeCreatedPocketData.id, 3000)
+      Chef.connect(owner2).tryClosingPosition(toBeCreatedPocketData.id, 3000, 0)
     ).to.be.revertedWith(
       "Operation error: only operator is permitted for the operation"
     );
@@ -116,7 +116,8 @@ describe("[swap]", async function () {
 
     await Chef.connect(operator).tryMakingDCASwap(
       toBeCreatedPocketData.id,
-      3000
+      3000,
+      0
     );
 
     expect(await WBNB.balanceOf(Vault.address)).eq(
@@ -184,7 +185,7 @@ describe("[swap]", async function () {
       parseInt((new Date().getTime() / 1000 + 36000).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
 
     const WBNB = IERC20__factory.connect(WBNBAddress, owner);
     const BTCB = IERC20__factory.connect(BTCBAddress, owner);
@@ -205,7 +206,7 @@ describe("[swap]", async function () {
     expect(pocket.targetTokenBalance).gt(ethers.constants.Zero);
 
     const vaultBalanceBefore = await BTCB.balanceOf(Vault.address);
-    await Chef.connect(operator).tryClosingPosition(data.id, 3000);
+    await Chef.connect(operator).tryClosingPosition(data.id, 3000, 0);
 
     expect(await WBNB.balanceOf(Vault.address)).gt(
       ethers.constants.WeiPerEther.sub(
@@ -266,10 +267,10 @@ describe("[swap]", async function () {
       parseInt((new Date().getTime() / 1000 + 38000).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
 
     await expect(
-      Chef.connect(operator).tryClosingPosition(data.id, 3000)
+      Chef.connect(operator).tryClosingPosition(data.id, 3000, 0)
     ).to.be.revertedWith(
       "Operation error: closing position condition does not reach"
     );
@@ -300,10 +301,10 @@ describe("[swap]", async function () {
       parseInt((new Date().getTime() / 1000 + 45000).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
 
     await expect(
-      Chef.connect(operator).tryClosingPosition(data.id, 3000)
+      Chef.connect(operator).tryClosingPosition(data.id, 3000, 0)
     ).to.be.revertedWith(
       "Operation error: closing position condition does not reach"
     );
@@ -343,18 +344,18 @@ describe("[swap]", async function () {
       parseInt((new Date().getTime() / 1000 + 50000).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
 
     /// @dev Wont allow non-owner close position if condition does not reach
     await expect(
-      Chef.connect(operator).tryClosingPosition(data.id, 3000)
+      Chef.connect(operator).tryClosingPosition(data.id, 3000, 0)
     ).to.be.revertedWith(
       "Operation error: closing position condition does not reach"
     );
 
     /// @dev Wont allow non-owner close position manually
     await expect(
-      Chef.connect(operator).closePosition(data.id, 3000)
+      Chef.connect(operator).closePosition(data.id, 3000, 0)
     ).to.be.revertedWith(
       "Operation error: only owner is permitted for the operation"
     );
@@ -365,7 +366,7 @@ describe("[swap]", async function () {
     const vaultBalanceBefore = await BTCB.balanceOf(Vault.address);
     const vaultBNBBalanceBefore = await WBNB.balanceOf(Vault.address);
 
-    await Chef.connect(owner).closePosition(data.id, 3000);
+    await Chef.connect(owner).closePosition(data.id, 3000, 0);
 
     /// @dev meaning that the close position works properly
     expect(await BTCB.balanceOf(Vault.address)).lt(vaultBalanceBefore);
@@ -413,7 +414,7 @@ describe("[swap]", async function () {
       parseInt((new Date().getTime() / 1000 + 60000).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
 
     /// @dev Pocket has been closed after closing position
     const pocket = await Registry.pockets(data.id);
@@ -460,7 +461,7 @@ describe("[swap]", async function () {
       parseInt((new Date().getTime() / 1000 + 70000).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
 
     /// @dev Pocket has been closed after closing position
     const pocket = await Registry.pockets(data.id);

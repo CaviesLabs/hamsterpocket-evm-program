@@ -218,7 +218,7 @@ describe("[xdc]", function () {
       parseInt((new Date().getTime() / 1000 + 2).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
 
     /// @dev Pocket has been closed after closing position
     const pocket = await Registry.pockets(data.id);
@@ -321,7 +321,7 @@ describe("[xdc]", function () {
       parseInt((new Date().getTime() / 1000 + 100).toString())
     );
 
-    await Chef.connect(signer).tryMakingDCASwap(data.id, 3000);
+    await Chef.connect(signer).tryMakingDCASwap(data.id, 3000, 0);
 
     /// @dev Pocket has been closed after closing position
     const pocket = await Registry.pockets(data.id);

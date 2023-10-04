@@ -13,7 +13,6 @@ import {
 } from "../typechain-types";
 import { Params } from "../typechain-types/contracts/PocketChef";
 import { expect } from "chai";
-import exp from "constants";
 
 export async function deployFixtures() {
   const [owner, owner2, operator] = await ethers.getSigners();
@@ -223,7 +222,7 @@ describe("[gnosis]", function () {
       parseInt((new Date().getTime() / 1000 + 70000).toString())
     );
 
-    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000);
+    await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
 
     /// @dev Pocket has been closed after closing position
     const pocket = await Registry.pockets(data.id);
@@ -367,7 +366,7 @@ describe("[gnosis]", function () {
       parseInt((new Date().getTime() / 1000 + 100000).toString())
     );
 
-    await Chef.connect(signer).tryMakingDCASwap(data.id, 3000);
+    await Chef.connect(signer).tryMakingDCASwap(data.id, 3000, 0);
 
     /// @dev Pocket has been closed after closing position
     const pocket = await Registry.pockets(data.id);
