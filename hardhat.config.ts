@@ -20,30 +20,25 @@ const config: HardhatUserConfig = {
     compilers: [
       {
         version: "0.7.6",
-      },
-      {
-        version: "0.8.19",
-      },
-    ],
-    overrides: {
-      "contracts/Quoter.sol": {
-        version: "0.7.6",
         settings: {
           viaIR: true,
           optimizer: {
             enabled: true,
-            runs: 1000000,
+            runs: 9999999,
           },
         },
       },
-    },
-    settings: {
-      viaIR: true,
-      optimizer: {
-        enabled: true,
-        runs: 9999999,
+      {
+        version: "0.8.19",
+        settings: {
+          viaIR: true,
+          optimizer: {
+            enabled: true,
+            runs: 9999999,
+          },
+        },
       },
-    },
+    ],
   },
 };
 
@@ -123,7 +118,7 @@ if (privateKey) {
       chainId: 5,
     },
     mumbai: {
-      url: "https://matic-mumbai.chainstacklabs.com/",
+      url: "https://polygon-mumbai.blockpi.network/v1/rpc/public",
       accounts: [privateKey],
       gas: "auto",
       gasPrice: "auto",

@@ -312,12 +312,11 @@ contract PocketVault is
 	}
 
 	/// @notice Make DCA swap for the given pocket pocket
-	function makeDCASwap(string calldata pocketId, uint256 fee, uint256 minimumAmountOut)
-		external
-		onlyRelayer
-		nonReentrant
-		returns (uint256, uint256)
-	{
+	function makeDCASwap(
+		string calldata pocketId,
+		uint256 fee,
+		uint256 minimumAmountOut
+	) external onlyRelayer nonReentrant returns (uint256, uint256) {
 		/// @dev Extract necessary info
 		(
 			address ammRouterAddress,
@@ -330,6 +329,7 @@ contract PocketVault is
 			,
 			,
 			,
+
 		) = registry.getTradingInfoOf(pocketId);
 
 		uint256 amountOut = makeSwap(
@@ -358,12 +358,11 @@ contract PocketVault is
 	}
 
 	/// @notice Make close position for the given pocket
-	function closePosition(string calldata pocketId, uint256 fee, uint256 minimumAmountOut)
-		external
-		onlyRelayer
-		nonReentrant
-		returns (uint256, uint256)
-	{
+	function closePosition(
+		string calldata pocketId,
+		uint256 fee,
+		uint256 minimumAmountOut
+	) external onlyRelayer nonReentrant returns (uint256, uint256) {
 		/// @dev Extract necessary info
 		(
 			address ammRouterAddress,
@@ -376,6 +375,7 @@ contract PocketVault is
 			,
 			,
 			,
+
 		) = registry.getTradingInfoOf(pocketId);
 		(, uint256 targetTokenBalance) = registry.getBalanceInfoOf(pocketId);
 
@@ -422,6 +422,7 @@ contract PocketVault is
 			,
 			,
 			,
+
 		) = registry.getTradingInfoOf(params.id);
 		(uint256 baseTokenBalance, uint256 targetTokenBalance) = registry
 			.getBalanceInfoOf(params.id);

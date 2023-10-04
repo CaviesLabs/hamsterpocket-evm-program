@@ -75,10 +75,11 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
-	function closePosition(string calldata pocketId, uint256 fee, uint256 minOut)
-		external
-		nonReentrant
-	{
+	function closePosition(
+		string calldata pocketId,
+		uint256 fee,
+		uint256 minOut
+	) external nonReentrant {
 		/// @dev Verify swap condition
 		require(
 			registry.isOwnerOf(pocketId, msg.sender),
@@ -119,10 +120,11 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
-	function tryClosingPosition(string calldata pocketId, uint256 fee, uint256 minOut)
-		external
-		nonReentrant
-	{
+	function tryClosingPosition(
+		string calldata pocketId,
+		uint256 fee,
+		uint256 minOut
+	) external nonReentrant {
 		/// @dev Verify swap condition
 		require(
 			registry.hasRole(registry.OPERATOR(), msg.sender),
@@ -197,10 +199,11 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
-	function tryMakingDCASwap(string calldata pocketId, uint256 fee, uint256 minOut)
-		external
-		nonReentrant
-	{
+	function tryMakingDCASwap(
+		string calldata pocketId,
+		uint256 fee,
+		uint256 minOut
+	) external nonReentrant {
 		/// @dev Verify swap condition
 		require(
 			registry.hasRole(registry.OPERATOR(), msg.sender),
