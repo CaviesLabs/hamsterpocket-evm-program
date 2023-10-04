@@ -262,7 +262,7 @@ contract Multicall3 {
 		view
 		returns (uint256 difficulty)
 	{
-		difficulty = block.difficulty;
+		difficulty = block.prevrandao;
 	}
 
 	/// @notice Returns the block gas limit

@@ -166,7 +166,7 @@ yarn test
 ### Deploy into BSC mainnet
 
 ```bash
-npx hardhat run scripts/pocket/deploy.ts --network <network-name>
+npx hardhat run scripts/pocket/deploy.klaytn.ts --network <network-name>
 ```
 
 ## **Contribution** 🤝

@@ -75,7 +75,7 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
-	function closePosition(string calldata pocketId, uint256 fee)
+	function closePosition(string calldata pocketId, uint256 fee, uint256 minOut)
 		external
 		nonReentrant
 	{
@@ -92,7 +92,8 @@ contract PocketChef is
 		/// @dev Execute DCA Swap
 		(uint256 amountIn, uint256 amountOut) = vault.closePosition(
 			pocketId,
-			fee
+			fee,
+			minOut
 		);
 
 		/// @dev Update closing position stats
@@ -118,7 +119,7 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
-	function tryClosingPosition(string calldata pocketId, uint256 fee)
+	function tryClosingPosition(string calldata pocketId, uint256 fee, uint256 minOut)
 		external
 		nonReentrant
 	{
@@ -135,7 +136,8 @@ contract PocketChef is
 		/// @dev Execute DCA Swap
 		(uint256 amountIn, uint256 amountOut) = vault.closePosition(
 			pocketId,
-			fee
+			fee,
+			minOut
 		);
 
 		bool shouldStopLoss = registry.shouldStopLoss(
@@ -195,7 +197,7 @@ contract PocketChef is
 	}
 
 	/// @notice Make DCA swap
-	function tryMakingDCASwap(string calldata pocketId, uint256 fee)
+	function tryMakingDCASwap(string calldata pocketId, uint256 fee, uint256 minOut)
 		external
 		nonReentrant
 	{
@@ -212,7 +214,8 @@ contract PocketChef is
 		/// @dev Execute DCA Swap
 		(uint256 amountIn, uint256 amountOut) = vault.makeDCASwap(
 			pocketId,
-			fee
+			fee,
+			minOut
 		);
 
 		/// @dev Check whether the buy condition meets

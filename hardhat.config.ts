@@ -17,12 +17,31 @@ dotenv.config();
  */
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.19",
+    compilers: [
+      {
+        version: "0.7.6",
+      },
+      {
+        version: "0.8.19",
+      },
+    ],
+    overrides: {
+      "contracts/Quoter.sol": {
+        version: "0.7.6",
+        settings: {
+          viaIR: true,
+          optimizer: {
+            enabled: true,
+            runs: 1000000,
+          },
+        },
+      },
+    },
     settings: {
       viaIR: true,
       optimizer: {
         enabled: true,
-        runs: 1000,
+        runs: 9999999,
       },
     },
   },
@@ -140,6 +159,13 @@ if (privateKey) {
     },
     klaytn: {
       url: "https://public-node-api.klaytnapi.com/v1/cypress",
+      accounts: [privateKey],
+      gas: "auto",
+      gasPrice: "auto",
+      chainId: 8217,
+    },
+    mantle: {
+      url: "https://rpc.mantle.xyz",
       accounts: [privateKey],
       gas: "auto",
       gasPrice: "auto",

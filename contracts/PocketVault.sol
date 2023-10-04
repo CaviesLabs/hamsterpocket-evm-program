@@ -19,6 +19,7 @@ import "./Params.sol";
 import "./IQuoter.sol";
 import "./Etherman.sol";
 import "./IRouterV2.sol";
+import "./IRouterV3.sol";
 
 interface UniversalRouter {
 	function execute(
@@ -210,7 +211,8 @@ contract PocketVault is
 		address targetTokenAddress,
 		Types.AMMRouterVersion version,
 		uint256 amount,
-		uint256 fee
+		uint256 fee,
+		uint256 minimumAmountOut
 	) private returns (uint256) {
 		if (version == Types.AMMRouterVersion.V2) {
 			return
@@ -218,7 +220,8 @@ contract PocketVault is
 					router,
 					baseTokenAddress,
 					targetTokenAddress,
-					amount
+					amount,
+					minimumAmountOut
 				);
 		}
 
@@ -228,7 +231,8 @@ contract PocketVault is
 				baseTokenAddress,
 				targetTokenAddress,
 				amount,
-				fee
+				fee,
+				minimumAmountOut
 			);
 	}
 
@@ -238,7 +242,8 @@ contract PocketVault is
 		address baseTokenAddress,
 		address targetTokenAddress,
 		uint256 amount,
-		uint256 fee
+		uint256 fee,
+		uint256 minimumAmountOut
 	) private returns (uint256) {
 		IERC20(baseTokenAddress).approve(address(permit2), amount);
 
@@ -249,24 +254,23 @@ contract PocketVault is
 			uint48(block.timestamp)
 		);
 
-		bytes memory commands = abi.encodePacked(
-			bytes1(uint8(Commands.V3_SWAP_EXACT_IN))
-		);
-
-		bytes[] memory inputs = new bytes[](1);
-		inputs[0] = abi.encode(
-			address(this),
-			amount,
-			0,
-			abi.encodePacked(baseTokenAddress, uint24(fee), targetTokenAddress),
-			true
-		);
-
 		uint256 beforeBalance = IERC20(targetTokenAddress).balanceOf(
 			address(this)
 		);
 
-		UniversalRouter(router).execute(commands, inputs);
+		bytes memory path = abi.encodePacked(
+			baseTokenAddress,
+			uint24(fee),
+			targetTokenAddress
+		);
+		IRouterV3.ExactInputParams memory params = IRouterV3.ExactInputParams({
+			path: path,
+			recipient: address(this),
+			deadline: block.timestamp,
+			amountIn: amount,
+			amountOutMinimum: minimumAmountOut
+		});
+		IRouterV3(router).exactInput(params);
 
 		return
 			IERC20(targetTokenAddress).balanceOf(address(this)).sub(
@@ -279,7 +283,8 @@ contract PocketVault is
 		address router,
 		address baseTokenAddress,
 		address targetTokenAddress,
-		uint256 amount
+		uint256 amount,
+		uint256 minimumAmountOut
 	) private returns (uint256) {
 		IERC20(baseTokenAddress).approve(address(router), amount);
 
@@ -294,7 +299,7 @@ contract PocketVault is
 		IUniswapV2Router(router)
 			.swapExactTokensForTokensSupportingFeeOnTransferTokens(
 				amount,
-				0,
+				minimumAmountOut,
 				path,
 				address(this),
 				block.timestamp
@@ -307,7 +312,7 @@ contract PocketVault is
 	}
 
 	/// @notice Make DCA swap for the given pocket pocket
-	function makeDCASwap(string calldata pocketId, uint256 fee)
+	function makeDCASwap(string calldata pocketId, uint256 fee, uint256 minimumAmountOut)
 		external
 		onlyRelayer
 		nonReentrant
@@ -325,7 +330,6 @@ contract PocketVault is
 			,
 			,
 			,
-
 		) = registry.getTradingInfoOf(pocketId);
 
 		uint256 amountOut = makeSwap(
@@ -334,7 +338,8 @@ contract PocketVault is
 			targetTokenAddress,
 			version,
 			batchVolume,
-			fee
+			fee,
+			minimumAmountOut
 		);
 
 		/// @dev Emit event
@@ -353,7 +358,7 @@ contract PocketVault is
 	}
 
 	/// @notice Make close position for the given pocket
-	function closePosition(string calldata pocketId, uint256 fee)
+	function closePosition(string calldata pocketId, uint256 fee, uint256 minimumAmountOut)
 		external
 		onlyRelayer
 		nonReentrant
@@ -371,7 +376,6 @@ contract PocketVault is
 			,
 			,
 			,
-
 		) = registry.getTradingInfoOf(pocketId);
 		(, uint256 targetTokenBalance) = registry.getBalanceInfoOf(pocketId);
 
@@ -381,7 +385,8 @@ contract PocketVault is
 			baseTokenAddress,
 			version,
 			targetTokenBalance,
-			fee
+			fee,
+			minimumAmountOut
 		);
 
 		/// @dev Emit event
@@ -417,7 +422,6 @@ contract PocketVault is
 			,
 			,
 			,
-
 		) = registry.getTradingInfoOf(params.id);
 		(uint256 baseTokenBalance, uint256 targetTokenBalance) = registry
 			.getBalanceInfoOf(params.id);
