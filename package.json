@@ -5,6 +5,7 @@
   "scripts": {
     "test": "hardhat test test/pocket.test.ts --network hardhat",
     "test:klaytn": "hardhat test test/klaytn.spec.ts --config klaytn-forked.config.ts --network hardhat",
+    "test:bnb": "hardhat test test/bnb.spec.ts --config bnb-forked.config.ts --network hardhat",
     "test:scroll_sepolia": "hardhat test test/scroll_sepolia.spec.ts --config scroll_sepolia-forked.config.ts --network hardhat",
     "test:avax": "hardhat test test/avax.spec.ts --config avaxc-forked.config.ts --network hardhat",
     "test:mantle": "hardhat test test/mantle.spec.ts --config mantle-forked.config.ts --network hardhat",
