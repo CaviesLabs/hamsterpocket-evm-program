@@ -156,6 +156,13 @@ if (privateKey) {
       gasPrice: "auto",
       chainId: 5000,
     },
+    scroll_sepolia: {
+      url: "https://scroll-sepolia.blockpi.network/v1/rpc/public",
+      accounts: [privateKey],
+      gas: "auto",
+      gasPrice: "auto",
+      chainId: 534351,
+    },
   };
 }
 
