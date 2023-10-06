@@ -101,29 +101,24 @@ contract PocketRegistry is
 	}
 
 	/// @notice Check whether an address is the pocket owner
-	function isOwnerOf(string calldata pocketId, address target)
-		public
-		view
-		returns (bool)
-	{
+	function isOwnerOf(
+		string calldata pocketId,
+		address target
+	) public view returns (bool) {
 		return pockets[pocketId].owner == target;
 	}
 
 	/// @notice Check whether an address is the pocket owner
-	function getStopConditionsOf(string calldata pocketId)
-		public
-		view
-		returns (Types.StopCondition[] memory)
-	{
+	function getStopConditionsOf(
+		string calldata pocketId
+	) public view returns (Types.StopCondition[] memory) {
 		return pockets[pocketId].stopConditions;
 	}
 
 	/// @notice Check whether a pocket meet stop condition. The pocket should be settled before checking this condition.
-	function shouldClosePocket(string calldata pocketId)
-		public
-		view
-		returns (bool)
-	{
+	function shouldClosePocket(
+		string calldata pocketId
+	) public view returns (bool) {
 		Types.Pocket storage pocket = pockets[pocketId];
 		Types.StopCondition[] storage stopConditions = pockets[pocketId]
 			.stopConditions;
@@ -250,7 +245,7 @@ contract PocketRegistry is
 			uint256 targetTokenDecimal = ERC20(pocket.targetTokenAddress)
 				.decimals();
 			uint256 expectedAmountOut = receivedBaseTokenAmount
-				.mul(10**targetTokenDecimal)
+				.mul(10 ** targetTokenDecimal)
 				.div(swappedTargetTokenAmount);
 
 			return expectedAmountOut >= condition.value;
@@ -308,7 +303,7 @@ contract PocketRegistry is
 			uint256 targetTokenDecimals = ERC20(pocket.targetTokenAddress)
 				.decimals();
 			uint256 expectedAmountOut = receivedBaseTokenAmount
-				.mul(10**targetTokenDecimals)
+				.mul(10 ** targetTokenDecimals)
 				.div(swappedTargetTokenAmount);
 
 			return expectedAmountOut <= condition.value;
@@ -348,7 +343,9 @@ contract PocketRegistry is
 	}
 
 	/// @notice Get trading pair info of a given pocket id
-	function getTradingInfoOf(string calldata pocketId)
+	function getTradingInfoOf(
+		string calldata pocketId
+	)
 		public
 		view
 		returns (
@@ -381,11 +378,9 @@ contract PocketRegistry is
 	}
 
 	/// @notice Get balance info of a given pocket
-	function getBalanceInfoOf(string calldata pocketId)
-		public
-		view
-		returns (uint256, uint256)
-	{
+	function getBalanceInfoOf(
+		string calldata pocketId
+	) public view returns (uint256, uint256) {
 		return (
 			pockets[pocketId].baseTokenBalance,
 			pockets[pocketId].targetTokenBalance
@@ -393,83 +388,73 @@ contract PocketRegistry is
 	}
 
 	/// @notice Get owner address of a given pocket
-	function getOwnerOf(string calldata pocketId)
-		public
-		view
-		returns (address)
-	{
+	function getOwnerOf(
+		string calldata pocketId
+	) public view returns (address) {
 		return (pockets[pocketId].owner);
 	}
 
 	/// @notice Check whether a pocket is available for depositing
-	function isAbleToDeposit(string calldata pocketId, address owner)
-		external
-		view
-		returns (bool)
-	{
+	function isAbleToDeposit(
+		string calldata pocketId,
+		address owner
+	) external view returns (bool) {
 		return (pockets[pocketId].owner == owner &&
 			pockets[pocketId].status != Types.PocketStatus.Closed &&
 			pockets[pocketId].status != Types.PocketStatus.Withdrawn);
 	}
 
 	/// @notice Check whether a pocket is available for depositing
-	function isAbleToUpdate(string calldata pocketId, address owner)
-		external
-		view
-		returns (bool)
-	{
+	function isAbleToUpdate(
+		string calldata pocketId,
+		address owner
+	) external view returns (bool) {
 		return (pockets[pocketId].owner == owner &&
 			pockets[pocketId].status != Types.PocketStatus.Closed &&
 			pockets[pocketId].status != Types.PocketStatus.Withdrawn);
 	}
 
 	/// @notice Check whether a pocket is available to close
-	function isAbleToClose(string calldata pocketId, address owner)
-		external
-		view
-		returns (bool)
-	{
+	function isAbleToClose(
+		string calldata pocketId,
+		address owner
+	) external view returns (bool) {
 		return (pockets[pocketId].owner == owner &&
 			pockets[pocketId].status != Types.PocketStatus.Closed &&
 			pockets[pocketId].status != Types.PocketStatus.Withdrawn);
 	}
 
 	/// @notice Check whether a pocket is available to withdraw
-	function isAbleToWithdraw(string calldata pocketId, address owner)
-		external
-		view
-		returns (bool)
-	{
+	function isAbleToWithdraw(
+		string calldata pocketId,
+		address owner
+	) external view returns (bool) {
 		return (pockets[pocketId].owner == owner &&
 			pockets[pocketId].status == Types.PocketStatus.Closed);
 	}
 
 	/// @notice Check whether a pocket is available to restart
-	function isAbleToRestart(string calldata pocketId, address owner)
-		external
-		view
-		returns (bool)
-	{
+	function isAbleToRestart(
+		string calldata pocketId,
+		address owner
+	) external view returns (bool) {
 		return (pockets[pocketId].owner == owner &&
 			pockets[pocketId].status == Types.PocketStatus.Paused);
 	}
 
 	/// @notice Check whether a pocket is available to pause
-	function isAbleToPause(string calldata pocketId, address owner)
-		external
-		view
-		returns (bool)
-	{
+	function isAbleToPause(
+		string calldata pocketId,
+		address owner
+	) external view returns (bool) {
 		return (pockets[pocketId].owner == owner &&
 			pockets[pocketId].status == Types.PocketStatus.Active);
 	}
 
 	/// @notice Check whether a pocket is ready to swap
-	function isReadyToSwap(string calldata pocketId)
-		external
-		view
-		returns (bool)
-	{
+	function isReadyToSwap(
+		string calldata pocketId
+	) external view returns (bool) {
 		return (pockets[pocketId].status == Types.PocketStatus.Active &&
 			pockets[pocketId].baseTokenBalance >=
 			pockets[pocketId].batchVolume &&
@@ -478,22 +463,18 @@ contract PocketRegistry is
 	}
 
 	/// @notice Check whether a pocket is ready to swap
-	function isReadyToClosePosition(string calldata pocketId)
-		external
-		view
-		returns (bool)
-	{
+	function isReadyToClosePosition(
+		string calldata pocketId
+	) external view returns (bool) {
 		return (pockets[pocketId].status != Types.PocketStatus.Withdrawn &&
 			pockets[pocketId].startAt <= block.timestamp &&
 			pockets[pocketId].targetTokenBalance > 0);
 	}
 
 	/// @notice Users initialize their pocket
-	function initializeUserPocket(Params.CreatePocketParams calldata params)
-		external
-		onlyRole(RELAYER)
-		idMustBeAvailable(params.id)
-	{
+	function initializeUserPocket(
+		Params.CreatePocketParams calldata params
+	) external onlyRole(RELAYER) idMustBeAvailable(params.id) {
 		/// @dev Validate input
 		require(
 			params.startAt >= block.timestamp,
@@ -891,10 +872,10 @@ contract PocketRegistry is
 
 	/// @notice Admin can update whitelisted address
 	/// @dev Simply assign value to the mapping
-	function whitelistAddress(address interactiveAddress, bool value)
-		external
-		onlyOwner
-	{
+	function whitelistAddress(
+		address interactiveAddress,
+		bool value
+	) external onlyOwner {
 		allowedInteractiveAddresses[interactiveAddress] = value;
 		emit AddressWhitelisted(msg.sender, interactiveAddress, value);
 	}
@@ -911,11 +892,10 @@ contract PocketRegistry is
 	 *
 	 * May emit a {RoleGranted} event.
 	 */
-	function grantRole(bytes32 role, address account)
-		public
-		override
-		onlyOwner
-	{
+	function grantRole(
+		bytes32 role,
+		address account
+	) public override onlyOwner {
 		_grantRole(role, account);
 	}
 
@@ -930,11 +910,10 @@ contract PocketRegistry is
 	 *
 	 * May emit a {RoleRevoked} event.
 	 */
-	function revokeRole(bytes32 role, address account)
-		public
-		override
-		onlyOwner
-	{
+	function revokeRole(
+		bytes32 role,
+		address account
+	) public override onlyOwner {
 		_revokeRole(role, account);
 	}
 

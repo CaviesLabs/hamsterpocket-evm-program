@@ -1,6 +1,5 @@
 import { ethers, upgrades } from "hardhat";
 import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
-import { BigNumber } from "ethers";
 
 import {
   PocketChef,
@@ -12,7 +11,6 @@ import {
 } from "../typechain-types";
 import { Params } from "../typechain-types/contracts/PocketChef";
 import { expect } from "chai";
-import { ensureTransaction } from "../scripts/pocket/utils/transaction";
 
 export async function deployFixtures() {
   const [owner, owner2, operator] = await ethers.getSigners();
@@ -22,8 +20,8 @@ export async function deployFixtures() {
    */
   const Multicall3Contract = await ethers.getContractFactory("Multicall3");
   const Multicall3 = (await Multicall3Contract.connect(
-    owner
-  ).deploy()) as Multicall3;
+    owner,
+  ).deploy()) as unknown as Multicall3;
 
   /**
    * @dev Deploy contract
@@ -34,22 +32,21 @@ export async function deployFixtures() {
     [],
     {
       unsafeAllow: ["constructor", "delegatecall"],
-    }
-  )) as PocketChef;
+    },
+  )) as unknown as PocketChef;
 
   /**
    * @dev Deploy contract
    */
-  const PocketRegistryContract = await ethers.getContractFactory(
-    "PocketRegistry"
-  );
+  const PocketRegistryContract =
+    await ethers.getContractFactory("PocketRegistry");
   const Registry = (await upgrades.deployProxy(
     PocketRegistryContract.connect(owner),
     [],
     {
       unsafeAllow: ["constructor"],
-    }
-  )) as PocketRegistry;
+    },
+  )) as unknown as PocketRegistry;
 
   /**
    * @dev Deploy contract
@@ -60,67 +57,67 @@ export async function deployFixtures() {
     [],
     {
       unsafeAllow: ["constructor"],
-    }
-  )) as PocketVault;
+    },
+  )) as unknown as PocketVault;
 
   /**
    * @dev Configure registry
    */
   await Registry.grantRole(
     await Registry.OPERATOR(),
-    "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13" /// OPERATOR
+    "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13", /// OPERATOR
   );
   await Registry.grantRole(
     await Registry.OPERATOR(),
-    operator.address /// OPERATOR
+    operator.address, /// OPERATOR
   );
   await Registry.grantRole(
     await Registry.OPERATOR(),
-    Multicall3.address /// OPERATOR
+    await Multicall3.getAddress(), /// OPERATOR
   );
-  await Registry.grantRole(await Registry.RELAYER(), Chef.address);
-  await Registry.grantRole(await Registry.RELAYER(), Vault.address);
+  await Registry.grantRole(await Registry.RELAYER(), await Chef.getAddress());
+  await Registry.grantRole(await Registry.RELAYER(), await Vault.getAddress());
 
   /**
    * @dev Whitelist addresses
    */
   await Registry.whitelistAddress(
     "0x5300000000000000000000000000000000000004", // WETH
-    true
+    true,
   );
   await Registry.whitelistAddress(
     "0x5868B5394DEcbE28185879Cd6E63Ab7560FFf2D8", // BOX
-    true
+    true,
   );
   await Registry.whitelistAddress(
     "0xD9692f1748aFEe00FACE2da35242417dd05a8615", // GHO
-    true
+    true,
   );
   await Registry.whitelistAddress(
     "0x9c53Fc766dC0447dd15B48647e83Ca8621Ae3493", // POCKET
-    true
+    true,
   );
   await Registry.whitelistAddress(
     "0x59a662Ed724F19AD019307126CbEBdcF4b57d6B1", // router v3
-    true
+    true,
   );
   await Registry.whitelistAddress(
     "0xF4EE7c4bDd43F6b5E509204B375E9512e4110C15", // router v2
-    true
+    true,
   );
 
   /**
    * @dev Linking components
    */
-  await Vault.setRegistry(Registry.address);
+  await Vault.setRegistry(await Registry.getAddress());
   await Vault.setQuoter(
     "0x59a662Ed724F19AD019307126CbEBdcF4b57d6B1",
-    "0x805488DaA81c1b9e7C5cE3f1DCeA28F21448EC6A"
+    "0x805488DaA81c1b9e7C5cE3f1DCeA28F21448EC6A",
   );
   await Vault.initEtherman("0x5300000000000000000000000000000000000004");
 
-  await Chef.setRegistry(Registry.address);
-  await Chef.setVault(Vault.address);
+  await Chef.setRegistry(await Registry.getAddress());
+  await Chef.setVault(await Vault.getAddress());
 
   /**
    * @dev return
@@ -159,14 +156,14 @@ describe("[scroll_sepolia]", function () {
       ammRouterVersion: "2",
       targetTokenAddress: fixtures.GHO,
       startAt: parseInt(
-        (new Date().getTime() / 1000 + 1000).toString()
+        (new Date().getTime() / 1000 + 1000).toString(),
       ).toString(),
-      batchVolume: ethers.utils.parseEther("0.000001"),
+      batchVolume: ethers.parseEther("0.000001"),
       stopConditions: [
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 3600).toString()
+            (new Date().getTime() / 1000 + 3600).toString(),
           ).toString(),
         },
       ],
@@ -199,30 +196,30 @@ describe("[scroll_sepolia]", function () {
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 5000).toString()
+            (new Date().getTime() / 1000 + 5000).toString(),
           ).toString(),
         },
         {
           operator: "1",
-          value: BigNumber.from("1"),
+          value: BigInt("1"),
         },
         {
           operator: "2",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
         {
           operator: "3",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
       ],
     };
 
     await Chef.connect(owner).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 2000).toString())
+      parseInt((new Date().getTime() / 1000 + 2000).toString()),
     );
 
     await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
@@ -238,7 +235,7 @@ describe("[scroll_sepolia]", function () {
     const data = {
       ...toBeCreatedPocketData,
       startAt: parseInt(
-        (new Date().getTime() / 1000 + 2500).toString()
+        (new Date().getTime() / 1000 + 2500).toString(),
       ).toString(),
       ammRouterVersion: "2",
       ammRouterAddress: RouterAddress,
@@ -246,30 +243,30 @@ describe("[scroll_sepolia]", function () {
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 5000).toString()
+            (new Date().getTime() / 1000 + 5000).toString(),
           ).toString(),
         },
         {
           operator: "1",
-          value: BigNumber.from("1"),
+          value: BigInt("1"),
         },
         {
           operator: "2",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
         {
           operator: "3",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
       ],
     };
 
     await Chef.connect(owner).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 6000).toString())
+      parseInt((new Date().getTime() / 1000 + 6000).toString()),
     );
 
     await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
@@ -281,12 +278,12 @@ describe("[scroll_sepolia]", function () {
 
   it("[quoter] should: BOX/WETH on RouterV3 should work properly", async () => {
     const { Vault, WETH, BOX, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       WETH,
       BOX,
       RouterAddress,
       toBeCreatedPocketData.batchVolume,
-      3000
+      3000,
     );
 
     expect(amountIn).eq(toBeCreatedPocketData.batchVolume);
@@ -296,12 +293,12 @@ describe("[scroll_sepolia]", function () {
 
   it("[quoter] should: POCKET/WETH on RouterV3 should work properly", async () => {
     const { Vault, WETH, POCKET, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       WETH,
       POCKET,
       RouterAddress,
       toBeCreatedPocketData.batchVolume,
-      3000
+      3000,
     );
 
     expect(amountIn).eq(toBeCreatedPocketData.batchVolume);
@@ -310,12 +307,12 @@ describe("[scroll_sepolia]", function () {
   });
   it("[quoter] should: GHO/WETH on RouterV3 should work properly", async () => {
     const { Vault, WETH, GHO, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       WETH,
       GHO,
       RouterAddress,
       toBeCreatedPocketData.batchVolume,
-      3000
+      3000,
     );
 
     expect(amountIn).eq(toBeCreatedPocketData.batchVolume);
@@ -335,11 +332,11 @@ describe("[scroll_sepolia]", function () {
 
     await owner.sendTransaction({
       to: "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13",
-      value: ethers.constants.WeiPerEther.mul(10),
+      value: ethers.WeiPerEther * BigInt(10),
     });
 
     const signer = await ethers.getImpersonatedSigner(
-      "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13"
+      "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13",
     );
 
     /**
@@ -352,18 +349,18 @@ describe("[scroll_sepolia]", function () {
      */
     const Registry = PocketRegistry__factory.connect(
       Addresses.PocketRegistry,
-      signer
+      signer,
     );
 
     expect(
       await Registry.allowedInteractiveAddresses(
-        toBeCreatedPocketData.ammRouterAddress
-      )
+        toBeCreatedPocketData.ammRouterAddress,
+      ),
     ).eq(true);
     expect(
       await Registry.allowedInteractiveAddresses(
-        toBeCreatedPocketData.targetTokenAddress
-      )
+        toBeCreatedPocketData.targetTokenAddress,
+      ),
     ).eq(true);
 
     /**
@@ -373,36 +370,36 @@ describe("[scroll_sepolia]", function () {
       ...toBeCreatedPocketData,
       owner: signer.address,
       startAt: parseInt(
-        (new Date().getTime() / 1000 + 6500).toString()
+        (new Date().getTime() / 1000 + 6500).toString(),
       ).toString(),
       stopConditions: [
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 6000).toString()
+            (new Date().getTime() / 1000 + 6000).toString(),
           ).toString(),
         },
         {
           operator: "1",
-          value: BigNumber.from("1"),
+          value: BigInt("1"),
         },
         {
           operator: "2",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
         {
           operator: "3",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
       ],
     };
 
     await Chef.connect(signer).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 7000).toString())
+      parseInt((new Date().getTime() / 1000 + 7000).toString()),
     );
 
     await Chef.connect(signer).tryMakingDCASwap(data.id, 3000, 0);

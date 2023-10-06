@@ -21,29 +21,28 @@ async function main() {
   const Chef = (await upgrades.upgradeProxy(
     Addresses.PocketChef,
     PocketChefContract,
-    { unsafeAllow: ["delegatecall"] }
-  )) as PocketChef;
-  console.log("upgraded Chef contract at ", Chef.address);
+    { unsafeAllow: ["delegatecall"] },
+  )) as unknown as PocketChef;
+  console.log("upgraded Chef contract at ", await Chef.getAddress());
 
   /**
    * @dev Deploy contract
    */
-  const PocketRegistryContract = await ethers.getContractFactory(
-    "PocketRegistry"
-  );
+  const PocketRegistryContract =
+    await ethers.getContractFactory("PocketRegistry");
   try {
     await upgrades.forceImport(
       Addresses.PocketRegistry,
-      PocketRegistryContract
+      PocketRegistryContract,
     );
   } catch {
     console.log("skipped warning");
   }
   const Registry = (await upgrades.upgradeProxy(
     Addresses.PocketRegistry,
-    PocketRegistryContract
-  )) as PocketRegistry;
-  console.log("upgraded Registry contract at ", Registry.address);
+    PocketRegistryContract,
+  )) as unknown as PocketRegistry;
+  console.log("upgraded Registry contract at ", await Registry.getAddress());
 
   /**
    * @dev Deploy contract
@@ -56,9 +55,9 @@ async function main() {
   }
   const Vault = (await upgrades.upgradeProxy(
     Addresses.PocketVault,
-    PocketVaultContract
-  )) as PocketVault;
-  console.log("upgraded Vault contract at ", Vault.address);
+    PocketVaultContract,
+  )) as unknown as PocketVault;
+  console.log("upgraded Vault contract at ", await Vault.getAddress());
 }
 
 // We recommend this pattern to be able to use async/await everywhere

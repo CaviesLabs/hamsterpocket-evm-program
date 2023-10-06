@@ -13,10 +13,10 @@ contract Etherman is Ownable {
 	}
 
 	/// @notice Unwrap WBNB for owner
-	function unwrapWETH(uint256 amount, address payable target)
-		external
-		onlyOwner
-	{
+	function unwrapWETH(
+		uint256 amount,
+		address payable target
+	) external onlyOwner {
 		/// @dev Deposit ERC-20 of WETH
 		IERC20(WETH).transferFrom(msg.sender, address(this), amount);
 

@@ -4,21 +4,23 @@ export class UtilsProvider {
    * @param handler
    * @param exception
    */
-  public overrideErrorWrap<T>(
+  public async overrideErrorWrap<T, E extends Error>(
     handler: () => Promise<T> | T,
     exception: {
-      exceptionClass: any;
+      exceptionClass: E;
       message?: string;
-    }
+    },
   ): Promise<T> {
     /**
      * Do the magic with a simple catch
      */
-    return Promise.resolve(handler() as Promise<T>).catch(async (e) => {
-      throw new exception.exceptionClass(
-        `${exception.message || ""} - ${e.message}`
+    try {
+      return await Promise.resolve(handler() as Promise<T>);
+    } catch (e) {
+      throw new (exception as any).exceptionClass(
+        `${exception.message || ""} - ${(e as any).message}`,
       );
-    });
+    }
   }
   /**
    * The function to provide interval operation with setTimeout behind the scene.
@@ -63,7 +65,7 @@ export class UtilsProvider {
    */
   public withTimeout<Result>(
     handler: () => Result | Promise<Result>,
-    msec: number
+    msec: number,
   ): Promise<Result | null> {
     return new Promise(async (resolve, reject) => {
       /**
@@ -81,7 +83,7 @@ export class UtilsProvider {
          */
         if (result === randomizedValue) {
           console.log(
-            `Process exceeded ${msec} ms and returned null. Process: ${handler}`
+            `Process exceeded ${msec} ms and returned null. Process: ${handler}`,
           );
           return resolve(null);
         }
@@ -113,7 +115,7 @@ export class UtilsProvider {
   public makeWalletAddressShorter(walletAddress: string) {
     return `${walletAddress?.substring(0, 5)}...${walletAddress?.substring(
       walletAddress.length - 3,
-      walletAddress.length
+      walletAddress.length,
     )}`;
   }
 

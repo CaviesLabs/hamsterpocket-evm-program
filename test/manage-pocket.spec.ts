@@ -1,7 +1,5 @@
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { BigNumber } from "ethers";
-
 import { expect } from "chai";
 
 import { deployFixtures } from "./fixtures";
@@ -17,14 +15,14 @@ describe("[manage_pocket]", async function () {
     toBeUpdatedPocketData = {
       id: "randomId",
       startAt: parseInt(
-        (new Date().getTime() / 1000 + 80000).toString()
+        (new Date().getTime() / 1000 + 80000).toString(),
       ).toString(),
-      batchVolume: ethers.constants.WeiPerEther.div(BigNumber.from("100")), // 0.1 BNB per batch
+      batchVolume: ethers.WeiPerEther / BigInt("100"), // 0.1 BNB per batch
       stopConditions: [
         {
           operator: "1",
           value: parseInt(
-            (new Date().getTime() / 1000 + 90000).toString()
+            (new Date().getTime() / 1000 + 90000).toString(),
           ).toString(),
         },
       ],
@@ -52,14 +50,14 @@ describe("[manage_pocket]", async function () {
       targetTokenAddress: fixtures.BTCBAddress,
       ammRouterVersion: 0,
       startAt: parseInt(
-        (new Date().getTime() / 1000 + 30000).toString()
+        (new Date().getTime() / 1000 + 30000).toString(),
       ).toString(),
-      batchVolume: ethers.constants.WeiPerEther.div(BigNumber.from("10")), // 0.1 BNB per batch
+      batchVolume: ethers.WeiPerEther / BigInt("10"), // 0.1 BNB per batch
       stopConditions: [
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 60000).toString()
+            (new Date().getTime() / 1000 + 60000).toString(),
           ).toString(),
         },
       ],
@@ -84,13 +82,14 @@ describe("[manage_pocket]", async function () {
     const pocketData = toBeCreatedPocketData;
     const tx = await fixtures.Chef.createPocket(pocketData);
     const txReceipt = await tx.wait();
+    expect(!!txReceipt).eq(true);
 
-    const eventLogs = txReceipt.logs.map((elm) => {
+    const eventLogs = (txReceipt as any).logs.map((elm: any) => {
       return fixtures.Registry.interface.parseLog(elm);
     });
     const createdPocket = await fixtures.Registry.pockets(pocketData.id);
     const stopConditions = await fixtures.Registry.getStopConditionsOf(
-      pocketData.id
+      pocketData.id,
     );
 
     expect(createdPocket.id).eq(pocketData.id);
@@ -99,40 +98,40 @@ describe("[manage_pocket]", async function () {
     expect(createdPocket.baseTokenAddress).eq(pocketData.baseTokenAddress);
     expect(createdPocket.targetTokenAddress).eq(pocketData.targetTokenAddress);
     expect(createdPocket.startAt.toString()).eq(pocketData.startAt.toString());
-    expect(createdPocket.batchVolume.eq(await pocketData.batchVolume)).eq(true);
+    expect(createdPocket.batchVolume === pocketData.batchVolume).eq(true);
     expect(createdPocket.frequency.toString()).eq(
-      pocketData.frequency.toString()
+      pocketData.frequency.toString(),
     );
 
     expect(createdPocket.openingPositionCondition.value0.toString()).eq(
-      pocketData.openingPositionCondition.value0
+      pocketData.openingPositionCondition.value0,
     );
     expect(createdPocket.openingPositionCondition.value1.toString()).eq(
-      pocketData.openingPositionCondition.value1
+      pocketData.openingPositionCondition.value1,
     );
     expect(createdPocket.openingPositionCondition.operator.toString()).eq(
-      pocketData.openingPositionCondition.operator
+      pocketData.openingPositionCondition.operator,
     );
 
     expect(createdPocket.takeProfitCondition.stopType.toString()).eq(
-      pocketData.takeProfitCondition.stopType
+      pocketData.takeProfitCondition.stopType,
     );
     expect(createdPocket.takeProfitCondition.value.toString()).eq(
-      pocketData.takeProfitCondition.value
+      pocketData.takeProfitCondition.value,
     );
 
     expect(createdPocket.stopLossCondition.stopType.toString()).eq(
-      pocketData.stopLossCondition.stopType
+      pocketData.stopLossCondition.stopType,
     );
     expect(createdPocket.stopLossCondition.value.toString()).eq(
-      pocketData.stopLossCondition.value
+      pocketData.stopLossCondition.value,
     );
 
     expect(stopConditions.length).eq(pocketData.stopConditions.length);
     stopConditions.map((cond, index) => {
       expect(cond.value.toString()).eq(pocketData.stopConditions[index].value);
       expect(cond.operator.toString()).eq(
-        pocketData.stopConditions[index].operator
+        pocketData.stopConditions[index].operator,
       );
     });
 
@@ -153,26 +152,31 @@ describe("[manage_pocket]", async function () {
     expect(pocket[5]).eq(toBeCreatedPocketData.batchVolume);
     expect(pocket[6]).eq(toBeCreatedPocketData.frequency);
     expect(pocket[7]).eq(toBeCreatedPocketData.startAt);
-    expect(pocket[8].operator).eq(BigNumber.from("0"));
-    expect(pocket[9].stopType).eq(BigNumber.from("0"));
-    expect(pocket[10].stopType).eq(BigNumber.from("0"));
+    expect(pocket[8].operator).eq(BigInt("0"));
+    expect(pocket[9].stopType).eq(BigInt("0"));
+    expect(pocket[10].stopType).eq(BigInt("0"));
   });
 
   it("[create_pocket] should: cannot create with a duplicated id", async () => {
     await expect(
-      fixtures.Chef.createPocket(toBeCreatedPocketData)
+      fixtures.Chef.createPocket(toBeCreatedPocketData),
     ).revertedWith("ID: the id is not unique");
   });
 
   it("[update_pocket] should: owner updates pocket will fail if owner provides invalid id", async () => {
     await expect(
-      fixtures.Chef.updatePocket({ ...toBeUpdatedPocketData, id: "invalid-id" })
+      fixtures.Chef.updatePocket({
+        ...toBeUpdatedPocketData,
+        id: "invalid-id",
+      }),
     ).revertedWith("Operation error: the pocket is not able to update");
   });
 
   it("[update_pocket] should: non-owner updates pocket will fail", async () => {
     await expect(
-      fixtures.Chef.connect(fixtures.owner2).updatePocket(toBeUpdatedPocketData)
+      fixtures.Chef.connect(fixtures.owner2).updatePocket(
+        toBeUpdatedPocketData,
+      ),
     ).revertedWith("Operation error: the pocket is not able to update");
   });
 
@@ -180,51 +184,52 @@ describe("[manage_pocket]", async function () {
     const pocketData = toBeUpdatedPocketData;
     const tx = await fixtures.Chef.updatePocket(pocketData);
     const txReceipt = await tx.wait();
+    expect(!!txReceipt).eq(true);
 
-    const eventLogs = txReceipt.logs.map((elm) => {
+    const eventLogs = (txReceipt as any).logs.map((elm: any) => {
       return fixtures.Registry.interface.parseLog(elm);
     });
     const updatedPocket = await fixtures.Registry.pockets(pocketData.id);
     const stopConditions = await fixtures.Registry.getStopConditionsOf(
-      pocketData.id
+      pocketData.id,
     );
 
     expect(updatedPocket.id).eq(pocketData.id);
     expect(updatedPocket.startAt.toString()).eq(pocketData.startAt.toString());
-    expect(updatedPocket.batchVolume.eq(await pocketData.batchVolume)).eq(true);
+    expect(updatedPocket.batchVolume === pocketData.batchVolume).eq(true);
     expect(updatedPocket.frequency.toString()).eq(
-      pocketData.frequency.toString()
+      pocketData.frequency.toString(),
     );
 
     expect(updatedPocket.openingPositionCondition.value0.toString()).eq(
-      pocketData.openingPositionCondition.value0
+      pocketData.openingPositionCondition.value0,
     );
     expect(updatedPocket.openingPositionCondition.value1.toString()).eq(
-      pocketData.openingPositionCondition.value1
+      pocketData.openingPositionCondition.value1,
     );
     expect(updatedPocket.openingPositionCondition.operator.toString()).eq(
-      pocketData.openingPositionCondition.operator
+      pocketData.openingPositionCondition.operator,
     );
 
     expect(updatedPocket.takeProfitCondition.stopType.toString()).eq(
-      pocketData.takeProfitCondition.stopType
+      pocketData.takeProfitCondition.stopType,
     );
     expect(updatedPocket.takeProfitCondition.value.toString()).eq(
-      pocketData.takeProfitCondition.value
+      pocketData.takeProfitCondition.value,
     );
 
     expect(updatedPocket.stopLossCondition.stopType.toString()).eq(
-      pocketData.stopLossCondition.stopType
+      pocketData.stopLossCondition.stopType,
     );
     expect(updatedPocket.stopLossCondition.value.toString()).eq(
-      pocketData.stopLossCondition.value
+      pocketData.stopLossCondition.value,
     );
 
     expect(stopConditions.length).eq(pocketData.stopConditions.length);
     stopConditions.map((cond, index) => {
       expect(cond.value.toString()).eq(pocketData.stopConditions[index].value);
       expect(cond.operator.toString()).eq(
-        pocketData.stopConditions[index].operator
+        pocketData.stopConditions[index].operator,
       );
     });
 
@@ -235,20 +240,20 @@ describe("[manage_pocket]", async function () {
   it("[update_pocket_status] should: non-owner will fail to update pocket status", async () => {
     await expect(
       fixtures.Chef.connect(fixtures.owner2).pausePocket(
-        toBeUpdatedPocketData.id
-      )
+        toBeUpdatedPocketData.id,
+      ),
     ).revertedWith("Operation error: cannot pause pocket");
 
     await expect(
       fixtures.Chef.connect(fixtures.owner2).closePocket(
-        toBeUpdatedPocketData.id
-      )
+        toBeUpdatedPocketData.id,
+      ),
     ).revertedWith("Operation error: cannot close pocket");
 
     await expect(
       fixtures.Chef.connect(fixtures.owner2).restartPocket(
-        toBeUpdatedPocketData.id
-      )
+        toBeUpdatedPocketData.id,
+      ),
     ).revertedWith("Operation error: cannot restart pocket");
   });
 
@@ -258,11 +263,11 @@ describe("[manage_pocket]", async function () {
     let txReceipt = await tx.wait();
 
     const pausedPocket = await fixtures.Registry.pockets(
-      toBeUpdatedPocketData.id
+      toBeUpdatedPocketData.id,
     );
     expect(pausedPocket.status.toString()).eq("2"); // already paused
 
-    let eventLogs = txReceipt.logs.map((elm) => {
+    let eventLogs = (txReceipt as any).logs.map((elm: any) => {
       return fixtures.Registry.interface.parseLog(elm);
     });
     expect(eventLogs.length).eq(1);
@@ -274,11 +279,11 @@ describe("[manage_pocket]", async function () {
     txReceipt = await tx.wait();
 
     const restartedPocket = await fixtures.Registry.pockets(
-      toBeUpdatedPocketData.id
+      toBeUpdatedPocketData.id,
     );
     expect(restartedPocket.status.toString()).eq("1"); // already activated
 
-    eventLogs = txReceipt.logs.map((elm) => {
+    eventLogs = (txReceipt as any).logs.map((elm: any) => {
       return fixtures.Registry.interface.parseLog(elm);
     });
     expect(eventLogs.length).eq(1);
@@ -290,11 +295,11 @@ describe("[manage_pocket]", async function () {
     txReceipt = await tx.wait();
 
     const closedPocket = await fixtures.Registry.pockets(
-      toBeUpdatedPocketData.id
+      toBeUpdatedPocketData.id,
     );
     expect(closedPocket.status.toString()).eq("3"); // already closed
 
-    eventLogs = txReceipt.logs.map((elm) => {
+    eventLogs = (txReceipt as any).logs.map((elm: any) => {
       return fixtures.Registry.interface.parseLog(elm);
     });
     expect(eventLogs.length).eq(1);
@@ -305,20 +310,20 @@ describe("[manage_pocket]", async function () {
   it("[update_pocket_status] should: owner will fail to update pocket status if it's not available", async () => {
     await expect(
       fixtures.Chef.connect(fixtures.owner).pausePocket(
-        toBeUpdatedPocketData.id
-      )
+        toBeUpdatedPocketData.id,
+      ),
     ).revertedWith("Operation error: cannot pause pocket");
 
     await expect(
       fixtures.Chef.connect(fixtures.owner).closePocket(
-        toBeUpdatedPocketData.id
-      )
+        toBeUpdatedPocketData.id,
+      ),
     ).revertedWith("Operation error: cannot close pocket");
 
     await expect(
       fixtures.Chef.connect(fixtures.owner).restartPocket(
-        toBeUpdatedPocketData.id
-      )
+        toBeUpdatedPocketData.id,
+      ),
     ).revertedWith("Operation error: cannot restart pocket");
   });
 });

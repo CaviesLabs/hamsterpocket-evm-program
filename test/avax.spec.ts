@@ -1,7 +1,5 @@
 import { ethers, upgrades } from "hardhat";
 import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
-import { BigNumber } from "ethers";
-
 import {
   PocketChef,
   PocketVault,
@@ -22,23 +20,23 @@ export async function deployFixtures() {
    */
   const Multicall3Contract = await ethers.getContractFactory("Multicall3");
   const Multicall3 = (await Multicall3Contract.connect(
-    owner
-  ).deploy()) as Multicall3;
+    owner,
+  ).deploy()) as unknown as unknown as Multicall3;
 
   /**
    * @dev Initializes mocked erc contracts
    */
   const MockedERC20Contract = await ethers.getContractFactory("MockedERC20");
   const MockedERC20 = (await MockedERC20Contract.connect(
-    owner
-  ).deploy()) as MockedERC20;
+    owner,
+  ).deploy()) as unknown as MockedERC20;
 
   /**
    * @dev Funding erc20
    */
   await MockedERC20.connect(owner).transfer(
     owner2.address,
-    ethers.BigNumber.from(ethers.constants.WeiPerEther).mul(20)
+    BigInt(ethers.WeiPerEther) * BigInt(20),
   );
 
   /**
@@ -50,22 +48,21 @@ export async function deployFixtures() {
     [],
     {
       unsafeAllow: ["constructor", "delegatecall"],
-    }
-  )) as PocketChef;
+    },
+  )) as unknown as PocketChef;
 
   /**
    * @dev Deploy contract
    */
-  const PocketRegistryContract = await ethers.getContractFactory(
-    "PocketRegistry"
-  );
+  const PocketRegistryContract =
+    await ethers.getContractFactory("PocketRegistry");
   const Registry = (await upgrades.deployProxy(
     PocketRegistryContract.connect(owner),
     [],
     {
       unsafeAllow: ["constructor"],
-    }
-  )) as PocketRegistry;
+    },
+  )) as unknown as PocketRegistry;
 
   /**
    * @dev Deploy contract
@@ -76,23 +73,23 @@ export async function deployFixtures() {
     [],
     {
       unsafeAllow: ["constructor"],
-    }
-  )) as PocketVault;
+    },
+  )) as unknown as PocketVault;
 
   /**
    * @dev Configure registry
    */
   await Registry.connect(owner).grantRole(
     await Registry.OPERATOR(),
-    operator.address
+    operator.address,
   );
   await Registry.connect(owner).grantRole(
     await Registry.RELAYER(),
-    Chef.address
+    await Chef.getAddress(),
   );
   await Registry.connect(owner).grantRole(
     await Registry.RELAYER(),
-    Vault.address
+    await Vault.getAddress(),
   );
 
   /**
@@ -100,29 +97,29 @@ export async function deployFixtures() {
    */
   await Registry.whitelistAddress(
     "0x60aE616a2155Ee3d9A68541Ba4544862310933d4", // V2 Router
-    true
+    true,
   );
   await Registry.whitelistAddress(
     "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7", // WAVAX
-    true
+    true,
   );
   await Registry.whitelistAddress(
     "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E", // USDC
-    true
+    true,
   );
   await Registry.whitelistAddress(
     "0x152b9d0FdC40C096757F570A51E494bd4b943E50", // BTCB
-    true
+    true,
   );
 
   /**
    * @dev Linking components
    */
-  await Vault.connect(owner).setRegistry(Registry.address);
+  await Vault.connect(owner).setRegistry(await Registry.getAddress());
   await Vault.initEtherman("0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7");
 
-  await Chef.connect(owner).setRegistry(Registry.address);
-  await Chef.connect(owner).setVault(Vault.address);
+  await Chef.connect(owner).setRegistry(await Registry.getAddress());
+  await Chef.connect(owner).setVault(await Vault.getAddress());
 
   /**
    * @dev return
@@ -160,14 +157,14 @@ describe("[avaxc]", function () {
       ammRouterVersion: "1",
       targetTokenAddress: fixtures.USDC,
       startAt: parseInt(
-        (new Date().getTime() / 1000 + 1).toString()
+        (new Date().getTime() / 1000 + 1).toString(),
       ).toString(),
-      batchVolume: ethers.constants.WeiPerEther.div(BigNumber.from("10")), // 0.1 BNB per batch
+      batchVolume: ethers.WeiPerEther / BigInt("10"), // 0.1 BNB per batch
       stopConditions: [
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 3600).toString()
+            (new Date().getTime() / 1000 + 3600).toString(),
           ).toString(),
         },
       ],
@@ -189,7 +186,7 @@ describe("[avaxc]", function () {
   });
 
   it("[auto_investment] should: should work with traderjoe router v2", async function () {
-    const { Time, Chef, Registry, owner, operator, RouterAddress } = fixtures;
+    const { Time, Chef, Registry, owner, operator } = fixtures;
 
     const data = {
       ...toBeCreatedPocketData,
@@ -197,30 +194,30 @@ describe("[avaxc]", function () {
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 60010).toString()
+            (new Date().getTime() / 1000 + 60010).toString(),
           ).toString(),
         },
         {
           operator: "1",
-          value: BigNumber.from("1"),
+          value: BigInt("1"),
         },
         {
           operator: "2",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
         {
           operator: "3",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
       ],
     };
 
     await Chef.connect(owner).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 70000).toString())
+      parseInt((new Date().getTime() / 1000 + 70000).toString()),
     );
 
     await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
@@ -232,30 +229,30 @@ describe("[avaxc]", function () {
 
   it("[quoter] should: USDC/WAVAX on RouterV2 should work properly", async () => {
     const { Vault, WAVAX, USDC, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       USDC,
       WAVAX,
       RouterAddress,
-      ethers.constants.WeiPerEther,
-      0
+      ethers.WeiPerEther,
+      0,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: BTCB/WAVAX on RouterV2 should work properly", async () => {
     const { Vault, WAVAX, BTCB, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       WAVAX,
       BTCB,
       RouterAddress,
-      ethers.constants.WeiPerEther,
-      0
+      ethers.WeiPerEther,
+      0,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });
@@ -271,7 +268,7 @@ describe("[avaxc]", function () {
     };
 
     const signer = await ethers.getImpersonatedSigner(
-      "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13"
+      "0x95C7022924A0379FeE2b950DdaE0195F6bC30E13",
     );
 
     /**
@@ -284,7 +281,7 @@ describe("[avaxc]", function () {
      */
     const Registry = PocketRegistry__factory.connect(
       Addresses.PocketRegistry,
-      signer
+      signer,
     );
 
     /**
@@ -294,36 +291,36 @@ describe("[avaxc]", function () {
       ...toBeCreatedPocketData,
       owner: signer.address,
       startAt: parseInt(
-        (new Date().getTime() / 1000 + 70000 + 20).toString()
+        (new Date().getTime() / 1000 + 70000 + 20).toString(),
       ).toString(),
       stopConditions: [
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 70000 + 3000).toString()
+            (new Date().getTime() / 1000 + 70000 + 3000).toString(),
           ).toString(),
         },
         {
           operator: "1",
-          value: BigNumber.from("1"),
+          value: BigInt("1"),
         },
         {
           operator: "2",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
         {
           operator: "3",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
       ],
     };
 
     await Chef.connect(signer).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 70000 + 100).toString())
+      parseInt((new Date().getTime() / 1000 + 70000 + 100).toString()),
     );
 
     await Chef.connect(signer).tryMakingDCASwap(data.id, 3000, 0);

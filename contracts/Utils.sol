@@ -5,11 +5,10 @@ library Utils {
 	/**
 	 * @dev Utility function
 	 */
-	function areStringsEqual(string calldata s1, string calldata s2)
-		external
-		pure
-		returns (bool)
-	{
+	function areStringsEqual(
+		string calldata s1,
+		string calldata s2
+	) external pure returns (bool) {
 		return
 			keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2));
 	}

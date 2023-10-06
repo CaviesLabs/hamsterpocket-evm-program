@@ -20,6 +20,10 @@ module.exports = {
   ],
   "rules": {
     "prettier/prettier": "error",
-    "no-async-promise-executor": "warn"
-  }
+    "no-async-promise-executor": "warn",
+    "@typescript-eslint/no-explicit-any": "warn"
+  },
+  ignorePatterns: [
+    "action.*"
+  ]
 };

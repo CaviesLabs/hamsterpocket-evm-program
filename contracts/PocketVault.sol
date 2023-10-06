@@ -28,9 +28,10 @@ interface UniversalRouter {
 		uint256 deadline
 	) external payable;
 
-	function execute(bytes calldata commands, bytes[] calldata inputs)
-		external
-		payable;
+	function execute(
+		bytes calldata commands,
+		bytes[] calldata inputs
+	) external payable;
 }
 
 interface IPermit2 {
@@ -461,11 +462,9 @@ contract PocketVault is
 	}
 
 	/// @notice withdraw
-	function withdraw(Params.UpdatePocketWithdrawalParams calldata params)
-		external
-		onlyRelayer
-		nonReentrant
-	{
+	function withdraw(
+		Params.UpdatePocketWithdrawalParams calldata params
+	) external onlyRelayer nonReentrant {
 		/// @dev Withdraw tokens
 		(
 			,
@@ -527,11 +526,9 @@ contract PocketVault is
 	}
 
 	/// @notice Deposit
-	function deposit(Params.UpdatePocketDepositParams calldata params)
-		external
-		onlyRelayer
-		nonReentrant
-	{
+	function deposit(
+		Params.UpdatePocketDepositParams calldata params
+	) external onlyRelayer nonReentrant {
 		/// @dev deposit from actor to vault.
 		require(
 			IERC20(params.tokenAddress).transferFrom(
@@ -568,10 +565,10 @@ contract PocketVault is
 	}
 
 	/// @notice Set quoter address
-	function setQuoter(address router, address quoterAddress)
-		external
-		onlyOwner
-	{
+	function setQuoter(
+		address router,
+		address quoterAddress
+	) external onlyOwner {
 		require(
 			registry.allowedInteractiveAddresses(router) == true,
 			"Error: router is not supported"

@@ -13,15 +13,15 @@ describe("[quoter]", async () => {
 
   it("[quoter] should: BTCB/WBNB on RouterV2 should work properly", async () => {
     const { Vault, BTCBAddress, WBNBAddress, PancakeSwapRouterV2 } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       BTCBAddress,
       WBNBAddress,
       PancakeSwapRouterV2,
-      ethers.constants.WeiPerEther,
-      0
+      ethers.WeiPerEther,
+      0,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });
@@ -29,164 +29,164 @@ describe("[quoter]", async () => {
   it("[quoter] should: UNI/WBNB on RouterV2 should work properly", async () => {
     const { Vault, UniswapAddress, WBNBAddress, PancakeSwapRouterV2 } =
       fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       UniswapAddress,
       WBNBAddress,
       PancakeSwapRouterV2,
-      ethers.constants.WeiPerEther,
-      0
+      ethers.WeiPerEther,
+      0,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: ETH/WBNB on RouterV2 should work properly", async () => {
     const { Vault, ETHAddress, WBNBAddress, PancakeSwapRouterV2 } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       ETHAddress,
       WBNBAddress,
       PancakeSwapRouterV2,
-      ethers.constants.WeiPerEther,
-      0
+      ethers.WeiPerEther,
+      0,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: BTCB/WBNB on fee 0.05% should work properly", async () => {
     const { Vault, BTCBAddress, WBNBAddress, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       BTCBAddress,
       WBNBAddress,
       RouterAddress,
-      ethers.constants.WeiPerEther,
-      500
+      ethers.WeiPerEther,
+      500,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });
 
   // it("[quoter] should: UNI/WBNB on fee 0.05% should work", async () => {
   //   const { Vault, UniswapAddress, WBNBAddress } = fixtures;
-  //   const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+  //   const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
   //     UniswapAddress,
   //     WBNBAddress,
   //     toBeCreatedPocketData.ammRouterAddress,
-  //     ethers.constants.WeiPerEther,
+  //     ethers.WeiPerEther,
   //     500
   //   );
   //
-  //   expect(amountIn).eq(ethers.constants.WeiPerEther);
+  //   expect(amountIn).eq(ethers.WeiPerEther);
   //   expect(amountOut).gt(0);
   // });
 
   it("[quoter] should: ETH/WBNB on fee 0.05% should work", async () => {
     const { Vault, ETHAddress, WBNBAddress, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       ETHAddress,
       WBNBAddress,
       RouterAddress,
-      ethers.constants.WeiPerEther,
-      500
+      ethers.WeiPerEther,
+      500,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: BTCB/WBNB on fee 0.3% should work properly", async () => {
     const { Vault, BTCBAddress, WBNBAddress, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       BTCBAddress,
       WBNBAddress,
       RouterAddress,
-      ethers.constants.WeiPerEther,
-      3000
+      ethers.WeiPerEther,
+      3000,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: UNI/WBNB on fee 0.3% should work", async () => {
     const { Vault, UniswapAddress, WBNBAddress, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       UniswapAddress,
       WBNBAddress,
       RouterAddress,
-      ethers.constants.WeiPerEther,
-      3000
+      ethers.WeiPerEther,
+      3000,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: ETH/WBNB on fee 0.3% should work", async () => {
     const { Vault, ETHAddress, WBNBAddress, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       ETHAddress,
       WBNBAddress,
       RouterAddress,
-      ethers.constants.WeiPerEther,
-      3000
+      ethers.WeiPerEther,
+      3000,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });
 
   // it("[quoter] should: BTCB/WBNB on fee 1% should work properly", async () => {
   //   const { Vault, BTCBAddress, WBNBAddress, RouterAddress } = fixtures;
-  //   const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+  //   const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
   //     BTCBAddress,
   //     WBNBAddress,
   //     RouterAddress,
-  //     ethers.constants.WeiPerEther,
+  //     ethers.WeiPerEther,
   //     10000
   //   );
   //
-  //   expect(amountIn).eq(ethers.constants.WeiPerEther);
+  //   expect(amountIn).eq(ethers.WeiPerEther);
   //   expect(amountOut).gt(0);
   //   expect(amountIn).not.eq(amountOut);
   // });
 
   it("[quoter] should: UNI/WBNB on fee 1% should work", async () => {
     const { Vault, UniswapAddress, WBNBAddress, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       UniswapAddress,
       WBNBAddress,
       RouterAddress,
-      ethers.constants.WeiPerEther,
-      10000
+      ethers.WeiPerEther,
+      10000,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });
 
   it("[quoter] should: ETH/WBNB on fee 1% should work", async () => {
     const { Vault, ETHAddress, WBNBAddress, RouterAddress } = fixtures;
-    const [amountIn, amountOut] = await Vault.callStatic.getCurrentQuote(
+    const [amountIn, amountOut] = await Vault.getCurrentQuote.staticCall(
       ETHAddress,
       WBNBAddress,
       RouterAddress,
-      ethers.constants.WeiPerEther,
-      10000
+      ethers.WeiPerEther,
+      10000,
     );
 
-    expect(amountIn).eq(ethers.constants.WeiPerEther);
+    expect(amountIn).eq(ethers.WeiPerEther);
     expect(amountOut).gt(0);
     expect(amountIn).not.eq(amountOut);
   });

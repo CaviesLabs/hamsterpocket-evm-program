@@ -252,19 +252,17 @@ contract PocketChef is
 	}
 
 	/// @dev Deposit and wrap ether
-	function depositEther(string calldata pocketId)
-		external
-		payable
-		nonReentrant
-	{
+	function depositEther(
+		string calldata pocketId
+	) external payable nonReentrant {
 		_depositEther(pocketId);
 	}
 
 	/// @dev Deposit token
-	function depositToken(string calldata pocketId, uint256 amount)
-		external
-		nonReentrant
-	{
+	function depositToken(
+		string calldata pocketId,
+		uint256 amount
+	) external nonReentrant {
 		_depositToken(pocketId, amount);
 	}
 

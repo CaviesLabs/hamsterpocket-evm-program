@@ -7,9 +7,11 @@
         "tabWidth": 4,
         "useTabs": true,
         "singleQuote": false,
-        "bracketSpacing": false,
-        "explicitTypes": "always"
+        "bracketSpacing": false
       }
     }
+  ],
+  "plugins": [
+    "prettier-plugin-solidity"
   ]
 }

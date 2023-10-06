@@ -1,7 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { BigNumber } from "ethers";
 
 import { deployFixtures } from "./fixtures";
 import { Params } from "../typechain-types/contracts/PocketChef";
@@ -22,12 +21,12 @@ describe("[swap]", async function () {
       ammRouterVersion: "0",
       targetTokenAddress: fixtures.BTCBAddress,
       startAt: parseInt((new Date().getTime() / 1000).toString()).toString(),
-      batchVolume: ethers.constants.WeiPerEther.div(BigNumber.from("10")), // 0.1 BNB per batch
+      batchVolume: ethers.WeiPerEther / BigInt("10"), // 0.1 BNB per batch
       stopConditions: [
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 3600).toString()
+            (new Date().getTime() / 1000 + 3600).toString(),
           ).toString(),
         },
       ],
@@ -47,10 +46,10 @@ describe("[swap]", async function () {
       },
     };
 
-    const { Chef, owner, owner2 } = fixtures;
+    const { Chef, owner } = fixtures;
     await Chef.connect(owner).createPocketAndDepositEther(
       toBeCreatedPocketData,
-      { value: ethers.constants.WeiPerEther }
+      { value: ethers.WeiPerEther },
     );
   });
 
@@ -58,27 +57,35 @@ describe("[swap]", async function () {
     const { Chef, owner, owner2 } = fixtures;
 
     await expect(
-      Chef.connect(owner).tryMakingDCASwap(toBeCreatedPocketData.id, 3000, 0)
+      Chef.connect(owner).tryMakingDCASwap(toBeCreatedPocketData.id, 3000, 0),
     ).to.be.revertedWith(
-      "Operation error: only operator is permitted for the operation"
+      "Operation error: only operator is permitted for the operation",
     );
 
     await expect(
-      Chef.connect(owner).tryClosingPosition(toBeCreatedPocketData.id, 3000, 0)
+      Chef.connect(owner).tryClosingPosition(toBeCreatedPocketData.id, 3000, 0),
     ).to.be.revertedWith(
-      "Operation error: only operator is permitted for the operation"
+      "Operation error: only operator is permitted for the operation",
     );
 
     await expect(
-      Chef.connect(owner2).tryClosingPosition(toBeCreatedPocketData.id, 3000, 0)
+      Chef.connect(owner2).tryClosingPosition(
+        toBeCreatedPocketData.id,
+        3000,
+        0,
+      ),
     ).to.be.revertedWith(
-      "Operation error: only operator is permitted for the operation"
+      "Operation error: only operator is permitted for the operation",
     );
 
     await expect(
-      Chef.connect(owner2).tryClosingPosition(toBeCreatedPocketData.id, 3000, 0)
+      Chef.connect(owner2).tryClosingPosition(
+        toBeCreatedPocketData.id,
+        3000,
+        0,
+      ),
     ).to.be.revertedWith(
-      "Operation error: only operator is permitted for the operation"
+      "Operation error: only operator is permitted for the operation",
     );
   });
 
@@ -98,54 +105,45 @@ describe("[swap]", async function () {
      * @dev Increase time to make sure the blocktime is matched
      */
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 100).toString())
+      parseInt((new Date().getTime() / 1000 + 100).toString()),
     );
 
     const WBNB = IERC20__factory.connect(WBNBAddress, owner);
     const BTCB = IERC20__factory.connect(BTCBAddress, owner);
 
     expect(
-      (await WBNB.balanceOf(Vault.address)).eq(ethers.constants.WeiPerEther)
+      (await WBNB.balanceOf(await Vault.getAddress())) === ethers.WeiPerEther,
     ).to.be.true;
-    expect((await BTCB.balanceOf(Vault.address)).eq(ethers.constants.Zero)).to
-      .be.true;
+    expect((await BTCB.balanceOf(await Vault.getAddress())) === 0n).to.be.true;
 
     let pocket = await Registry.pockets(toBeCreatedPocketData.id);
-    expect(pocket.baseTokenBalance).eq(ethers.constants.WeiPerEther);
-    expect(pocket.targetTokenBalance).eq(ethers.constants.Zero);
+    expect(pocket.baseTokenBalance).eq(ethers.WeiPerEther);
+    expect(pocket.targetTokenBalance).eq(0);
 
     await Chef.connect(operator).tryMakingDCASwap(
       toBeCreatedPocketData.id,
       3000,
-      0
+      0,
     );
 
-    expect(await WBNB.balanceOf(Vault.address)).eq(
-      ethers.constants.WeiPerEther.sub(
-        ethers.constants.WeiPerEther.div(BigNumber.from("10"))
-      )
+    expect(await WBNB.balanceOf(await Vault.getAddress())).eq(
+      ethers.WeiPerEther - ethers.WeiPerEther / BigInt("10"),
     );
-    expect(await BTCB.balanceOf(Vault.address)).gt(ethers.constants.Zero);
+    expect(await BTCB.balanceOf(await Vault.getAddress())).gt(0);
 
     pocket = await Registry.pockets(toBeCreatedPocketData.id);
 
     expect(pocket.baseTokenBalance).eq(
-      ethers.constants.WeiPerEther.sub(
-        ethers.constants.WeiPerEther.div(BigNumber.from("10"))
-      )
+      ethers.WeiPerEther - ethers.WeiPerEther / BigInt("10"),
     );
-    expect(pocket.targetTokenBalance).gt(ethers.constants.Zero);
+    expect(pocket.targetTokenBalance).gt(0);
 
-    expect(pocket.totalDepositedBaseAmount).eq(ethers.constants.WeiPerEther);
-    expect(pocket.totalSwappedBaseAmount).eq(
-      ethers.constants.WeiPerEther.div(BigNumber.from("10"))
-    );
-    const btcbVaultBalance = await BTCB.balanceOf(Vault.address);
+    expect(pocket.totalDepositedBaseAmount).eq(ethers.WeiPerEther);
+    expect(pocket.totalSwappedBaseAmount).eq(ethers.WeiPerEther / BigInt("10"));
+    const btcbVaultBalance = await BTCB.balanceOf(await Vault.getAddress());
     expect(pocket.totalReceivedTargetAmount).eq(btcbVaultBalance);
-    expect(pocket.totalClosedPositionInTargetTokenAmount).eq(
-      ethers.constants.Zero
-    );
-    expect(pocket.totalReceivedFundInBaseTokenAmount).eq(ethers.constants.Zero);
+    expect(pocket.totalClosedPositionInTargetTokenAmount).eq(0);
+    expect(pocket.totalReceivedFundInBaseTokenAmount).eq(0);
   });
 
   it("[auto_investment] should: operator can close position of the swap", async () => {
@@ -170,19 +168,19 @@ describe("[swap]", async function () {
       },
       stopLossCondition: {
         stopType: "1",
-        value: ethers.constants.WeiPerEther.mul(1000),
+        value: ethers.WeiPerEther * BigInt(1000),
       },
     };
 
     await Chef.connect(owner).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     /**
      * @dev Increase time to make sure the blocktime is matched
      */
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 36000).toString())
+      parseInt((new Date().getTime() / 1000 + 36000).toString()),
     );
 
     await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
@@ -190,53 +188,43 @@ describe("[swap]", async function () {
     const WBNB = IERC20__factory.connect(WBNBAddress, owner);
     const BTCB = IERC20__factory.connect(BTCBAddress, owner);
 
-    expect(await WBNB.balanceOf(Vault.address)).eq(
-      ethers.constants.WeiPerEther.sub(
-        ethers.constants.WeiPerEther.div(BigNumber.from("10"))
-      ).mul(2)
+    expect(await WBNB.balanceOf(await Vault.getAddress())).eq(
+      (ethers.WeiPerEther - ethers.WeiPerEther / BigInt("10")) * BigInt(2),
     );
-    expect((await BTCB.balanceOf(Vault.address)).gt(ethers.constants.Zero));
+    expect(await BTCB.balanceOf(await Vault.getAddress())).gt(0);
 
     let pocket = await Registry.pockets(data.id);
     expect(pocket.baseTokenBalance).eq(
-      ethers.constants.WeiPerEther.sub(
-        ethers.constants.WeiPerEther.div(BigNumber.from("10"))
-      )
+      ethers.WeiPerEther - ethers.WeiPerEther / BigInt("10"),
     );
-    expect(pocket.targetTokenBalance).gt(ethers.constants.Zero);
+    expect(pocket.targetTokenBalance).gt(0);
 
-    const vaultBalanceBefore = await BTCB.balanceOf(Vault.address);
+    const vaultBalanceBefore = await BTCB.balanceOf(await Vault.getAddress());
     await Chef.connect(operator).tryClosingPosition(data.id, 3000, 0);
 
-    expect(await WBNB.balanceOf(Vault.address)).gt(
-      ethers.constants.WeiPerEther.sub(
-        ethers.constants.WeiPerEther.div(BigNumber.from("10"))
-      ).mul(2)
+    expect(await WBNB.balanceOf(await Vault.getAddress())).gt(
+      ethers.WeiPerEther - (ethers.WeiPerEther / BigInt("10")) * BigInt(2),
     );
-    expect(await BTCB.balanceOf(Vault.address)).lt(vaultBalanceBefore);
+    expect(await BTCB.balanceOf(await Vault.getAddress())).lt(
+      vaultBalanceBefore,
+    );
 
     pocket = await Registry.pockets(data.id);
 
     expect(pocket.baseTokenBalance).gt(
-      ethers.constants.WeiPerEther.sub(
-        ethers.constants.WeiPerEther.div(BigNumber.from("10"))
-      )
+      ethers.WeiPerEther - ethers.WeiPerEther / BigInt("10"),
     );
-    expect(pocket.targetTokenBalance).eq(ethers.constants.Zero);
+    expect(pocket.targetTokenBalance).eq(0);
 
-    expect(pocket.totalDepositedBaseAmount).eq(ethers.constants.WeiPerEther);
-    expect(pocket.totalSwappedBaseAmount).eq(
-      ethers.constants.WeiPerEther.div(BigNumber.from("10"))
-    );
+    expect(pocket.totalDepositedBaseAmount).eq(ethers.WeiPerEther);
+    expect(pocket.totalSwappedBaseAmount).eq(ethers.WeiPerEther / BigInt("10"));
 
-    const btcbVaultBalance = await BTCB.balanceOf(Vault.address);
+    const btcbVaultBalance = await BTCB.balanceOf(await Vault.getAddress());
 
     expect(btcbVaultBalance).lt(vaultBalanceBefore);
-    expect(pocket.totalReceivedTargetAmount).gt(ethers.constants.Zero);
-    expect(pocket.totalClosedPositionInTargetTokenAmount).gt(
-      ethers.constants.Zero
-    );
-    expect(pocket.totalReceivedFundInBaseTokenAmount).gt(ethers.constants.Zero);
+    expect(pocket.totalReceivedTargetAmount).gt(0);
+    expect(pocket.totalClosedPositionInTargetTokenAmount).gt(0);
+    expect(pocket.totalReceivedFundInBaseTokenAmount).gt(0);
 
     /// @dev Pocket has been closed after closing position
     expect(pocket.status).eq(3);
@@ -254,25 +242,25 @@ describe("[swap]", async function () {
       },
       stopLossCondition: {
         stopType: "1",
-        value: ethers.constants.WeiPerEther,
+        value: ethers.WeiPerEther,
       },
       startAt: parseInt((new Date().getTime() / 1000 + 37000).toString()),
     };
 
     await Chef.connect(owner).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 38000).toString())
+      parseInt((new Date().getTime() / 1000 + 38000).toString()),
     );
 
     await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
 
     await expect(
-      Chef.connect(operator).tryClosingPosition(data.id, 3000, 0)
+      Chef.connect(operator).tryClosingPosition(data.id, 3000, 0),
     ).to.be.revertedWith(
-      "Operation error: closing position condition does not reach"
+      "Operation error: closing position condition does not reach",
     );
   });
 
@@ -284,7 +272,7 @@ describe("[swap]", async function () {
       id: "fail-to-close-position-take-profit",
       takeProfitCondition: {
         stopType: "1",
-        value: ethers.constants.WeiPerEther.mul(1000),
+        value: ethers.WeiPerEther * BigInt(1000),
       },
       stopLossCondition: {
         stopType: "0",
@@ -294,19 +282,19 @@ describe("[swap]", async function () {
     };
 
     await Chef.connect(owner).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 45000).toString())
+      parseInt((new Date().getTime() / 1000 + 45000).toString()),
     );
 
     await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
 
     await expect(
-      Chef.connect(operator).tryClosingPosition(data.id, 3000, 0)
+      Chef.connect(operator).tryClosingPosition(data.id, 3000, 0),
     ).to.be.revertedWith(
-      "Operation error: closing position condition does not reach"
+      "Operation error: closing position condition does not reach",
     );
   });
 
@@ -327,7 +315,7 @@ describe("[swap]", async function () {
       id: "should-close-position-successfully",
       takeProfitCondition: {
         stopType: "1",
-        value: ethers.constants.WeiPerEther.mul(1000),
+        value: ethers.WeiPerEther * BigInt(1000),
       },
       stopLossCondition: {
         stopType: "0",
@@ -337,40 +325,46 @@ describe("[swap]", async function () {
     };
 
     await Chef.connect(owner).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 50000).toString())
+      parseInt((new Date().getTime() / 1000 + 50000).toString()),
     );
 
     await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
 
     /// @dev Wont allow non-owner close position if condition does not reach
     await expect(
-      Chef.connect(operator).tryClosingPosition(data.id, 3000, 0)
+      Chef.connect(operator).tryClosingPosition(data.id, 3000, 0),
     ).to.be.revertedWith(
-      "Operation error: closing position condition does not reach"
+      "Operation error: closing position condition does not reach",
     );
 
     /// @dev Wont allow non-owner close position manually
     await expect(
-      Chef.connect(operator).closePosition(data.id, 3000, 0)
+      Chef.connect(operator).closePosition(data.id, 3000, 0),
     ).to.be.revertedWith(
-      "Operation error: only owner is permitted for the operation"
+      "Operation error: only owner is permitted for the operation",
     );
 
     const BTCB = IERC20__factory.connect(BTCBAddress, owner);
     const WBNB = IERC20__factory.connect(WBNBAddress, owner);
 
-    const vaultBalanceBefore = await BTCB.balanceOf(Vault.address);
-    const vaultBNBBalanceBefore = await WBNB.balanceOf(Vault.address);
+    const vaultBalanceBefore = await BTCB.balanceOf(await Vault.getAddress());
+    const vaultBNBBalanceBefore = await WBNB.balanceOf(
+      await Vault.getAddress(),
+    );
 
     await Chef.connect(owner).closePosition(data.id, 3000, 0);
 
     /// @dev meaning that the close position works properly
-    expect(await BTCB.balanceOf(Vault.address)).lt(vaultBalanceBefore);
-    expect(await WBNB.balanceOf(Vault.address)).gt(vaultBNBBalanceBefore);
+    expect(await BTCB.balanceOf(await Vault.getAddress())).lt(
+      vaultBalanceBefore,
+    );
+    expect(await WBNB.balanceOf(await Vault.getAddress())).gt(
+      vaultBNBBalanceBefore,
+    );
 
     /// @dev Pocket has been closed after closing position
     const pocket = await Registry.pockets(data.id);
@@ -388,30 +382,30 @@ describe("[swap]", async function () {
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 50010).toString()
+            (new Date().getTime() / 1000 + 50010).toString(),
           ).toString(),
         },
         {
           operator: "1",
-          value: BigNumber.from("1"),
+          value: BigInt("1"),
         },
         {
           operator: "2",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
         {
           operator: "3",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
       ],
     };
 
     await Chef.connect(owner).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 60000).toString())
+      parseInt((new Date().getTime() / 1000 + 60000).toString()),
     );
 
     await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
@@ -435,30 +429,30 @@ describe("[swap]", async function () {
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 60010).toString()
+            (new Date().getTime() / 1000 + 60010).toString(),
           ).toString(),
         },
         {
           operator: "1",
-          value: BigNumber.from("1"),
+          value: BigInt("1"),
         },
         {
           operator: "2",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
         {
           operator: "3",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
       ],
     };
 
     await Chef.connect(owner).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 70000).toString())
+      parseInt((new Date().getTime() / 1000 + 70000).toString()),
     );
 
     await Chef.connect(operator).tryMakingDCASwap(data.id, 3000, 0);
@@ -482,30 +476,30 @@ describe("[swap]", async function () {
         {
           operator: "0",
           value: parseInt(
-            (new Date().getTime() / 1000 + 70010).toString()
+            (new Date().getTime() / 1000 + 70010).toString(),
           ).toString(),
         },
         {
           operator: "1",
-          value: BigNumber.from("1"),
+          value: BigInt("1"),
         },
         {
           operator: "2",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
         {
           operator: "3",
-          value: ethers.constants.WeiPerEther,
+          value: ethers.WeiPerEther,
         },
       ],
     };
 
     await Chef.connect(owner).createPocketAndDepositEther(data, {
-      value: ethers.constants.WeiPerEther,
+      value: ethers.WeiPerEther,
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 80000).toString())
+      parseInt((new Date().getTime() / 1000 + 80000).toString()),
     );
 
     await Chef.connect(operator).tryMakingDCASwap(data.id, 500, 0);
