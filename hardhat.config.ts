@@ -2,11 +2,11 @@
  * Import libraries
  */
 import dotenv from "dotenv";
-import { HardhatUserConfig } from "hardhat/config";
+import { extendEnvironment, HardhatUserConfig } from "hardhat/config";
+import Web3 from "web3";
 import "@nomicfoundation/hardhat-toolbox";
 import "tsconfig-paths/register";
 import "@openzeppelin/hardhat-upgrades";
-
 /**
  * Config dotenv first
  */
@@ -178,3 +178,16 @@ if (etherscanKey) {
 }
 
 export default config;
+
+extendEnvironment((hre) => {
+  (hre as any).Web3 = Web3;
+  const key = Object.keys(config.networks || {}).find(
+    (key) =>
+      (config.networks || {})[key]?.chainId === hre.network.config.chainId,
+  );
+
+  if (key) {
+    // hre.network.provider is an EIP1193-compatible provider.
+    (hre as any).web3 = new Web3(hre.network.provider);
+  }
+});

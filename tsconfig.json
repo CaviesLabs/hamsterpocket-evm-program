@@ -7,9 +7,11 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "rootDirs": ["./src", "./scripts", "./test"]
+    "rootDirs": ["./src", "./scripts", "./test"],
+    "typeRoots": ["./types"]
   },
   "exclude": ["dist", "node_modules"],
-  "include": ["./test", "./src", "./scripts"],
+  "include": [
+    "types/type.d.ts","./test", "./src", "./scripts"],
   "files": ["./hardhat.config.ts"]
 }
