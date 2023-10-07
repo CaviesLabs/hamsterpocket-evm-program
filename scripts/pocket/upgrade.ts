@@ -4,8 +4,8 @@ import { PocketChef, PocketRegistry, PocketVault } from "../../typechain-types";
 async function main() {
   const Addresses = {
     PocketVault: "0xA78c8Da9e3Bac9B790d109Cf9023B3b6dB72b0E0",
-    PocketRegistry: "0xC3Bc90aAB2471F3031e25fb3097391EAbd9E5D1F",
-    PocketChef: "0x6591D9D02f1699B3C5ac0F396526d09C276b5754",
+    PocketRegistry: "0xf0C82C47B95143e14633A7EA9B5849fE7Ea9F8dA",
+    PocketChef: "0x94eC37b16D48Ca4974d589cEF3F6F5964997F4DF",
     Multicall3: "0x83Cb92492667a8334381c95A02007c8bF0811b89",
     WBNBAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
     UniswapAddress: "0xBf5140A22578168FD562DCcF235E5D43A02ce9B1",

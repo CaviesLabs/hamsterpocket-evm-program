@@ -261,9 +261,9 @@ describe("[avaxc]", function () {
     const { Time } = fixtures;
 
     const Addresses = {
-      PocketVault: "0x76DB16c04F9683288E912e986C3F4EBB52266F1C",
-      PocketRegistry: "0x680702fEa71e65DD79cF2114DbAe6b74F676DCc6",
-      PocketChef: "0x2B7388Cf467d05f3979dDd3eAD8AfD8a0CE0076c",
+      PocketVault: "0x19a6263fA09281B177ad6789D2e2a30674471Cb6",
+      PocketRegistry: "0x6A375e5FE01809987507Ee8D793FF8455512D804",
+      PocketChef: "0x70f52112c00527F0357d55eD52C31181840508cB",
       Multicall3: "0x83Cb92492667a8334381c95A02007c8bF0811b89",
     };
 
@@ -320,7 +320,7 @@ describe("[avaxc]", function () {
     });
 
     await Time.increaseTo(
-      parseInt((new Date().getTime() / 1000 + 70000 + 100).toString()),
+      parseInt((new Date().getTime() / 1000 + 70000 + 1000).toString()),
     );
 
     await Chef.connect(signer).tryMakingDCASwap(data.id, 3000, 0);
